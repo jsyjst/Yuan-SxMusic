@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:layout_below="@+id/linear_function"
+    android:layout_marginTop="20dp"
+    android:background="@color/translucent"
+    android:orientation="vertical">
+
+    <com.example.musicplayer.widget.MyListView
+        android:id="@+id/expand_lv_song_list"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:divider="@color/seekColor"
+        android:dividerHeight="1dip">
+
+    </com.example.musicplayer.widget.MyListView>
+
+    <View
+        android:layout_width="match_parent"
+        android:layout_height="1dp"
+        android:layout_below="@+id/expand_lv_song_list"
+        android:background="@color/seekColor" />
+
+
+
+</RelativeLayout>

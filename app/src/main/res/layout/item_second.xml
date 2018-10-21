@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="80dp"
+    android:layout_marginTop="5dp"
+    >
+    <ImageView
+        android:id="@+id/iv_face"
+        android:layout_gravity="center_vertical"
+        android:layout_width="70dp"
+        android:layout_height="70dp"
+        android:src="@drawable/background"
+        android:scaleType="centerCrop"
+        android:layout_marginStart="10dp"/>
+
+    <LinearLayout
+        android:layout_gravity="center_vertical"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:layout_marginStart="10dp"
+        android:layout_marginTop="8dp"
+        >
+        <TextView
+            android:id="@+id/tv_song_list_name"
+            android:layout_marginTop="5dp"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/love"
+            android:textColor="@color/white"
+            />
+        <TextView
+            android:layout_marginTop="5dp"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="442首，113首已下载"
+            android:textColor="#4f9a9f"
+            android:layout_marginBottom="15dp"
+            />
+        <View
+            android:layout_width="match_parent"
+            android:layout_height="1dip"
+            android:background="@color/white_easy"/>
+    </LinearLayout>
+
+</LinearLayout>

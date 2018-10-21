@@ -28,15 +28,13 @@
                 <SeekBar
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:max="100"
-                    android:progress="50"
-                    android:id="@+id/load"/>
+                    android:id="@+id/sb_progress"/>
 
                 <TextView
                     android:id="@+id/tv_song_name"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:layout_below="@+id/load"
+                    android:layout_below="@+id/sb_progress"
                     android:ellipsize="end"
                     android:maxEms="10"
                     android:singleLine="true"
@@ -50,7 +48,7 @@
                     android:layout_height="wrap_content"
                     android:layout_below="@id/tv_song_name"
                     android:ellipsize="end"
-                    android:maxEms="12"
+                    android:maxEms="10"
                     android:singleLine="true"
                     android:textSize="12sp"
                     android:textColor="@color/white_easy"
@@ -64,7 +62,7 @@
                     android:layout_height="30dp"
                     android:layout_alignParentEnd="true"
                     android:layout_marginEnd="10dp"
-                    android:layout_below="@+id/load"
+                    android:layout_below="@+id/sb_progress"
                     android:layout_marginTop="8dp"
                     android:src="@drawable/song_next" />
 
@@ -72,7 +70,7 @@
                     android:id="@+id/btn_player"
                     android:layout_width="55dp"
                     android:layout_height="55dp"
-                    android:layout_below="@+id/load"
+                    android:layout_below="@+id/sb_progress"
                     android:layout_marginEnd="10dp"
                     android:layout_toLeftOf="@+id/song_next"
                     android:background="@drawable/selector_player" />

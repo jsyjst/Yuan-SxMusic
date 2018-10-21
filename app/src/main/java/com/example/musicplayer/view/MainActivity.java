@@ -40,13 +40,7 @@ public class MainActivity extends AppCompatActivity {
             mLinear.setVisibility(View.GONE);
         }
         playerBtn=findViewById(R.id.btn_player);
-        playerBtn.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                play=!play;
-                playerBtn.setSelected(play);
-            }
-        });
+
         addMainFragment();
     }
 

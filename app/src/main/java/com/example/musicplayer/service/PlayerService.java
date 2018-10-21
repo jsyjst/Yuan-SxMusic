@@ -4,9 +4,15 @@ import android.annotation.SuppressLint;
 import android.app.Service;
 import android.content.Intent;
 import android.media.MediaPlayer;
+import android.os.Binder;
+import android.os.Handler;
 import android.os.IBinder;
+import android.os.Message;
+import android.util.Log;
 
 import com.example.musicplayer.constant.PlayerStatus;
+import com.example.musicplayer.entiy.Song;
+import com.example.musicplayer.util.FileHelper;
 
 import static com.example.musicplayer.constant.PlayerStatus.PAUSE;
 import static com.example.musicplayer.constant.PlayerStatus.STOP;
@@ -14,17 +20,90 @@ import static com.example.musicplayer.constant.PlayerStatus.STOP;
 @SuppressLint("NewApi")
 public class PlayerService extends Service {
 
+    private PlayStatusBinder mPlayStatusBinder = new PlayStatusBinder();
     private MediaPlayer mediaPlayer = new MediaPlayer();        //媒体播放器对象
-    private String path;                        //音乐文件路径
     private boolean isPause;                    //暂停状态
+    private Song song;
+    private boolean isPlaying; //是否播放
+
 
     @Override
     public IBinder onBind(Intent arg0) {
-        return null;
+        return mPlayStatusBinder;
     }
 
+    public class PlayStatusBinder extends Binder {
+        /**
+         * 播放音乐
+         *
+         * @param
+         */
 
-    @Override
+        public void play() {
+            try {
+                song = FileHelper.getSong();
+                mediaPlayer.reset();//把各项参数恢复到初始状态
+                mediaPlayer.setDataSource(song.getUrl());
+                mediaPlayer.prepare();    //进行缓冲
+                isPlaying=true;
+                mediaPlayer.start();
+            } catch (Exception e) {
+                e.printStackTrace();
+
+            }
+        }
+
+        /**
+         * 暂停音乐
+         */
+
+        public void pause() {
+            if (mediaPlayer != null && mediaPlayer.isPlaying()) {
+                isPlaying=false;
+                mediaPlayer.pause();
+                isPause = true;
+            }
+        }
+
+        public  void resume(){
+            if(isPause){
+                mediaPlayer.start();
+                isPlaying=true;
+                isPause=false;
+            }
+        }
+
+
+        /**
+         * 停止音乐
+         */
+
+        public void stop() {
+            if (mediaPlayer != null) {
+                mediaPlayer.stop();
+                try {
+                    mediaPlayer.prepare(); // 在调用stop后如果需要再次通过start进行播放,需要之前调用prepare函数
+                } catch (Exception e) {
+                    e.printStackTrace();
+
+                }
+
+            }
+
+        }
+
+        public boolean isPlaying(){
+            if(mediaPlayer.getCurrentPosition()==mediaPlayer.getDuration()){
+                isPlaying=false;
+            }
+            return isPlaying;
+        }
+        public MediaPlayer getMediaPlayer(){
+            return mediaPlayer;
+        }
+    }
+
+    /*@Override
     public int onStartCommand(Intent intent, int flags, int startId) {
         if (mediaPlayer.isPlaying()) {
             stop();
@@ -40,55 +119,9 @@ public class PlayerService extends Service {
         }
         return super.onStartCommand(intent, flags, startId);
     }
+*/
 
 
-    /**
-     * 播放音乐
-     *
-     * @param position
-     */
-
-    private void play(int position) {
-        try {
-            mediaPlayer.reset();//把各项参数恢复到初始状态
-            mediaPlayer.setDataSource(path);
-            mediaPlayer.prepare();    //进行缓冲
-            mediaPlayer.setOnPreparedListener(new PreparedListener(position));//注册一个监听器
-        } catch (Exception e) {
-            e.printStackTrace();
-
-        }
-    }
-
-    /**
-     * 暂停音乐
-     */
-
-    private void pause() {
-        if (mediaPlayer != null && mediaPlayer.isPlaying()) {
-            mediaPlayer.pause();
-            isPause = true;
-        }
-    }
-
-
-    /**
-     * 停止音乐
-     */
-
-    private void stop() {
-        if (mediaPlayer != null) {
-            mediaPlayer.stop();
-            try {
-                mediaPlayer.prepare(); // 在调用stop后如果需要再次通过start进行播放,需要之前调用prepare函数
-            } catch (Exception e) {
-                e.printStackTrace();
-
-            }
-
-        }
-
-    }
     @Override
     public void onDestroy() {
         if (mediaPlayer != null) {

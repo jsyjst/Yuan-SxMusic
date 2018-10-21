@@ -113,14 +113,7 @@ public class SongAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
 
                     Log.d("jsysjt","------"+song.getArtist()+"/"+song.getTitle()+"/"+song.getDuration()+"/"+song.getSize());
                     FileHelper.saveSong(song);
-
-
                     equalPosition(position);
-                    Intent intent = new Intent();
-                    intent.putExtra("url", mp3Info.getUrl());
-                    intent.putExtra("MSG", PlayerStatus.PLAY);
-                    intent.setClass(mContext, PlayerService.class);
-                    mContext.startService(intent);        //启动服务
                     onItemClickListener.onSongClick();
 
 

@@ -15,6 +15,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
+import android.widget.LinearLayout;
 import android.widget.SeekBar;
 import android.widget.TextView;
 
@@ -32,6 +33,8 @@ import java.util.List;
 
 
 public class LocalMusicFragment extends Fragment implements ILocalMusicContract.View {
+    private static final String TAG = "LocalFragment";
+
     private MediaPlayer mMediaPlayer;
     private SeekBar mSeekBar;
     private boolean isChange; //拖动进度条
@@ -40,6 +43,7 @@ public class LocalMusicFragment extends Fragment implements ILocalMusicContract.
     private int time;   //记录暂停的时间
     private Thread mSeekBarThread;
     private Button mPlayerBtn;
+    private LinearLayout mPlayerLinear;
     private TextView mNextTv;
     private RecyclerView mRecycler;
     private List<Mp3Info> mMp3InfoList;
@@ -48,6 +52,7 @@ public class LocalMusicFragment extends Fragment implements ILocalMusicContract.
     private TextView mSongNameTv;
     private TextView mSinger;
     private Song mSong;
+    private int current;//记录播放歌曲的位置
     private SongAdapter songAdapter;
     //在onServiceConnected中获取PlayStatusBinder的实例，从而调用服务里面的方法
     private PlayerService.PlayStatusBinder mPlayStatusBinder;
@@ -74,7 +79,6 @@ public class LocalMusicFragment extends Fragment implements ILocalMusicContract.
                              Bundle savedInstanceState) {
         mView = inflater.inflate(R.layout.fragment_local_music, container, false);
         mRecycler = mView.findViewById(R.id.recycler_song_list);
-
         return mView;
     }
 
@@ -101,31 +105,12 @@ public class LocalMusicFragment extends Fragment implements ILocalMusicContract.
 
         //启动服务
         Intent playIntent = new Intent(getActivity(), PlayerService.class);
-        getActivity().startService(playIntent);
         getActivity().bindService(playIntent, connection, Context.BIND_AUTO_CREATE);
 
     }
 
     //按钮事件
     private void setOnClickListener() {
-
-        //
-        songAdapter.setOnItemClickListener(new SongAdapter.OnItemClickListener() {
-            @Override
-            public void onSongClick() {
-                mSong = FileHelper.getSong();
-                Log.d("jsyjsy", "----------------" + mSong.getTitle());
-                mSongNameTv.setText(mSong.getTitle());
-                mSinger.setText(mSong.getArtist());
-                mPlayStatusBinder.play();
-                mMediaPlayer = mPlayStatusBinder.getMediaPlayer();
-
-                mPlayerBtn.setSelected(true);
-                mSeekBar.setMax((int) mSong.getDuration());
-                mSeekBarThread = new Thread(new SeekBarThread());
-                mSeekBarThread.start();
-            }
-        });
 
         //进度条的监听事件
         mSeekBar.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
@@ -176,12 +161,31 @@ public class LocalMusicFragment extends Fragment implements ILocalMusicContract.
                     mSeekBarThread = new Thread(new SeekBarThread());
                     mSeekBarThread.start();
                 } else {
+                    mPlayStatusBinder.play((int) mSong.getCurrentTime());
+                    mPlayerBtn.setSelected(true);
                     mSeekBarThread = new Thread(new SeekBarThread());
                     mSeekBarThread.start();
                 }
             }
         });
+        //
+        songAdapter.setOnItemClickListener(new SongAdapter.OnItemClickListener() {
+            @Override
+            public void onSongClick(int position) {
+                mSong = FileHelper.getSong();
+                Log.d("jsyjsy", "----------------" + mSong.getTitle());
+                mSongNameTv.setText(mSong.getTitle());
+                mSinger.setText(mSong.getArtist());
+                mPlayStatusBinder.setCurrent(position);
+                mPlayStatusBinder.play(0);
+                mMediaPlayer = mPlayStatusBinder.getMediaPlayer();
 
+                mPlayerBtn.setSelected(true);
+                mSeekBar.setMax((int) mSong.getDuration());
+                mSeekBarThread = new Thread(new SeekBarThread());
+                mSeekBarThread.start();
+            }
+        });
     }
 
 
@@ -204,6 +208,19 @@ public class LocalMusicFragment extends Fragment implements ILocalMusicContract.
     public void onResume() {
         super.onResume();
 
+    }
+
+
+    @Override
+    public void onDetach() {
+        super.onDetach();
+        if (mMediaPlayer != null) {
+            Song song = FileHelper.getSong();
+            song.setCurrentTime(mMediaPlayer.getCurrentPosition());
+            Log.d(TAG, "onDetach: " + mMediaPlayer.getCurrentPosition());
+            FileHelper.saveSong(song);
+        }
+        getActivity().unbindService(connection);
     }
 
 

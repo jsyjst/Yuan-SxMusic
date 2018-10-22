@@ -23,7 +23,7 @@ import com.example.musicplayer.widget.MyListView;
  * A simple {@link Fragment} subclass.
  */
 public class MainFragment extends Fragment {
-
+    private static final String TAG = "MainFragment";
     private LinearLayout mFunctionLinear;
 
     private MyListView myListView;
@@ -79,17 +79,21 @@ public class MainFragment extends Fragment {
         FragmentTransaction transaction = fragmentManager.beginTransaction();
         if (mLocalMusicFragment == null) {
             mLocalMusicFragment = new LocalMusicFragment();
-            Log.d("jsyjst","-----------------null");
+            Log.d(TAG, "replaceFragment: ");
 
         }
-        //将事务提交到返回栈
-        transaction.addToBackStack(null);
+
         //进入和退出动画
         transaction.setCustomAnimations(R.anim.fragment_in, R.anim.fragment_out, R.anim.slide_in_right, R.anim.slide_out_right);
         transaction.hide(this);
-        transaction.add(R.id.fragment_container, mLocalMusicFragment);
+        if (!mLocalMusicFragment.isAdded()) {
+            transaction.add(R.id.fragment_container, mLocalMusicFragment);
+        }else{
+            transaction.show(mLocalMusicFragment);
+        }
 
-
+        //将事务提交到返回栈
+        transaction.addToBackStack(null);
         transaction.commit();
 
 

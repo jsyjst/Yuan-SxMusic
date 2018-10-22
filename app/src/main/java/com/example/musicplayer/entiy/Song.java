@@ -14,6 +14,7 @@ public class Song implements Serializable {
     private String title;
     private long size;
     private String url;
+    private long currentTime;
 
     public long getSize() {
         return size;
@@ -55,9 +56,17 @@ public class Song implements Serializable {
         this.url = url;
     }
 
+    public long getCurrentTime() {
+        return currentTime;
+    }
+
+    public void setCurrentTime(long currentTime) {
+        this.currentTime = currentTime;
+    }
+
     public String toString(){
         return
-                "artist="+artist+",title="+title+",url="+url+",duration="+duration+",size"+size;
+                "artist="+artist+",title="+title+",url="+url+",duration="+duration+",size"+size+",currentTime="+currentTime;
 
     }
 }

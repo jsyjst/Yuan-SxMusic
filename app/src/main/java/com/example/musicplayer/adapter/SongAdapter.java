@@ -113,8 +113,9 @@ public class SongAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
 
                     Log.d("jsysjt","------"+song.getArtist()+"/"+song.getTitle()+"/"+song.getDuration()+"/"+song.getSize());
                     FileHelper.saveSong(song);
+                    onItemClickListener.onSongClick(position);
                     equalPosition(position);
-                    onItemClickListener.onSongClick();
+
 
 
 
@@ -147,7 +148,7 @@ public class SongAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
 
 
     public interface OnItemClickListener{
-        void onSongClick();
+        void onSongClick(int position);
     }
 
 }

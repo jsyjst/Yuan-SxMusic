@@ -11,25 +11,54 @@ import android.os.Message;
 import android.util.Log;
 
 import com.example.musicplayer.constant.PlayerStatus;
+import com.example.musicplayer.entiy.Mp3Info;
 import com.example.musicplayer.entiy.Song;
 import com.example.musicplayer.util.FileHelper;
+import com.example.musicplayer.util.MediaUntil;
 
+import java.util.List;
+
+import static android.content.ContentValues.TAG;
 import static com.example.musicplayer.constant.PlayerStatus.PAUSE;
 import static com.example.musicplayer.constant.PlayerStatus.STOP;
 
 @SuppressLint("NewApi")
 public class PlayerService extends Service {
 
+    private static final String TAG="PlayerService";
     private PlayStatusBinder mPlayStatusBinder = new PlayStatusBinder();
     private MediaPlayer mediaPlayer = new MediaPlayer();        //媒体播放器对象
     private boolean isPause;                    //暂停状态
     private Song song;
     private boolean isPlaying; //是否播放
-
+    private List<Mp3Info> mMp3InfoList;
+    private int mCurrent;
 
     @Override
+    public void onCreate(){
+        mMp3InfoList= MediaUntil.getMp3Info();
+
+    }
+    @Override
     public IBinder onBind(Intent arg0) {
+        Log.d(TAG, "-------onBind: ");
+
+        mediaPlayer.setOnCompletionListener(new MediaPlayer.OnCompletionListener() {
+            @Override
+            public void onCompletion(MediaPlayer mp) {
+                mCurrent++;
+                if(mCurrent<=mMp3InfoList.size()){
+                    mPlayStatusBinder.play(0);
+                }
+            }
+        });
         return mPlayStatusBinder;
+    }
+
+    @Override
+    public void onRebind(Intent intent){
+        Log.d(TAG, "-------onRebind: ");
+
     }
 
     public class PlayStatusBinder extends Binder {
@@ -39,14 +68,16 @@ public class PlayerService extends Service {
          * @param
          */
 
-        public void play() {
+
+        public void play(int currentTime) {
             try {
+
                 song = FileHelper.getSong();
                 mediaPlayer.reset();//把各项参数恢复到初始状态
-                mediaPlayer.setDataSource(song.getUrl());
+                mediaPlayer.setDataSource(mMp3InfoList.get(mCurrent).getUrl());
                 mediaPlayer.prepare();    //进行缓冲
                 isPlaying=true;
-                mediaPlayer.start();
+                mediaPlayer.setOnPreparedListener(new PreparedListener(currentTime));
             } catch (Exception e) {
                 e.printStackTrace();
 
@@ -99,27 +130,15 @@ public class PlayerService extends Service {
             return isPlaying;
         }
         public MediaPlayer getMediaPlayer(){
+
             return mediaPlayer;
+        }
+        public void setCurrent(int current){
+            mCurrent=current;
         }
     }
 
-    /*@Override
-    public int onStartCommand(Intent intent, int flags, int startId) {
-        if (mediaPlayer.isPlaying()) {
-            stop();
-        }
-        path = intent.getStringExtra("url");
-        int msg = intent.getIntExtra("MSG", 0);
-        if (msg ==PlayerStatus.PLAY) {
-            play(0);
-        } else if (msg == PAUSE) {
-            pause();
-        } else if (msg ==STOP) {
-            stop();
-        }
-        return super.onStartCommand(intent, flags, startId);
-    }
-*/
+
 
 
     @Override
@@ -128,6 +147,12 @@ public class PlayerService extends Service {
             mediaPlayer.stop();
             mediaPlayer.release();
         }
+        Log.d(TAG, "----onDestroy:PlayerService ");
+    }
+    @Override
+    public boolean onUnbind(Intent intent){
+        Log.d(TAG, "-----onUnbind: ");
+         return true;
     }
 
     /**

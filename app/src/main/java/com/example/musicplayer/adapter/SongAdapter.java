@@ -12,6 +12,7 @@ import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.TextView;
 
+import com.example.musicplayer.constant.MyApplication;
 import com.example.musicplayer.entiy.Song;
 import com.example.musicplayer.service.PlayerService;
 import com.example.musicplayer.R;
@@ -102,6 +103,10 @@ public class SongAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
             holder.songNameTv.setText(mp3Info.getTitle());
             holder.artistTv.setText(mp3Info.getArtist());
             mLastPosition=FileHelper.getSong().getCurrent();
+            holder.songNameTv.setTextColor(MyApplication.getContext().getResources().
+                    getColor(position == mLastPosition ? R.color.musicStyle_low : R.color.white));
+            holder.artistTv.setTextColor(MyApplication.getContext().getResources().
+                    getColor(position == mLastPosition ? R.color.musicStyle_low : R.color.short_white));
             holder.playingIv.setVisibility(position == mLastPosition ? View.VISIBLE : View.GONE);
 //            holder.playingIv.setVisibility(position==FileHelper.getSong().getCurrent()?View.VISIBLE:View.GONE);
             holder.songView.setOnClickListener(new View.OnClickListener() {

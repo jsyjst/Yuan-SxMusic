@@ -59,6 +59,10 @@ public class LocalMusicFragment extends Fragment implements ILocalMusicContract.
     //在onServiceConnected中获取PlayStatusBinder的实例，从而调用服务里面的方法
     private PlayerService.PlayStatusBinder mPlayStatusBinder;
 
+    //注册广播
+    private IntentFilter intentFilter;
+    private SongChangeLocalMusicReceiver songChangeReceiver;
+
 
 
     private ServiceConnection connection = new ServiceConnection() {
@@ -91,8 +95,10 @@ public class LocalMusicFragment extends Fragment implements ILocalMusicContract.
     public void onActivityCreated(Bundle savedInstanceState) {
         super.onActivityCreated(savedInstanceState);
 
-
-
+        intentFilter=new IntentFilter();
+        intentFilter.addAction("android.song.change.local.song.list");
+        songChangeReceiver=new SongChangeLocalMusicReceiver();
+        getActivity().registerReceiver(songChangeReceiver,intentFilter);
         initView();
         setOnClickListener();
 
@@ -136,7 +142,7 @@ public class LocalMusicFragment extends Fragment implements ILocalMusicContract.
 
             @Override
             public void onStopTrackingTouch(SeekBar seekBar) {
-                if (mMediaPlayer.isPlaying()) {
+                if (mPlayStatusBinder.isPlaying()) {
                     mMediaPlayer.seekTo(seekBar.getProgress());
                 } else {
                     time = seekBar.getProgress();
@@ -169,7 +175,9 @@ public class LocalMusicFragment extends Fragment implements ILocalMusicContract.
                     mSeekBarThread = new Thread(new SeekBarThread());
                     mSeekBarThread.start();
                 } else {
-                    mPlayStatusBinder.play((int) mSong.getCurrentTime());
+                    mPlayStatusBinder.play(0);
+                    mMediaPlayer=mPlayStatusBinder.getMediaPlayer();
+                    mMediaPlayer.seekTo((int)FileHelper.getSong().getCurrentTime());
                     mPlayerBtn.setSelected(true);
                     mSeekBarThread = new Thread(new SeekBarThread());
                     mSeekBarThread.start();
@@ -232,11 +240,11 @@ public class LocalMusicFragment extends Fragment implements ILocalMusicContract.
         }
     }
 
-    class SongChangeReceiver extends BroadcastReceiver {
+    class SongChangeLocalMusicReceiver extends BroadcastReceiver {
 
         @Override
         public void onReceive(Context context, Intent intent) {
-            Log.d(TAG, "onReceive: songchange");
+            Log.d(TAG, "onReceive: songhange");
             songAdapter.notifyDataSetChanged();
         }
     }

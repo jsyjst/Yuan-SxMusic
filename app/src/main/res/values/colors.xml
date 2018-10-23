@@ -12,6 +12,7 @@
     <color name="translucent">#80010738</color>
     <color name="actionBarColor">#050e41</color>
     <color name="transparent">#00000000</color>
+    <color name="musicStyle_low">#2ad3df</color>
     <color name="player">#081038</color>
     <color name="white_easy">#bcb9b9</color>
 </resources>

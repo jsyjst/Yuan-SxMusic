@@ -37,13 +37,13 @@ public class PlayerService extends Service {
     }
     @Override
     public IBinder onBind(Intent arg0) {
-        Log.d(TAG, "-------onBind: ");
+
 
         mediaPlayer.setOnCompletionListener(new MediaPlayer.OnCompletionListener() {
             @Override
             public void onCompletion(MediaPlayer mp) {
                 mCurrent++;
-
+                Log.d(TAG, "-------onBind: 结束");
                 //将歌曲的信息保存起来
                 Song song=FileHelper.getSong();
                 song.setCurrent(mCurrent);
@@ -58,6 +58,13 @@ public class PlayerService extends Service {
                     mPlayStatusBinder.stop();
                 }
                 sendBroadcast(new Intent("android.song.change")); //发送广播改变播放栏的信息
+                sendBroadcast(new Intent("android.song.change.local.song.list"));//发送广播改变当地列表的显示
+            }
+        });
+        mediaPlayer.setOnErrorListener(new MediaPlayer.OnErrorListener() {
+            @Override
+            public boolean onError(MediaPlayer mp, int what, int extra) {
+                return true;
             }
         });
         return mPlayStatusBinder;
@@ -114,8 +121,8 @@ public class PlayerService extends Service {
         public void next(){
             mCurrent=FileHelper.getSong().getCurrent();
             mCurrent++;
-            if(mCurrent>mMp3InfoList.size()){
-                mCurrent=1;
+            if(mCurrent>=mMp3InfoList.size()){
+                mCurrent=0;
             }
 
             //将歌曲的信息保存起来
@@ -130,6 +137,7 @@ public class PlayerService extends Service {
 
 
             sendBroadcast(new Intent("android.song.change")); //发送广播改变播放栏的信息
+            sendBroadcast(new Intent("android.song.change.local.song.list"));//发送广播改变当地列表的显示
         }
 
         /**

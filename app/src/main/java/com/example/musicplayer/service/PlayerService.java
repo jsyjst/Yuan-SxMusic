@@ -3,24 +3,18 @@ package com.example.musicplayer.service;
 import android.annotation.SuppressLint;
 import android.app.Service;
 import android.content.Intent;
+import android.content.IntentFilter;
 import android.media.MediaPlayer;
 import android.os.Binder;
-import android.os.Handler;
 import android.os.IBinder;
-import android.os.Message;
 import android.util.Log;
 
-import com.example.musicplayer.constant.PlayerStatus;
 import com.example.musicplayer.entiy.Mp3Info;
 import com.example.musicplayer.entiy.Song;
 import com.example.musicplayer.util.FileHelper;
 import com.example.musicplayer.util.MediaUntil;
 
 import java.util.List;
-
-import static android.content.ContentValues.TAG;
-import static com.example.musicplayer.constant.PlayerStatus.PAUSE;
-import static com.example.musicplayer.constant.PlayerStatus.STOP;
 
 @SuppressLint("NewApi")
 public class PlayerService extends Service {
@@ -33,6 +27,8 @@ public class PlayerService extends Service {
     private boolean isPlaying; //是否播放
     private List<Mp3Info> mMp3InfoList;
     private int mCurrent;
+
+    private IntentFilter intentFilter;
 
     @Override
     public void onCreate(){
@@ -47,9 +43,21 @@ public class PlayerService extends Service {
             @Override
             public void onCompletion(MediaPlayer mp) {
                 mCurrent++;
+
+                //将歌曲的信息保存起来
+                Song song=FileHelper.getSong();
+                song.setCurrent(mCurrent);
+                song.setTitle(mMp3InfoList.get(mCurrent).getTitle());
+                song.setArtist(mMp3InfoList.get(mCurrent).getArtist());
+                song.setDuration(mMp3InfoList.get(mCurrent).getDuration());
+                song.setUrl(mMp3InfoList.get(mCurrent).getUrl());
+                FileHelper.saveSong(song);
                 if(mCurrent<=mMp3InfoList.size()){
                     mPlayStatusBinder.play(0);
+                }else{
+                    mPlayStatusBinder.stop();
                 }
+                sendBroadcast(new Intent("android.song.change")); //发送广播改变播放栏的信息
             }
         });
         return mPlayStatusBinder;
@@ -72,7 +80,7 @@ public class PlayerService extends Service {
         public void play(int currentTime) {
             try {
 
-                song = FileHelper.getSong();
+                mCurrent = FileHelper.getSong().getCurrent();
                 mediaPlayer.reset();//把各项参数恢复到初始状态
                 mediaPlayer.setDataSource(mMp3InfoList.get(mCurrent).getUrl());
                 mediaPlayer.prepare();    //进行缓冲
@@ -103,7 +111,26 @@ public class PlayerService extends Service {
                 isPause=false;
             }
         }
+        public void next(){
+            mCurrent=FileHelper.getSong().getCurrent();
+            mCurrent++;
+            if(mCurrent>mMp3InfoList.size()){
+                mCurrent=1;
+            }
 
+            //将歌曲的信息保存起来
+            Song song=FileHelper.getSong();
+            song.setCurrent(mCurrent);
+            song.setTitle(mMp3InfoList.get(mCurrent).getTitle());
+            song.setArtist(mMp3InfoList.get(mCurrent).getArtist());
+            song.setDuration(mMp3InfoList.get(mCurrent).getDuration());
+            song.setUrl(mMp3InfoList.get(mCurrent).getUrl());
+            FileHelper.saveSong(song);
+            mPlayStatusBinder.play(0);
+
+
+            sendBroadcast(new Intent("android.song.change")); //发送广播改变播放栏的信息
+        }
 
         /**
          * 停止音乐
@@ -133,8 +160,8 @@ public class PlayerService extends Service {
 
             return mediaPlayer;
         }
-        public void setCurrent(int current){
-            mCurrent=current;
+        public long getCurrentTime(){
+            return mediaPlayer.getCurrentPosition();
         }
     }
 

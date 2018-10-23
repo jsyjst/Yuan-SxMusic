@@ -1,9 +1,11 @@
 package com.example.musicplayer.view;
 
 
+import android.content.BroadcastReceiver;
 import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
+import android.content.IntentFilter;
 import android.content.ServiceConnection;
 import android.media.MediaPlayer;
 import android.os.IBinder;
@@ -14,6 +16,7 @@ import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
 import android.widget.Button;
+import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.SeekBar;
 import android.widget.TextView;
@@ -24,14 +27,14 @@ import com.example.musicplayer.service.PlayerService;
 import com.example.musicplayer.util.FileHelper;
 
 public class MainActivity extends AppCompatActivity {
-    private static final String TAG="MainActivity";
+    private static final String TAG = "MainActivity";
 
     private boolean isChange; //拖动进度条
     private boolean isSeek;//标记是否在暂停的时候拖动进度条
     private boolean flag; //用做暂停的标记
     private int time;   //记录暂停的时间
     private Button mPlayerBtn;
-
+    private ImageView mNextIv;
     private TextView mSongNameTv;
     private TextView mSingerTv;
     private Song mSong;
@@ -40,6 +43,9 @@ public class MainActivity extends AppCompatActivity {
     private SeekBar mSeekBar;
     private Thread mSeekBarThread;
     private PlayerService.PlayStatusBinder mPlayStatusBinder;
+    //注册广播
+    private IntentFilter intentFilter;
+    private SongChangeReceiver songChangeReceiver;
     private ServiceConnection connection = new ServiceConnection() {
         @Override
         public void onServiceConnected(ComponentName name, IBinder service) {
@@ -49,25 +55,32 @@ public class MainActivity extends AppCompatActivity {
         @Override
         public void onServiceDisconnected(ComponentName name) {
 
+
         }
     };
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+        intentFilter = new IntentFilter();
+        intentFilter.addAction("android.song.change");
+        songChangeReceiver = new SongChangeReceiver();
+        registerReceiver(songChangeReceiver, intentFilter);
         initView();
         onClick();
     }
-    private void initView(){
-        mSong= FileHelper.getSong();
-        mSongNameTv=findViewById(R.id.tv_song_name);
-        mSingerTv=findViewById(R.id.tv_singer);
-        mLinear=findViewById(R.id.linear_player);
+
+    private void initView() {
+        mSong = FileHelper.getSong();
+        mSongNameTv = findViewById(R.id.tv_song_name);
+        mSingerTv = findViewById(R.id.tv_singer);
+        mLinear = findViewById(R.id.linear_player);
         mSeekBar = findViewById(R.id.sb_progress);
+        mNextIv = findViewById(R.id.song_next);
 
 
-
-        if(mSong.getTitle()!=null){
+        if (mSong.getTitle() != null) {
             //启动服务
             Intent playIntent = new Intent(MainActivity.this, PlayerService.class);
             bindService(playIntent, connection, Context.BIND_AUTO_CREATE);
@@ -76,18 +89,18 @@ public class MainActivity extends AppCompatActivity {
             mLinear.setVisibility(View.VISIBLE);
             mSongNameTv.setText(mSong.getTitle());
             mSingerTv.setText(mSong.getArtist());
-            mSeekBar.setMax((int)mSong.getDuration());
-            mSeekBar.setProgress((int)mSong.getCurrentTime());
+            mSeekBar.setMax((int) mSong.getDuration());
+            mSeekBar.setProgress((int) mSong.getCurrentTime());
 
-        }else {
+        } else {
             mLinear.setVisibility(View.GONE);
         }
-        mPlayerBtn=findViewById(R.id.btn_player);
+        mPlayerBtn = findViewById(R.id.btn_player);
 
         addMainFragment();
     }
 
-    private void onClick(){
+    private void onClick() {
         //进度条的监听事件
         mSeekBar.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
             @Override
@@ -137,36 +150,54 @@ public class MainActivity extends AppCompatActivity {
                     mSeekBarThread = new Thread(new SeekBarThread());
                     mSeekBarThread.start();
                 } else {
-                    mMediaPlayer=mPlayStatusBinder.getMediaPlayer();
-                    mPlayStatusBinder.play((int)mSong.getCurrentTime());
+                    mMediaPlayer = mPlayStatusBinder.getMediaPlayer();
+                    mPlayStatusBinder.play(0);
+                    mMediaPlayer.seekTo((int) mSong.getCurrentTime());
                     mPlayerBtn.setSelected(true);
                     mSeekBarThread = new Thread(new SeekBarThread());
                     mSeekBarThread.start();
                 }
             }
         });
+        mNextIv.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                mPlayStatusBinder.next();
+                if (mPlayStatusBinder.isPlaying()) {
+                    mPlayerBtn.setSelected(true);
+                } else {
+                    mPlayerBtn.setSelected(false);
+                }
+            }
+        });
     }
 
-    private void addMainFragment(){
-        MainFragment mainFragment=new MainFragment();
-        FragmentManager fragmentManager=getSupportFragmentManager();
-        FragmentTransaction transaction=fragmentManager.beginTransaction();
-        transaction.addToBackStack(null);
-        transaction.add(R.id.fragment_container,mainFragment);
+    private void addMainFragment() {
+        MainFragment mainFragment = new MainFragment();
+        FragmentManager fragmentManager = getSupportFragmentManager();
+        FragmentTransaction transaction = fragmentManager.beginTransaction();
+        transaction.add(R.id.fragment_container, mainFragment);
         transaction.commit();
     }
+
     @Override
-    public void onDestroy(){
+    public void onDestroy() {
+        unbindService(connection);
+        unregisterReceiver(songChangeReceiver);
+        Song song = FileHelper.getSong();
+        song.setCurrentTime(mPlayStatusBinder.getCurrentTime());
+        Log.d(TAG, "onServiceDisconnected: " + song.getCurrentTime());
+        FileHelper.saveSong(song);
         super.onDestroy();
 
-        unbindService(connection);
-        Log.d(TAG, "-----onDestroy: ");
+
     }
+
     class SeekBarThread implements Runnable {
         @Override
         public void run() {
             while (!isChange && mPlayStatusBinder.isPlaying()) {
-                mSeekBar.setProgress(mMediaPlayer.getCurrentPosition());
+                mSeekBar.setProgress((int) mPlayStatusBinder.getCurrentTime());
                 try {
                     Thread.sleep(1000);
                 } catch (InterruptedException e) {
@@ -177,4 +208,16 @@ public class MainActivity extends AppCompatActivity {
     }
 
 
+    class SongChangeReceiver extends BroadcastReceiver {
+
+        @Override
+        public void onReceive(Context context, Intent intent) {
+            mSong = FileHelper.getSong();
+            mSongNameTv.setText(mSong.getTitle());
+            mSingerTv.setText(mSong.getArtist());
+            mSeekBar.setMax((int) mSong.getDuration());
+            mSeekBarThread = new Thread(new SeekBarThread());
+            mSeekBarThread.start();
+        }
+    }
 }

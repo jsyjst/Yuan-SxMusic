@@ -1,8 +1,10 @@
 package com.example.musicplayer.view;
 
+import android.content.BroadcastReceiver;
 import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
+import android.content.IntentFilter;
 import android.content.ServiceConnection;
 import android.media.MediaPlayer;
 import android.os.Bundle;
@@ -52,10 +54,13 @@ public class LocalMusicFragment extends Fragment implements ILocalMusicContract.
     private TextView mSongNameTv;
     private TextView mSinger;
     private Song mSong;
-    private int current;//记录播放歌曲的位置
+    private int mCurrent;//记录播放歌曲的位置
     private SongAdapter songAdapter;
     //在onServiceConnected中获取PlayStatusBinder的实例，从而调用服务里面的方法
     private PlayerService.PlayStatusBinder mPlayStatusBinder;
+
+
+
     private ServiceConnection connection = new ServiceConnection() {
         @Override
         public void onServiceConnected(ComponentName name, IBinder service) {
@@ -85,6 +90,9 @@ public class LocalMusicFragment extends Fragment implements ILocalMusicContract.
     @Override
     public void onActivityCreated(Bundle savedInstanceState) {
         super.onActivityCreated(savedInstanceState);
+
+
+
         initView();
         setOnClickListener();
 
@@ -171,12 +179,10 @@ public class LocalMusicFragment extends Fragment implements ILocalMusicContract.
         //
         songAdapter.setOnItemClickListener(new SongAdapter.OnItemClickListener() {
             @Override
-            public void onSongClick(int position) {
+            public void onSongClick() {
                 mSong = FileHelper.getSong();
-                Log.d("jsyjsy", "----------------" + mSong.getTitle());
                 mSongNameTv.setText(mSong.getTitle());
                 mSinger.setText(mSong.getArtist());
-                mPlayStatusBinder.setCurrent(position);
                 mPlayStatusBinder.play(0);
                 mMediaPlayer = mPlayStatusBinder.getMediaPlayer();
 
@@ -197,6 +203,8 @@ public class LocalMusicFragment extends Fragment implements ILocalMusicContract.
                 mMp3InfoList.addAll(mp3InfoList);
                 LinearLayoutManager layoutManager = new LinearLayoutManager(mView.getContext());
                 mRecycler.setLayoutManager(layoutManager);
+                //令recyclerView定位到当前播放的位置
+                layoutManager.scrollToPositionWithOffset(FileHelper.getSong().getCurrent()+1,mRecycler.getHeight());
                 songAdapter.notifyDataSetChanged();
                 mRecycler.setAdapter(songAdapter);
             }
@@ -209,20 +217,6 @@ public class LocalMusicFragment extends Fragment implements ILocalMusicContract.
         super.onResume();
 
     }
-
-
-    @Override
-    public void onDetach() {
-        super.onDetach();
-        if (mMediaPlayer != null) {
-            Song song = FileHelper.getSong();
-            song.setCurrentTime(mMediaPlayer.getCurrentPosition());
-            Log.d(TAG, "onDetach: " + mMediaPlayer.getCurrentPosition());
-            FileHelper.saveSong(song);
-        }
-        getActivity().unbindService(connection);
-    }
-
 
     class SeekBarThread implements Runnable {
         @Override
@@ -237,4 +231,14 @@ public class LocalMusicFragment extends Fragment implements ILocalMusicContract.
             }
         }
     }
+
+    class SongChangeReceiver extends BroadcastReceiver {
+
+        @Override
+        public void onReceive(Context context, Intent intent) {
+            Log.d(TAG, "onReceive: songchange");
+            songAdapter.notifyDataSetChanged();
+        }
+    }
+
 }

@@ -79,18 +79,11 @@ public class MainFragment extends Fragment {
         FragmentTransaction transaction = fragmentManager.beginTransaction();
         if (mLocalMusicFragment == null) {
             mLocalMusicFragment = new LocalMusicFragment();
-            Log.d(TAG, "replaceFragment: ");
-
         }
-
         //进入和退出动画
         transaction.setCustomAnimations(R.anim.fragment_in, R.anim.fragment_out, R.anim.slide_in_right, R.anim.slide_out_right);
         transaction.hide(this);
-        if (!mLocalMusicFragment.isAdded()) {
-            transaction.add(R.id.fragment_container, mLocalMusicFragment);
-        }else{
-            transaction.show(mLocalMusicFragment);
-        }
+        transaction.add(R.id.fragment_container, mLocalMusicFragment);
 
         //将事务提交到返回栈
         transaction.addToBackStack(null);

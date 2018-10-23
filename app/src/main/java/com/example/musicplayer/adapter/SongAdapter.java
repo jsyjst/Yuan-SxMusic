@@ -26,11 +26,13 @@ import java.util.List;
  */
 
 public class SongAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
+    private static final String TAG="jsyjst";
     private int footerViewType = 1;
     private int itemViewType = 0;
     private List<Mp3Info> mMp3InfoList;
     private Context mContext;
     private int mLastPosition = -1;
+    private int defaultPosition;
     private Song song=new Song();
     private OnItemClickListener onItemClickListener;
 
@@ -99,7 +101,9 @@ public class SongAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
 
             holder.songNameTv.setText(mp3Info.getTitle());
             holder.artistTv.setText(mp3Info.getArtist());
+            mLastPosition=FileHelper.getSong().getCurrent();
             holder.playingIv.setVisibility(position == mLastPosition ? View.VISIBLE : View.GONE);
+//            holder.playingIv.setVisibility(position==FileHelper.getSong().getCurrent()?View.VISIBLE:View.GONE);
             holder.songView.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
@@ -110,10 +114,13 @@ public class SongAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
                     song.setSize(mp3Info.getSize());
                     song.setTitle(mp3Info.getTitle());
                     song.setUrl(mp3Info.getUrl());
+                    song.setCurrent(position);
 
-                    Log.d("jsysjt","------"+song.getArtist()+"/"+song.getTitle()+"/"+song.getDuration()+"/"+song.getSize());
+                    Log.d(TAG, "onClick: "+position);
                     FileHelper.saveSong(song);
-                    onItemClickListener.onSongClick(position);
+                    onItemClickListener.onSongClick();
+
+                    defaultPosition=FileHelper.getSong().getCurrent();
                     equalPosition(position);
 
 
@@ -148,7 +155,7 @@ public class SongAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
 
 
     public interface OnItemClickListener{
-        void onSongClick(int position);
+        void onSongClick();
     }
 
 }

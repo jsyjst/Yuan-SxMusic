@@ -78,6 +78,7 @@
         </RelativeLayout>
 
         <de.hdodenhof.circleimageview.CircleImageView xmlns:circleimageview="http://schemas.android.com/apk/res-auto"
+            android:id="@+id/circle_img"
             android:layout_width="60dp"
             android:layout_height="60dp"
             android:layout_marginStart="10dp"

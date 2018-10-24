@@ -93,6 +93,7 @@ public class PlayerService extends Service {
                 mediaPlayer.prepare();    //进行缓冲
                 isPlaying=true;
                 mediaPlayer.setOnPreparedListener(new PreparedListener(currentTime));
+                sendBroadcast(new Intent("android.song.change"));
             } catch (Exception e) {
                 e.printStackTrace();
 
@@ -159,9 +160,7 @@ public class PlayerService extends Service {
         }
 
         public boolean isPlaying(){
-            if(mediaPlayer.getCurrentPosition()==mediaPlayer.getDuration()){
-                isPlaying=false;
-            }
+
             return isPlaying;
         }
         public MediaPlayer getMediaPlayer(){

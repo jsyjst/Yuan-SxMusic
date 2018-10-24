@@ -1,6 +1,8 @@
 package com.example.musicplayer.view;
 
 
+import android.animation.ObjectAnimator;
+import android.animation.ValueAnimator;
 import android.content.BroadcastReceiver;
 import android.content.ComponentName;
 import android.content.Context;
@@ -15,6 +17,9 @@ import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
+import android.view.animation.Animation;
+import android.view.animation.AnimationUtils;
+import android.view.animation.LinearInterpolator;
 import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
@@ -25,6 +30,8 @@ import com.example.musicplayer.R;
 import com.example.musicplayer.entiy.Song;
 import com.example.musicplayer.service.PlayerService;
 import com.example.musicplayer.util.FileHelper;
+
+import de.hdodenhof.circleimageview.CircleImageView;
 
 public class MainActivity extends AppCompatActivity {
     private static final String TAG = "MainActivity";
@@ -37,6 +44,8 @@ public class MainActivity extends AppCompatActivity {
     private ImageView mNextIv;
     private TextView mSongNameTv;
     private TextView mSingerTv;
+    private CircleImageView mCoverIv;//封面
+    private ObjectAnimator mCircleAnimator;//动画
     private Song mSong;
     private LinearLayout mLinear;
     private MediaPlayer mMediaPlayer;
@@ -78,6 +87,14 @@ public class MainActivity extends AppCompatActivity {
         mLinear = findViewById(R.id.linear_player);
         mSeekBar = findViewById(R.id.sb_progress);
         mNextIv = findViewById(R.id.song_next);
+        mCoverIv=findViewById(R.id.circle_img);
+        //设置属性动画
+        mCircleAnimator=ObjectAnimator.ofFloat(mCoverIv,"rotation",0.0f,360.0f);
+        mCircleAnimator.setDuration(30000);
+        mCircleAnimator.setInterpolator(new LinearInterpolator());
+        mCircleAnimator.setRepeatCount(-1);
+        mCircleAnimator.setRepeatMode(ValueAnimator.RESTART);
+
 
 
         if (mSong.getTitle() != null) {
@@ -117,7 +134,7 @@ public class MainActivity extends AppCompatActivity {
 
             @Override
             public void onStopTrackingTouch(SeekBar seekBar) {
-                if (mMediaPlayer.isPlaying()) {
+                if (mPlayStatusBinder.isPlaying()) {
                     mMediaPlayer.seekTo(seekBar.getProgress());
                 } else {
                     time = seekBar.getProgress();
@@ -132,11 +149,13 @@ public class MainActivity extends AppCompatActivity {
         mPlayerBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                mMediaPlayer = mPlayStatusBinder.getMediaPlayer();
                 if (mPlayStatusBinder.isPlaying()) {
                     time = mMediaPlayer.getCurrentPosition();
                     mPlayStatusBinder.pause();
                     flag = true;
                     mPlayerBtn.setSelected(false);
+                    mCircleAnimator.pause();
                 } else if (flag) {
                     mPlayStatusBinder.resume();
                     flag = false;
@@ -145,14 +164,14 @@ public class MainActivity extends AppCompatActivity {
                     } else {
                         isSeek = false;
                     }
-
+                    mCircleAnimator.resume();
                     mPlayerBtn.setSelected(true);
                     mSeekBarThread = new Thread(new SeekBarThread());
                     mSeekBarThread.start();
                 } else {
-                    mMediaPlayer = mPlayStatusBinder.getMediaPlayer();
                     mPlayStatusBinder.play(0);
                     mMediaPlayer.seekTo((int) mSong.getCurrentTime());
+                    mCircleAnimator.start();
                     mPlayerBtn.setSelected(true);
                     mSeekBarThread = new Thread(new SeekBarThread());
                     mSeekBarThread.start();
@@ -215,6 +234,8 @@ public class MainActivity extends AppCompatActivity {
             mSong = FileHelper.getSong();
             mSongNameTv.setText(mSong.getTitle());
             mSingerTv.setText(mSong.getArtist());
+            mPlayerBtn.setSelected(true);
+            mCircleAnimator.start();
             mSeekBar.setMax((int) mSong.getDuration());
             mSeekBarThread = new Thread(new SeekBarThread());
             mSeekBarThread.start();

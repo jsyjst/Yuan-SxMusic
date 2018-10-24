@@ -30,6 +30,7 @@ import com.example.musicplayer.R;
 import com.example.musicplayer.entiy.Song;
 import com.example.musicplayer.service.PlayerService;
 import com.example.musicplayer.util.FileHelper;
+import com.example.musicplayer.util.MediaUntil;
 
 import de.hdodenhof.circleimageview.CircleImageView;
 
@@ -235,6 +236,7 @@ public class MainActivity extends AppCompatActivity {
             mSongNameTv.setText(mSong.getTitle());
             mSingerTv.setText(mSong.getArtist());
             mPlayerBtn.setSelected(true);
+            mCoverIv.setImageBitmap(MediaUntil.getMusicBitemp(MainActivity.this,mSong.getId(),mSong.getAlbumId()));
             mCircleAnimator.start();
             mSeekBar.setMax((int) mSong.getDuration());
             mSeekBarThread = new Thread(new SeekBarThread());

@@ -124,7 +124,7 @@ public class LocalMusicFragment extends Fragment implements ILocalMusicContract.
 
 
     @Override
-    public void showMusicList(final ArrayList<Mp3Info> mp3InfoList) {
+    public void showMusicList(final List<Mp3Info> mp3InfoList) {
         getActivity().runOnUiThread(new Runnable() {
             @Override
             public void run() {

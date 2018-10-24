@@ -6,6 +6,7 @@ import com.example.musicplayer.entiy.Mp3Info;
 import com.example.musicplayer.model.LocalMusicModel;
 
 import java.util.ArrayList;
+import java.util.List;
 
 /**
  * Created by 残渊 on 2018/10/17.
@@ -20,7 +21,7 @@ public class LocalMusicPresenter extends BasePresenter<ILocalMusicContract.View>
 
 
     @Override
-    public void showMusicList(ArrayList<Mp3Info> mp3InfoList) {
+    public void showMusicList(List<Mp3Info> mp3InfoList) {
         if(isAttachView()){
             getMvpView().showMusicList(mp3InfoList);
         }

@@ -10,6 +10,16 @@ public class Mp3Info {
     private String title;
     private long size;
     private String url;
+    private long albumId;
+    private long id;
+
+    public void setId(long id) {
+        this.id = id;
+    }
+
+    public long getId() {
+        return id;
+    }
 
     public long getSize() {
         return size;
@@ -51,5 +61,11 @@ public class Mp3Info {
         this.url = url;
     }
 
+    public void setAlbumId(long albumId) {
+        this.albumId = albumId;
+    }
 
+    public long getAlbumId() {
+        return albumId;
+    }
 }

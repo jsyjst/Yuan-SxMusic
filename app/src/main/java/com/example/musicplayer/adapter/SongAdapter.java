@@ -27,7 +27,7 @@ import java.util.List;
  */
 
 public class SongAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
-    private static final String TAG="jsyjst";
+    private static final String TAG="SongAdapter";
     private int footerViewType = 1;
     private int itemViewType = 0;
     private List<Mp3Info> mMp3InfoList;
@@ -112,7 +112,7 @@ public class SongAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
             holder.songView.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
-
+                    Log.d(TAG, "onClick: "+mp3Info.getAlbumId()+"id="+mp3Info.getId());
                     //将点击的序列化到本地
                     song.setArtist(mp3Info.getArtist());
                     song.setDuration(mp3Info.getDuration());
@@ -120,8 +120,9 @@ public class SongAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
                     song.setTitle(mp3Info.getTitle());
                     song.setUrl(mp3Info.getUrl());
                     song.setCurrent(position);
+                    song.setAlbumId(mp3Info.getAlbumId());
+                    song.setId(mp3Info.getId());
 
-                    Log.d(TAG, "onClick: "+position);
                     FileHelper.saveSong(song);
                     onItemClickListener.onSongClick();
 

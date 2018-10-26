@@ -3,6 +3,7 @@ package com.example.musicplayer.view;
 
 import android.animation.ObjectAnimator;
 import android.animation.ValueAnimator;
+import android.app.ActivityOptions;
 import android.content.BroadcastReceiver;
 import android.content.ComponentName;
 import android.content.Context;
@@ -10,15 +11,13 @@ import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.ServiceConnection;
 import android.media.MediaPlayer;
+import android.os.Bundle;
 import android.os.IBinder;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentTransaction;
 import android.support.v7.app.AppCompatActivity;
-import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
-import android.view.animation.Animation;
-import android.view.animation.AnimationUtils;
 import android.view.animation.LinearInterpolator;
 import android.widget.Button;
 import android.widget.ImageView;
@@ -30,7 +29,7 @@ import com.example.musicplayer.R;
 import com.example.musicplayer.entiy.Song;
 import com.example.musicplayer.service.PlayerService;
 import com.example.musicplayer.util.FileHelper;
-import com.example.musicplayer.util.MediaUntil;
+import com.example.musicplayer.util.MediaUtil;
 
 import de.hdodenhof.circleimageview.CircleImageView;
 
@@ -190,6 +189,16 @@ public class MainActivity extends AppCompatActivity {
                 }
             }
         });
+
+        //点击播放栏，跳转到播放的主界面
+        mLinear.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent toPlayActivityIntent=new Intent(MainActivity.this,PlayActivity.class);
+                startActivity(toPlayActivityIntent,
+                        ActivityOptions.makeSceneTransitionAnimation(MainActivity.this).toBundle());
+            }
+        });
     }
 
     private void addMainFragment() {
@@ -236,7 +245,7 @@ public class MainActivity extends AppCompatActivity {
             mSongNameTv.setText(mSong.getTitle());
             mSingerTv.setText(mSong.getArtist());
             mPlayerBtn.setSelected(true);
-            mCoverIv.setImageBitmap(MediaUntil.getMusicBitemp(MainActivity.this,mSong.getId(),mSong.getAlbumId()));
+            mCoverIv.setImageBitmap(MediaUtil.getMusicBitmap(MainActivity.this,mSong.getId(),mSong.getAlbumId()));
             mCircleAnimator.start();
             mSeekBar.setMax((int) mSong.getDuration());
             mSeekBarThread = new Thread(new SeekBarThread());

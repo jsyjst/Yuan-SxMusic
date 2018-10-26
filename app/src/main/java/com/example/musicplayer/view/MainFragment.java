@@ -17,6 +17,7 @@ import android.widget.LinearLayout;
 
 import com.example.musicplayer.R;
 import com.example.musicplayer.adapter.ExpandableListViewAdapter;
+import com.example.musicplayer.util.CommonUtil;
 import com.example.musicplayer.widget.MyListView;
 
 /**
@@ -55,12 +56,7 @@ public class MainFragment extends Fragment {
     @Override
     public void onActivityCreated(Bundle savedInstanceState) {
         super.onActivityCreated(savedInstanceState);
-        if (Build.VERSION.SDK_INT >= 22) {
-            View decorView = getActivity().getWindow().getDecorView();
-            decorView.setSystemUiVisibility(View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN |
-                    View.SYSTEM_UI_FLAG_LAYOUT_STABLE);
-            getActivity().getWindow().setStatusBarColor(Color.TRANSPARENT);
-        }
+        CommonUtil.hideStatusBar(getActivity());
         mAdapter = new ExpandableListViewAdapter(getActivity(), mGroupStrings, mSongStrings);
         myListView.setAdapter(mAdapter);
 

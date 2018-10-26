@@ -1,42 +1,30 @@
 package com.example.musicplayer.view;
 
-import android.animation.ObjectAnimator;
-import android.animation.ValueAnimator;
 import android.content.BroadcastReceiver;
 import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.ServiceConnection;
-import android.media.MediaPlayer;
 import android.os.Bundle;
 import android.os.IBinder;
 import android.support.v4.app.Fragment;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.view.animation.LinearInterpolator;
-import android.widget.Button;
-import android.widget.LinearLayout;
-import android.widget.SeekBar;
-import android.widget.TextView;
 
 import com.example.musicplayer.R;
 import com.example.musicplayer.adapter.SongAdapter;
 import com.example.musicplayer.contract.ILocalMusicContract;
 import com.example.musicplayer.entiy.Mp3Info;
-import com.example.musicplayer.entiy.Song;
 import com.example.musicplayer.presenter.LocalMusicPresenter;
 import com.example.musicplayer.service.PlayerService;
 import com.example.musicplayer.util.FileHelper;
 
 import java.util.ArrayList;
 import java.util.List;
-
-import de.hdodenhof.circleimageview.CircleImageView;
 
 
 public class LocalMusicFragment extends Fragment implements ILocalMusicContract.View {

@@ -12,7 +12,7 @@ import android.util.Log;
 import com.example.musicplayer.entiy.Mp3Info;
 import com.example.musicplayer.entiy.Song;
 import com.example.musicplayer.util.FileHelper;
-import com.example.musicplayer.util.MediaUntil;
+import com.example.musicplayer.util.MediaUtil;
 
 import java.util.List;
 
@@ -32,7 +32,7 @@ public class PlayerService extends Service {
 
     @Override
     public void onCreate(){
-        mMp3InfoList= MediaUntil.getMp3Info();
+        mMp3InfoList= MediaUtil.getMp3Info();
 
     }
     @Override
@@ -51,6 +51,8 @@ public class PlayerService extends Service {
                 song.setArtist(mMp3InfoList.get(mCurrent).getArtist());
                 song.setDuration(mMp3InfoList.get(mCurrent).getDuration());
                 song.setUrl(mMp3InfoList.get(mCurrent).getUrl());
+                song.setId(mMp3InfoList.get(mCurrent).getId());
+                song.setAlbumId(mMp3InfoList.get(mCurrent).getAlbumId());
                 FileHelper.saveSong(song);
                 if(mCurrent<=mMp3InfoList.size()){
                     mPlayStatusBinder.play(0);
@@ -133,6 +135,8 @@ public class PlayerService extends Service {
             song.setArtist(mMp3InfoList.get(mCurrent).getArtist());
             song.setDuration(mMp3InfoList.get(mCurrent).getDuration());
             song.setUrl(mMp3InfoList.get(mCurrent).getUrl());
+            song.setId(mMp3InfoList.get(mCurrent).getId());
+            song.setAlbumId(mMp3InfoList.get(mCurrent).getAlbumId());
             FileHelper.saveSong(song);
             mPlayStatusBinder.play(0);
 

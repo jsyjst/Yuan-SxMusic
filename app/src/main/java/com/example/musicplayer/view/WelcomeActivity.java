@@ -16,6 +16,7 @@ import android.widget.Toast;
 
 import com.example.musicplayer.R;
 import com.example.musicplayer.adapter.SongAdapter;
+import com.example.musicplayer.util.CommonUtil;
 
 public class WelcomeActivity extends AppCompatActivity {
 
@@ -23,12 +24,7 @@ public class WelcomeActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        if(Build.VERSION.SDK_INT>=22){
-            View decorView=getWindow().getDecorView();
-            decorView.setSystemUiVisibility(View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN|
-                    View.SYSTEM_UI_FLAG_LAYOUT_STABLE);
-            getWindow().setStatusBarColor(Color.TRANSPARENT);
-        }
+        CommonUtil.hideStatusBar(this);
         setContentView(R.layout.activity_welcome);
 
         //申请权限

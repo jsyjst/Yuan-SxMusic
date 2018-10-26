@@ -1,18 +1,11 @@
 package com.example.musicplayer.model;
 
-import android.database.Cursor;
-import android.provider.MediaStore;
-
-import com.example.musicplayer.constant.MyApplication;
 import com.example.musicplayer.contract.ILocalMusicContract;
 import com.example.musicplayer.entiy.Mp3Info;
-import com.example.musicplayer.util.MediaUntil;
+import com.example.musicplayer.util.MediaUtil;
 
 import java.util.ArrayList;
 import java.util.List;
-
-import io.reactivex.Observable;
-import io.reactivex.ObservableOnSubscribe;
 
 /**
  * Created by 残渊 on 2018/10/17.
@@ -32,7 +25,7 @@ public class LocalMusicModel implements ILocalMusicContract.Model {
         new Thread(new Runnable() {
             @Override
             public void run() {
-                mMp3InfoList= MediaUntil.getMp3Info();
+                mMp3InfoList= MediaUtil.getMp3Info();
                 mPresenter.showMusicList(mMp3InfoList);
 
             }

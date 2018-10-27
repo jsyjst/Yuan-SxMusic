@@ -10,6 +10,7 @@ public interface IPlayContract {
     }
     interface View{
         String getSingerName(); //得到歌手的姓名
+        void getSingerAndLrc();//按钮点击事件，获取封面和歌词
         void setSingerImg(String ImgUrl); //将图片设置成背景
         void setImgFail(String errorMessage);
     }

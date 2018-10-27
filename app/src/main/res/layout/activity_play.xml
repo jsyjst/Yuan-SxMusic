@@ -1,56 +1,79 @@
 <?xml version="1.0" encoding="utf-8"?>
-<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    android:id="@+id/relative_play"
+<com.example.musicplayer.widget.BackgroundAnimationRelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/relative_root"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@drawable/background"
+    android:background="@drawable/welcome"
     android:fitsSystemWindows="true"
     android:orientation="vertical">
 
     <RelativeLayout
         android:id="@+id/relative_song"
         android:layout_width="match_parent"
-        android:layout_height="?android:attr/actionBarSize">
+        android:layout_height="wrap_content">
 
         <ImageView
             android:id="@+id/iv_back"
             android:layout_width="30dp"
             android:layout_height="30dp"
+            android:layout_marginStart="10dp"
             android:layout_centerVertical="true"
             android:src="@drawable/back" />
 
-        <TextView
-            android:layout_width="wrap_content"
+        <LinearLayout
+            android:layout_centerVertical="true"
+            android:layout_toRightOf="@+id/iv_back"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_centerInParent="true"
-            android:layout_marginStart="5dp"
-            android:text="青茫"
-            android:textColor="@color/white"
-            android:textSize="18sp" />
+            android:orientation="vertical"
+            android:layout_marginBottom="5dp"
+            android:layout_marginTop="5dp"
+            android:layout_marginStart="10dp">
+
+            <TextView
+                android:id="@+id/tv_song"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="青茫"
+                android:textColor="@color/white"
+                android:textSize="18sp" />
+
+            <TextView
+                android:id="@+id/tv_singer"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="5dp"
+                android:text="白敬亭、李宏毅、丁冠森、赵文龙"
+                android:textColor="@color/white_easy" />
+        </LinearLayout>
     </RelativeLayout>
 
-    <TextView
-        android:id="@+id/tv_artist"
+
+    <View
+        android:layout_width="match_parent"
+        android:layout_height="0.5dp"
+        android:layout_below="@+id/relative_song"
+        android:background="#33ffffff" />
+
+    <include
+        android:id="@+id/disc_view"
+        layout="@layout/layout_discview"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_below="@+id/relative_song"
-        android:gravity="center"
-        android:text="白敬亭、李宏毅、丁冠森、赵文龙"
-        android:textColor="@color/white" />
+        android:layout_above="@+id/rlMusicTime"
+        android:layout_below="@+id/relative_song" />
 
-    <LinearLayout
-        android:id="@+id/linear"
-        android:layout_width="match_parent"
-        android:layout_height="350dp"
-        android:layout_below="@+id/tv_artist">
+    <Button
+        android:id="@+id/btn_get_img_lrc"
+        android:layout_width="120dp"
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/disc_view"
+        android:layout_centerHorizontal="true"
+        android:layout_marginTop="30dp"
+        android:textColor="@color/white"
+        android:background="@drawable/button_bg"
+        android:text="获取封面歌词"/>
 
-        <View
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"
-
-            />
-
-    </LinearLayout>
 
     <RelativeLayout
         android:id="@+id/relative_music_time"
@@ -72,17 +95,16 @@
             android:textColor="@color/white" />
 
         <SeekBar
-            android:id="@+id/musicSeekBar"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
+            android:id="@+id/seek"
+            style="@style/neteasa_music_time_seek_bar_sytle"
             android:layout_centerInParent="true"
             android:layout_toEndOf="@id/tv_current_time"
-            android:layout_toStartOf="@+id/tvTotalTime"
+            android:layout_toStartOf="@+id/tv_duration_time"
             android:paddingEnd="15dp"
             android:paddingStart="15dp" />
 
         <TextView
-            android:id="@+id/tvTotalTime"
+            android:id="@+id/tv_duration_time"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_alignParentEnd="true"
@@ -96,13 +118,14 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_alignParentBottom="true"
-        android:layout_marginBottom="40dp">
+        android:layout_marginBottom="10dp">
+
         <Button
             android:layout_width="30dp"
             android:layout_height="30dp"
-            android:background="@drawable/playstatus_order"
             android:layout_centerVertical="true"
-            android:layout_marginStart="20dp"/>
+            android:layout_marginStart="20dp"
+            android:background="@drawable/playstatus_order" />
 
 
         <LinearLayout
@@ -116,24 +139,24 @@
 
             <Button
                 android:id="@+id/btn_last"
-                android:layout_width="40dp"
-                android:layout_height="40dp"
+                android:layout_width="60dp"
+                android:layout_height="60dp"
                 android:background="@drawable/activity_play_last" />
 
             <Button
                 android:id="@+id/btn_player"
-                android:layout_width="70dp"
-                android:layout_height="70dp"
-                android:layout_marginEnd="20dp"
-                android:layout_marginStart="20dp"
+                android:layout_width="90dp"
+                android:layout_height="90dp"
+                android:layout_marginEnd="10dp"
+                android:layout_marginStart="10dp"
                 android:background="@drawable/selector_activity_play" />
 
             <Button
                 android:id="@+id/next"
-                android:layout_width="40dp"
-                android:layout_height="40dp"
+                android:layout_width="60dp"
+                android:layout_height="60dp"
                 android:background="@drawable/activity_play_next" />
         </LinearLayout>
     </RelativeLayout>
 
-</RelativeLayout>
+</com.example.musicplayer.widget.BackgroundAnimationRelativeLayout>

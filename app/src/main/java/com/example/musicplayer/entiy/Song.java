@@ -91,6 +91,8 @@ public class Song implements Serializable {
         this.albumId = albumId;
     }
 
+
+
     public String toString(){
         return "artist="+artist+",title="+title+",url="+url+",duration="+duration+
                 ",size"+size+",currentTime="+currentTime+",current="+current+",albumId="+albumId;

@@ -147,6 +147,14 @@ public class MediaUtil {
         }
         return min + ":" + sec.trim().substring(0, 2);
     }
+    public static String formatSinger(String singer){
+        if(singer.contains("/")){
+            String []s=singer.split("/");
+            singer=s[0];
+        }
+
+        return singer.trim();
+    }
 
 
 }

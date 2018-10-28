@@ -26,6 +26,7 @@ import android.widget.SeekBar;
 import android.widget.TextView;
 
 import com.example.musicplayer.R;
+import com.example.musicplayer.constant.PlayerStatus;
 import com.example.musicplayer.entiy.Song;
 import com.example.musicplayer.service.PlayerService;
 import com.example.musicplayer.util.FileHelper;
@@ -35,6 +36,7 @@ import de.hdodenhof.circleimageview.CircleImageView;
 
 public class MainActivity extends AppCompatActivity {
     private static final String TAG = "MainActivity";
+
 
     private boolean isChange; //拖动进度条
     private boolean isSeek;//标记是否在暂停的时候拖动进度条
@@ -74,6 +76,7 @@ public class MainActivity extends AppCompatActivity {
         setContentView(R.layout.activity_main);
         intentFilter = new IntentFilter();
         intentFilter.addAction("android.song.change");
+        intentFilter.addAction("SONG_PAUSE");
         songChangeReceiver = new SongChangeReceiver();
         registerReceiver(songChangeReceiver, intentFilter);
         initView();
@@ -87,14 +90,13 @@ public class MainActivity extends AppCompatActivity {
         mLinear = findViewById(R.id.linear_player);
         mSeekBar = findViewById(R.id.sb_progress);
         mNextIv = findViewById(R.id.song_next);
-        mCoverIv=findViewById(R.id.circle_img);
+        mCoverIv = findViewById(R.id.circle_img);
         //设置属性动画
-        mCircleAnimator=ObjectAnimator.ofFloat(mCoverIv,"rotation",0.0f,360.0f);
+        mCircleAnimator = ObjectAnimator.ofFloat(mCoverIv, "rotation", 0.0f, 360.0f);
         mCircleAnimator.setDuration(30000);
         mCircleAnimator.setInterpolator(new LinearInterpolator());
         mCircleAnimator.setRepeatCount(-1);
         mCircleAnimator.setRepeatMode(ValueAnimator.RESTART);
-
 
 
         if (mSong.getTitle() != null) {
@@ -108,6 +110,7 @@ public class MainActivity extends AppCompatActivity {
             mSingerTv.setText(mSong.getArtist());
             mSeekBar.setMax((int) mSong.getDuration());
             mSeekBar.setProgress((int) mSong.getCurrentTime());
+            FileHelper.setSingerImg(MainActivity.this,mSong.getArtist(),mCoverIv);
 
         } else {
             mLinear.setVisibility(View.GONE);
@@ -194,7 +197,14 @@ public class MainActivity extends AppCompatActivity {
         mLinear.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                Intent toPlayActivityIntent=new Intent(MainActivity.this,PlayActivity.class);
+                Intent toPlayActivityIntent = new Intent(MainActivity.this, PlayActivity.class);
+
+                if (mPlayStatusBinder.isPlaying()) {
+                    Song song=FileHelper.getSong();
+                    song.setCurrentTime(mPlayStatusBinder.getCurrentTime());
+                    FileHelper.saveSong(song);
+                    toPlayActivityIntent.putExtra(PlayerStatus.PLAYER_STATUS, PlayerStatus.PLAY);
+                }
                 startActivity(toPlayActivityIntent,
                         ActivityOptions.makeSceneTransitionAnimation(MainActivity.this).toBundle());
             }
@@ -241,15 +251,23 @@ public class MainActivity extends AppCompatActivity {
 
         @Override
         public void onReceive(Context context, Intent intent) {
+            String action = intent.getAction();
+
             mSong = FileHelper.getSong();
             mSongNameTv.setText(mSong.getTitle());
             mSingerTv.setText(mSong.getArtist());
-            mPlayerBtn.setSelected(true);
-            mCoverIv.setImageBitmap(MediaUtil.getMusicBitmap(MainActivity.this,mSong.getId(),mSong.getAlbumId()));
-            mCircleAnimator.start();
+            FileHelper.setSingerImg(MainActivity.this,mSong.getArtist(),mCoverIv);
+
             mSeekBar.setMax((int) mSong.getDuration());
-            mSeekBarThread = new Thread(new SeekBarThread());
-            mSeekBarThread.start();
+            if(action.equals("SONG_PAUSE")){
+                mPlayerBtn.setSelected(false);
+                mCircleAnimator.pause();
+            }else{
+                mPlayerBtn.setSelected(true);
+                mCircleAnimator.start();
+                mSeekBarThread = new Thread(new SeekBarThread());
+                mSeekBarThread.start();
+            }
         }
     }
 }

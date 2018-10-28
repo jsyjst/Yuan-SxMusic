@@ -111,6 +111,7 @@ public class PlayerService extends Service {
                 isPlaying=false;
                 mediaPlayer.pause();
                 isPause = true;
+                sendBroadcast(new Intent("SONG_PAUSE"));//发送暂停的广播给主活动
             }
         }
 
@@ -144,6 +145,29 @@ public class PlayerService extends Service {
             sendBroadcast(new Intent("android.song.change")); //发送广播改变播放栏的信息
             sendBroadcast(new Intent("android.song.change.local.song.list"));//发送广播改变当地列表的显示
         }
+        public  void last(){
+            mCurrent=FileHelper.getSong().getCurrent();
+            mCurrent--;
+            if(mCurrent==-1){
+                mCurrent=mMp3InfoList.size()-1;
+            }
+
+            //将歌曲的信息保存起来
+            Song song=FileHelper.getSong();
+            song.setCurrent(mCurrent);
+            song.setTitle(mMp3InfoList.get(mCurrent).getTitle());
+            song.setArtist(mMp3InfoList.get(mCurrent).getArtist());
+            song.setDuration(mMp3InfoList.get(mCurrent).getDuration());
+            song.setUrl(mMp3InfoList.get(mCurrent).getUrl());
+            song.setId(mMp3InfoList.get(mCurrent).getId());
+            song.setAlbumId(mMp3InfoList.get(mCurrent).getAlbumId());
+            FileHelper.saveSong(song);
+            mPlayStatusBinder.play(0);
+
+
+            sendBroadcast(new Intent("android.song.change")); //发送广播改变播放栏的信息
+            sendBroadcast(new Intent("android.song.change.local.song.list"));//发送广播改变当地列表的显示
+        }
 
         /**
          * 停止音乐
@@ -158,6 +182,7 @@ public class PlayerService extends Service {
                     e.printStackTrace();
 
                 }
+
 
             }
 

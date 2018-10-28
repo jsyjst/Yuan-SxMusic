@@ -8,11 +8,13 @@ import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.ServiceConnection;
 import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.graphics.Color;
 import android.graphics.PorterDuff;
 import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.Drawable;
 import android.media.MediaPlayer;
+import android.os.Environment;
 import android.os.Handler;
 import android.os.IBinder;
 import android.os.Message;
@@ -27,13 +29,18 @@ import android.widget.SeekBar;
 import android.widget.TextView;
 
 import com.bumptech.glide.Glide;
+import com.bumptech.glide.load.DataSource;
+import com.bumptech.glide.load.engine.GlideException;
+import com.bumptech.glide.request.RequestListener;
 import com.bumptech.glide.request.RequestOptions;
 import com.bumptech.glide.request.target.SimpleTarget;
 import com.bumptech.glide.request.target.Target;
 import com.bumptech.glide.request.transition.Transition;
 import com.example.musicplayer.R;
 import com.example.musicplayer.base.BaseActivity;
+import com.example.musicplayer.constant.PlayerStatus;
 import com.example.musicplayer.contract.IPlayContract;
+import com.example.musicplayer.entiy.Mp3Info;
 import com.example.musicplayer.entiy.Song;
 import com.example.musicplayer.presenter.PlayPresenter;
 import com.example.musicplayer.service.PlayerService;
@@ -45,10 +52,14 @@ import com.example.musicplayer.util.MediaUtil;
 import com.example.musicplayer.widget.BackgroundAnimationRelativeLayout;
 import com.example.musicplayer.widget.DiscView;
 
+import java.io.FileNotFoundException;
+import java.util.ArrayList;
+import java.util.List;
+
 /**
  * 播放界面
  */
-public class PlayActivity extends BaseActivity implements IPlayContract.View, DiscView.IPlayInfo {
+public class PlayActivity extends BaseActivity implements IPlayContract.View {
 
     private String TAG = "PlayActivity";
 
@@ -73,12 +84,12 @@ public class PlayActivity extends BaseActivity implements IPlayContract.View, Di
     private TextView mDurationTimeTv;
 
 
-
     private DiscView mDisc; //唱碟
     private ImageView mDiscImg; //唱碟中的歌手头像
     private Bitmap mImgBmp;
     private Button mGetImgAndLrcBtn;//获取封面和歌词
     private BackgroundAnimationRelativeLayout mRootLayout;
+    private List<Mp3Info> mMp3InfoList;//用来判断是否有本地照片
 
     //服务
     private Thread mSeekBarThread;
@@ -97,7 +108,7 @@ public class PlayActivity extends BaseActivity implements IPlayContract.View, Di
 
         }
     };
-    private Handler mMusicHandler = new Handler(){
+    private Handler mMusicHandler = new Handler() {
         @Override
         public void handleMessage(Message msg) {
             super.handleMessage(msg);
@@ -128,7 +139,6 @@ public class PlayActivity extends BaseActivity implements IPlayContract.View, Di
         registerReceiver(songChangeReceiver, mIntentFilter);
 
 
-
         mRootLayout = findViewById(R.id.relative_root);
         mSongTv = findViewById(R.id.tv_song);
         mSingerTv = findViewById(R.id.tv_singer);
@@ -137,13 +147,12 @@ public class PlayActivity extends BaseActivity implements IPlayContract.View, Di
         mNextBtn = findViewById(R.id.next);
         mGetImgAndLrcBtn = findViewById(R.id.btn_get_img_lrc);
 
-        mSeekBar=findViewById(R.id.seek);
-        mDurationTimeTv=findViewById(R.id.tv_duration_time);
-        mCurrentTimeTv=findViewById(R.id.tv_current_time);
+        mSeekBar = findViewById(R.id.seek);
+        mDurationTimeTv = findViewById(R.id.tv_duration_time);
+        mCurrentTimeTv = findViewById(R.id.tv_current_time);
 
 
         mDisc = findViewById(R.id.disc_view);
-        mDisc.setPlayInfoListener(this);
         mDiscImg = findViewById(R.id.iv_disc_background);
 
 
@@ -151,13 +160,22 @@ public class PlayActivity extends BaseActivity implements IPlayContract.View, Di
         Intent playIntent = new Intent(PlayActivity.this, PlayerService.class);
         bindService(playIntent, connection, Context.BIND_AUTO_CREATE);
 
-        mSong=FileHelper.getSong();
+        mSong = FileHelper.getSong();
+        mMp3InfoList = MediaUtil.getMp3Info();
         mSingerTv.setText(mSong.getArtist());
         mSongTv.setText(mSong.getTitle());
-        mCurrentTimeTv.setText(MediaUtil.formatTime(0));
+        mCurrentTimeTv.setText(MediaUtil.formatTime(mSong.getCurrentTime()));
         mDurationTimeTv.setText(MediaUtil.formatTime(mSong.getDuration()));
-        mSeekBar.setMax((int)mSong.getDuration());
+        mSeekBar.setMax((int) mSong.getDuration());
         mSeekBar.setProgress((int) mSong.getCurrentTime());
+        setLocalImg(mSong.getArtist());
+
+        if (getIntent().getIntExtra(PlayerStatus.PLAYER_STATUS, 2) == 1) {
+            mDisc.play();
+            mPlayBtn.setSelected(true);
+            startUpdateSeekBarProgress();
+        }
+
 
     }
 
@@ -284,6 +302,15 @@ public class PlayActivity extends BaseActivity implements IPlayContract.View, Di
                 } else {
                     mPlayBtn.setSelected(false);
                 }
+                mDisc.next();
+            }
+        });
+        mLastBtn.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                mPlayStatusBinder.last();
+                mPlayBtn.setSelected(true);
+                mDisc.last();
             }
         });
     }
@@ -291,10 +318,10 @@ public class PlayActivity extends BaseActivity implements IPlayContract.View, Di
     @Override
     public String getSingerName() {
         Song song = FileHelper.getSong();
-        if(song.getArtist().contains("/")){
-            String[] s=song.getArtist().split("/");
+        if (song.getArtist().contains("/")) {
+            String[] s = song.getArtist().split("/");
             return s[0].trim();
-        }else{
+        } else {
             return song.getArtist().trim();
         }
 
@@ -313,11 +340,14 @@ public class PlayActivity extends BaseActivity implements IPlayContract.View, Di
             @Override
             public void onResourceReady(@Nullable Drawable resource, Transition<? super Drawable> transition) {
 
-                Bitmap bitmap = ((BitmapDrawable) resource).getBitmap();
-                mImgBmp = bitmap;
+                mImgBmp = ((BitmapDrawable) resource).getBitmap();
+                //保存图片到本地
+                FileHelper.saveImgToNative(PlayActivity.this, mImgBmp, getSingerName());
+                Song song = FileHelper.getSong();
+                mMp3InfoList.get(song.getCurrent()).setImgSave(true);
                 try2UpdateMusicPicBackground(mImgBmp);
                 setDiscImg(mImgBmp);
-                CommonUtil.showToast(PlayActivity.this,"获取封面歌词成功");
+                CommonUtil.showToast(PlayActivity.this, "获取封面歌词成功");
                 mGetImgAndLrcBtn.setVisibility(View.GONE);
             }
         };
@@ -334,32 +364,6 @@ public class PlayActivity extends BaseActivity implements IPlayContract.View, Di
         CommonUtil.showToast(this, errorMessage);
     }
 
-
-    @Override
-    public void onMusicChanged(DiscView.MusicChangedStatus musicChangedStatus) {
-        switch (musicChangedStatus) {
-            case PLAY: {
-                //play();
-                break;
-            }
-            case PAUSE: {
-                // pause();
-                break;
-            }
-            case NEXT: {
-                //  next();
-                break;
-            }
-            case LAST: {
-                //   last();
-                break;
-            }
-            case STOP: {
-                //  stop();
-                break;
-            }
-        }
-    }
 
     //设置唱碟中歌手头像
     private void setDiscImg(Bitmap bitmap) {
@@ -380,32 +384,65 @@ public class PlayActivity extends BaseActivity implements IPlayContract.View, Di
             Song mSong = FileHelper.getSong();
             mSongTv.setText(mSong.getTitle());
             mSingerTv.setText(mSong.getArtist());
+            mDurationTimeTv.setText(MediaUtil.formatTime(mSong.getDuration()));
             mPlayBtn.setSelected(true);
+            setLocalImg(mSong.getArtist());//显示照片
             mSeekBar.setMax((int) mSong.getDuration());
             startUpdateSeekBarProgress();
 
         }
     }
-   private class SeekBarThread implements Runnable {
-        @Override
-        public void run() {
-            while (!isChange && mPlayStatusBinder.isPlaying()) {
-                mSeekBar.setProgress((int) mPlayStatusBinder.getCurrentTime());
-                try {
-                    Thread.sleep(1000);
-                } catch (InterruptedException e) {
-                    e.printStackTrace();
-                }
-            }
-        }
-    }
+
     private void startUpdateSeekBarProgress() {
         /*避免重复发送Message*/
         stopUpdateSeekBarProgress();
-        mMusicHandler.sendEmptyMessageDelayed(0,1000);
+        mMusicHandler.sendEmptyMessageDelayed(0, 1000);
     }
+
     private void stopUpdateSeekBarProgress() {
         mMusicHandler.removeMessages(0);
+    }
+
+    private void setLocalImg(String singer) {
+
+        String imgUrl = Environment.getExternalStorageDirectory() + "/yuanmusic/img/"
+                + MediaUtil.formatSinger(singer) + ".jpg";
+        SimpleTarget target = new SimpleTarget<Drawable>(Target.SIZE_ORIGINAL, Target.SIZE_ORIGINAL) {
+            @Override
+            public void onResourceReady(@Nullable Drawable resource, Transition<? super Drawable> transition) {
+                mGetImgAndLrcBtn.setVisibility(View.GONE);
+                mImgBmp = ((BitmapDrawable) resource).getBitmap();
+                try2UpdateMusicPicBackground(mImgBmp);
+                setDiscImg(mImgBmp);
+            }
+        };
+            Glide.with(this)
+                    .load(imgUrl)
+                    .listener(new RequestListener<Drawable>() {
+                        @Override
+                        public boolean onLoadFailed(@Nullable GlideException e, Object model, Target<Drawable> target, boolean isFirstResource) {
+                            mGetImgAndLrcBtn.setVisibility(View.VISIBLE);
+                            mGetImgAndLrcBtn.setText("获取封面和歌词");
+                            setDiscImg(BitmapFactory.decodeResource(getResources(),R.drawable.default_disc));
+                            return true;
+                        }
+
+                        @Override
+                        public boolean onResourceReady(Drawable resource, Object model, Target<Drawable> target, DataSource dataSource, boolean isFirstResource) {
+                            return false;
+                        }
+                    })
+                    .apply(RequestOptions.errorOf(R.drawable.background))
+                    .into(target);
+
+    }
+
+    @Override
+    public void onDestroy() {
+        super.onDestroy();
+        unbindService(connection);
+        unregisterReceiver(songChangeReceiver);
+
     }
 
 }

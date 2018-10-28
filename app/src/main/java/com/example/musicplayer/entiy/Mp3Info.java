@@ -12,6 +12,7 @@ public class Mp3Info {
     private String url;
     private long albumId;
     private long id;
+    private boolean isImgSave;//照片是否保存到本地
 
     public void setId(long id) {
         this.id = id;
@@ -67,5 +68,13 @@ public class Mp3Info {
 
     public long getAlbumId() {
         return albumId;
+    }
+
+    public void setImgSave(boolean imgSave) {
+        isImgSave = imgSave;
+    }
+
+    public boolean isImgSave() {
+        return isImgSave;
     }
 }

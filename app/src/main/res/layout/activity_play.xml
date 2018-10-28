@@ -34,16 +34,19 @@
                 android:id="@+id/tv_song"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="青茫"
                 android:textColor="@color/white"
-                android:textSize="18sp" />
+                android:textSize="18sp"
+                android:ellipsize="end"
+                android:maxEms="15"
+                android:singleLine="true"/>
 
             <TextView
                 android:id="@+id/tv_singer"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="5dp"
-                android:text="白敬亭、李宏毅、丁冠森、赵文龙"
+                android:ellipsize="end"
+                android:maxEms="15"
                 android:textColor="@color/white_easy" />
         </LinearLayout>
     </RelativeLayout>

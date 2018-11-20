@@ -120,6 +120,7 @@ public class PlayerService extends Service {
                 mediaPlayer.start();
                 isPlaying=true;
                 isPause=false;
+                sendBroadcast(new Intent("SONG_RESUME"));
             }
         }
         public void next(){

@@ -24,7 +24,7 @@ public class WelcomeActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        CommonUtil.hideStatusBar(this);
+        CommonUtil.hideStatusBar(this,true);
         setContentView(R.layout.activity_welcome);
 
         //申请权限

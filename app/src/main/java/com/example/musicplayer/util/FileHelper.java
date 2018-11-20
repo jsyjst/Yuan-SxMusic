@@ -15,6 +15,8 @@ import com.bumptech.glide.request.target.SimpleTarget;
 import com.bumptech.glide.request.target.Target;
 import com.bumptech.glide.request.transition.Transition;
 import com.example.musicplayer.R;
+import com.example.musicplayer.constant.BaseUri;
+import com.example.musicplayer.constant.MyApplication;
 import com.example.musicplayer.contract.IPlayContract;
 import com.example.musicplayer.entiy.Song;
 
@@ -45,9 +47,9 @@ public class FileHelper {
 
     public static void saveSong(Song song) {
         try {
-            File file = new File(Environment.getExternalStorageDirectory() + "/yuanmusic/");
+            File file = new File(MyApplication.getContext().getExternalFilesDir("yuanmusic").getAbsolutePath());
             if (!file.exists()) {
-                Log.d("Login", "------------------" + Environment.getExternalStorageDirectory());
+                Log.d("Login", "------------------" + MyApplication.getContext().getExternalFilesDir(""));
                 file.mkdirs();
             }
             //写对象流的对象
@@ -70,7 +72,7 @@ public class FileHelper {
 
     public static Song getSong() {
         try {
-            ObjectInputStream ois = new ObjectInputStream(new FileInputStream(Environment.getExternalStorageDirectory() + "/yuanmusic/song.txt"));
+            ObjectInputStream ois = new ObjectInputStream(new FileInputStream(MyApplication.getContext().getExternalFilesDir("") + "/yuanmusic/song.txt"));
             Song song = (Song) ois.readObject();//读出对象
             return song;                                       //返回对象
         } catch (FileNotFoundException e) {
@@ -89,7 +91,7 @@ public class FileHelper {
 
     //保存图片到本地
     public static void saveImgToNative(Context context, Bitmap bitmap, String singer) {
-        File file = new File(Environment.getExternalStorageDirectory() + "/yuanmusic/img/");
+        File file = new File(BaseUri.STORAGE_IMG_FILE);
         if (!file.exists()) {
             file.mkdirs();
         }
@@ -121,7 +123,7 @@ public class FileHelper {
             singer=s[0];
         }
         singer=singer.trim();
-        String imgUrl = Environment.getExternalStorageDirectory() + "/yuanmusic/img/" + singer + ".jpg";
+        String imgUrl =BaseUri.STORAGE_IMG_FILE + singer + ".jpg";
 
         Glide.with(context)
                 .load(imgUrl)

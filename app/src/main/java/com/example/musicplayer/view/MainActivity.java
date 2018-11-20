@@ -29,6 +29,7 @@ import com.example.musicplayer.R;
 import com.example.musicplayer.constant.PlayerStatus;
 import com.example.musicplayer.entiy.Song;
 import com.example.musicplayer.service.PlayerService;
+import com.example.musicplayer.util.CommonUtil;
 import com.example.musicplayer.util.FileHelper;
 import com.example.musicplayer.util.MediaUtil;
 
@@ -77,11 +78,13 @@ public class MainActivity extends AppCompatActivity {
         intentFilter = new IntentFilter();
         intentFilter.addAction("android.song.change");
         intentFilter.addAction("SONG_PAUSE");
+        intentFilter.addAction("SONG_RESUME");
         songChangeReceiver = new SongChangeReceiver();
         registerReceiver(songChangeReceiver, intentFilter);
         initView();
         onClick();
     }
+
 
     private void initView() {
         mSong = FileHelper.getSong();
@@ -199,11 +202,17 @@ public class MainActivity extends AppCompatActivity {
             public void onClick(View v) {
                 Intent toPlayActivityIntent = new Intent(MainActivity.this, PlayActivity.class);
 
+                //播放情况
                 if (mPlayStatusBinder.isPlaying()) {
                     Song song=FileHelper.getSong();
                     song.setCurrentTime(mPlayStatusBinder.getCurrentTime());
                     FileHelper.saveSong(song);
                     toPlayActivityIntent.putExtra(PlayerStatus.PLAYER_STATUS, PlayerStatus.PLAY);
+                }else{
+                    //暂停情况
+                    Song song=FileHelper.getSong();
+                    song.setCurrentTime(mSeekBar.getProgress());
+                    FileHelper.saveSong(song);
                 }
                 startActivity(toPlayActivityIntent,
                         ActivityOptions.makeSceneTransitionAnimation(MainActivity.this).toBundle());
@@ -262,6 +271,12 @@ public class MainActivity extends AppCompatActivity {
             if(action.equals("SONG_PAUSE")){
                 mPlayerBtn.setSelected(false);
                 mCircleAnimator.pause();
+            }else if(action.equals("SONG_RESUME")){
+                mPlayerBtn.setSelected(true);
+                mCircleAnimator.resume();
+                mSeekBarThread = new Thread(new SeekBarThread());
+                mSeekBarThread.start();
+
             }else{
                 mPlayerBtn.setSelected(true);
                 mCircleAnimator.start();

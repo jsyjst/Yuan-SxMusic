@@ -6,7 +6,8 @@
     android:clickable="true"
     android:focusable="true"
     android:layout_height="wrap_content"
-    android:layout_alignParentBottom="true">
+    android:layout_alignParentBottom="true"
+    android:elevation="10dp">
 
     <FrameLayout
         android:layout_width="match_parent"
@@ -26,8 +27,7 @@
 
 
                 <SeekBar
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
+                    style="@style/neteasa_music_time_seek_bar_sytle"
                     android:id="@+id/sb_progress"/>
 
                 <TextView

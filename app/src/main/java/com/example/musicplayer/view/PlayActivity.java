@@ -38,6 +38,8 @@ import com.bumptech.glide.request.target.Target;
 import com.bumptech.glide.request.transition.Transition;
 import com.example.musicplayer.R;
 import com.example.musicplayer.base.BaseActivity;
+import com.example.musicplayer.constant.BaseUri;
+import com.example.musicplayer.constant.MyApplication;
 import com.example.musicplayer.constant.PlayerStatus;
 import com.example.musicplayer.contract.IPlayContract;
 import com.example.musicplayer.entiy.Mp3Info;
@@ -112,16 +114,20 @@ public class PlayActivity extends BaseActivity implements IPlayContract.View {
         @Override
         public void handleMessage(Message msg) {
             super.handleMessage(msg);
-            mSeekBar.setProgress((int) mPlayStatusBinder.getCurrentTime());
-            mCurrentTimeTv.setText(MediaUtil.formatTime(mSeekBar.getProgress()));
-            startUpdateSeekBarProgress();
+            if (!isChange) {
+                Log.d(TAG, "handleMessage: send");
+                mSeekBar.setProgress((int) mPlayStatusBinder.getCurrentTime());
+                mCurrentTimeTv.setText(MediaUtil.formatTime(mSeekBar.getProgress()));
+                startUpdateSeekBarProgress();
+            }
+
         }
     };
 
 
     @Override
     protected void initViews() {
-        CommonUtil.hideStatusBar(this);
+        CommonUtil.hideStatusBar(this,true);
         setContentView(R.layout.activity_play);
 
         //设置进入退出动画
@@ -221,13 +227,6 @@ public class PlayActivity extends BaseActivity implements IPlayContract.View {
 
     @Override
     protected void onClick() {
-        mPlayBtn.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                isPlaying = !isPlaying;
-                mPlayBtn.setSelected(isPlaying);
-            }
-        });
 
         mGetImgAndLrcBtn.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -253,12 +252,16 @@ public class PlayActivity extends BaseActivity implements IPlayContract.View {
             @Override
             public void onStopTrackingTouch(SeekBar seekBar) {
                 if (mPlayStatusBinder.isPlaying()) {
+                    Log.d(TAG, "onStopTrackingTouch: isPlay");
+                    mMediaPlayer = mPlayStatusBinder.getMediaPlayer();
                     mMediaPlayer.seekTo(seekBar.getProgress());
+                    startUpdateSeekBarProgress();
                 } else {
                     time = seekBar.getProgress();
                 }
+                mCurrentTimeTv.setText(MediaUtil.formatTime(seekBar.getProgress()));
                 isChange = false;
-                startUpdateSeekBarProgress();
+
             }
         });
 
@@ -270,6 +273,7 @@ public class PlayActivity extends BaseActivity implements IPlayContract.View {
                 if (mPlayStatusBinder.isPlaying()) {
                     time = mMediaPlayer.getCurrentPosition();
                     mPlayStatusBinder.pause();
+                    stopUpdateSeekBarProgress();
                     flag = true;
                     mPlayBtn.setSelected(false);
                     mDisc.pause();
@@ -285,6 +289,7 @@ public class PlayActivity extends BaseActivity implements IPlayContract.View {
                     mPlayBtn.setSelected(true);
                     startUpdateSeekBarProgress();
                 } else {
+                    Log.d(TAG, "onClick: --------play");
                     mPlayStatusBinder.play(0);
                     mMediaPlayer.seekTo((int) mSong.getCurrentTime());
                     mDisc.play();
@@ -405,8 +410,7 @@ public class PlayActivity extends BaseActivity implements IPlayContract.View {
 
     private void setLocalImg(String singer) {
 
-        String imgUrl = Environment.getExternalStorageDirectory() + "/yuanmusic/img/"
-                + MediaUtil.formatSinger(singer) + ".jpg";
+        String imgUrl = BaseUri.STORAGE_IMG_FILE + MediaUtil.formatSinger(singer) + ".jpg";
         SimpleTarget target = new SimpleTarget<Drawable>(Target.SIZE_ORIGINAL, Target.SIZE_ORIGINAL) {
             @Override
             public void onResourceReady(@Nullable Drawable resource, Transition<? super Drawable> transition) {
@@ -416,24 +420,25 @@ public class PlayActivity extends BaseActivity implements IPlayContract.View {
                 setDiscImg(mImgBmp);
             }
         };
-            Glide.with(this)
-                    .load(imgUrl)
-                    .listener(new RequestListener<Drawable>() {
-                        @Override
-                        public boolean onLoadFailed(@Nullable GlideException e, Object model, Target<Drawable> target, boolean isFirstResource) {
-                            mGetImgAndLrcBtn.setVisibility(View.VISIBLE);
-                            mGetImgAndLrcBtn.setText("获取封面和歌词");
-                            setDiscImg(BitmapFactory.decodeResource(getResources(),R.drawable.default_disc));
-                            return true;
-                        }
+        Glide.with(this)
+                .load(imgUrl)
+                .listener(new RequestListener<Drawable>() {
+                    @Override
+                    public boolean onLoadFailed(@Nullable GlideException e, Object model, Target<Drawable> target, boolean isFirstResource) {
+                        mGetImgAndLrcBtn.setVisibility(View.VISIBLE);
+                        mGetImgAndLrcBtn.setText("获取封面和歌词");
+                        setDiscImg(BitmapFactory.decodeResource(getResources(), R.drawable.default_disc));
+                        mRootLayout.setBackgroundResource(R.drawable.welcome);
+                        return true;
+                    }
 
-                        @Override
-                        public boolean onResourceReady(Drawable resource, Object model, Target<Drawable> target, DataSource dataSource, boolean isFirstResource) {
-                            return false;
-                        }
-                    })
-                    .apply(RequestOptions.errorOf(R.drawable.background))
-                    .into(target);
+                    @Override
+                    public boolean onResourceReady(Drawable resource, Object model, Target<Drawable> target, DataSource dataSource, boolean isFirstResource) {
+                        return false;
+                    }
+                })
+                .apply(RequestOptions.errorOf(R.drawable.background))
+                .into(target);
 
     }
 
@@ -442,6 +447,7 @@ public class PlayActivity extends BaseActivity implements IPlayContract.View {
         super.onDestroy();
         unbindService(connection);
         unregisterReceiver(songChangeReceiver);
+        stopUpdateSeekBarProgress();
 
     }
 

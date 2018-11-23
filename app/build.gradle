@@ -17,6 +17,12 @@ android {
         }
     }
 }
+allprojects {
+    repositories {
+        jcenter()
+        maven { url "https://jitpack.io" }
+    }
+}
 
 dependencies {
     implementation fileTree(dir: 'libs', include: ['*.jar'])
@@ -42,4 +48,6 @@ dependencies {
     implementation 'com.squareup.retrofit2:adapter-rxjava2:2.3.0'
     //glide
     implementation 'com.github.bumptech.glide:glide:4.8.0'
+    //LRecyclerView
+    implementation 'com.github.jdsjlzx:LRecyclerView:1.5.4.3'
 }

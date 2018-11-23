@@ -15,6 +15,6 @@ import retrofit2.http.Query;
  */
 
 public interface SearchApi {
-    @GET("search?key=579621905&type=song&limit=30&offset=0")
-    Observable<SeachSong> search(@Query("s") String seek);
+    @GET("search?key=579621905&type=song&limit=30")
+    Observable<SeachSong> search(@Query("s") String seek,@Query("offset")int offset);
 }

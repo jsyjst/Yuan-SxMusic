@@ -9,7 +9,7 @@
         android:background="@color/seekColor">
     </View>
 
-    <android.support.v7.widget.RecyclerView
+    <com.github.jdsjlzx.recyclerview.LRecyclerView
         android:background="@color/translucent"
         android:id="@+id/recycler_song_list"
         android:layout_width="match_parent"
@@ -17,7 +17,7 @@
         android:layout_marginBottom="65dp">
 
 
-    </android.support.v7.widget.RecyclerView>
+    </com.github.jdsjlzx.recyclerview.LRecyclerView>
 
 
 </LinearLayout>

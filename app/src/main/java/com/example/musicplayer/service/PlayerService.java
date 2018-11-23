@@ -8,9 +8,12 @@ import android.media.MediaPlayer;
 import android.os.Binder;
 import android.os.IBinder;
 import android.util.Log;
+import android.widget.Toast;
 
+import com.example.musicplayer.constant.MyApplication;
 import com.example.musicplayer.entiy.Mp3Info;
 import com.example.musicplayer.entiy.Song;
+import com.example.musicplayer.util.CommonUtil;
 import com.example.musicplayer.util.FileHelper;
 import com.example.musicplayer.util.MediaUtil;
 
@@ -42,6 +45,7 @@ public class PlayerService extends Service {
         mediaPlayer.setOnCompletionListener(new MediaPlayer.OnCompletionListener() {
             @Override
             public void onCompletion(MediaPlayer mp) {
+                mCurrent=FileHelper.getSong().getCurrent();
                 mCurrent++;
                 Log.d(TAG, "-------onBind: 结束");
                 //将歌曲的信息保存起来
@@ -114,6 +118,7 @@ public class PlayerService extends Service {
                 mediaPlayer.start();
                 sendBroadcast(new Intent("SONG_ONLINE"));
             }catch (Exception e){
+                CommonUtil.showToast(MyApplication.getContext(),"抱歉该歌曲暂无版权");
                 e.printStackTrace();
             }
         }

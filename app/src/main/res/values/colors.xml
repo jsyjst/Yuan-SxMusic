@@ -2,7 +2,7 @@
 <resources>
     <color name="colorPrimary">#3F51B5</color>
     <color name="colorPrimaryDark">#303F9F</color>
-    <color name="colorAccent">#FF4081</color>
+    <color name="colorAccent">#0ee5f4</color>
     <color name="musicStyle">#0ee5f4</color>
     <color name="purple">#2124f4</color>
     <color name="white">#ffffff</color>

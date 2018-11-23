@@ -6,6 +6,7 @@ import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentTransaction;
 import android.util.Log;
 import android.view.LayoutInflater;
+import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.EditText;
@@ -41,7 +42,17 @@ public class SearchFragment extends Fragment {
             @Override
             public void onClick(View v) {
                 CommonUtil.closeKeybord(mSeekEdit, getActivity());
+                mSeekEdit.setCursorVisible(false);//隐藏光标
                 replaceFragment();
+            }
+        });
+        mSeekEdit.setOnTouchListener(new View.OnTouchListener() {
+            @Override
+            public boolean onTouch(View v, MotionEvent event) {
+                if (MotionEvent.ACTION_DOWN == event.getAction()) {
+                    mSeekEdit.setCursorVisible(true);
+                }
+                return false;
             }
         });
     }

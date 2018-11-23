@@ -46,7 +46,8 @@
                 android:layout_height="wrap_content"
                 android:layout_marginTop="5dp"
                 android:ellipsize="end"
-                android:maxEms="15"
+                android:singleLine="true"
+                android:paddingEnd="20dp"
                 android:textColor="@color/white_easy" />
         </LinearLayout>
     </RelativeLayout>

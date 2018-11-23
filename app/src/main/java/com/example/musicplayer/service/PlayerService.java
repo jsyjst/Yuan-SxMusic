@@ -45,7 +45,7 @@ public class PlayerService extends Service {
                 mCurrent++;
                 Log.d(TAG, "-------onBind: 结束");
                 //将歌曲的信息保存起来
-                Song song=FileHelper.getSong();
+                Song song=new Song();
                 song.setCurrent(mCurrent);
                 song.setTitle(mMp3InfoList.get(mCurrent).getTitle());
                 song.setArtist(mMp3InfoList.get(mCurrent).getArtist());
@@ -102,6 +102,22 @@ public class PlayerService extends Service {
             }
         }
 
+        public void playOnline(){
+            try{
+                mediaPlayer.reset();
+                mediaPlayer.setDataSource(FileHelper.getSong().getUrl());
+                mediaPlayer.prepare();
+                Song song = FileHelper.getSong();
+                song.setDuration(mediaPlayer.getDuration());
+                FileHelper.saveSong(song);
+                isPlaying=true;
+                mediaPlayer.start();
+                sendBroadcast(new Intent("SONG_ONLINE"));
+            }catch (Exception e){
+                e.printStackTrace();
+            }
+        }
+
         /**
          * 暂停音乐
          */
@@ -131,7 +147,7 @@ public class PlayerService extends Service {
             }
 
             //将歌曲的信息保存起来
-            Song song=FileHelper.getSong();
+            Song song=new Song();
             song.setCurrent(mCurrent);
             song.setTitle(mMp3InfoList.get(mCurrent).getTitle());
             song.setArtist(mMp3InfoList.get(mCurrent).getArtist());
@@ -154,7 +170,7 @@ public class PlayerService extends Service {
             }
 
             //将歌曲的信息保存起来
-            Song song=FileHelper.getSong();
+            Song song=new Song();
             song.setCurrent(mCurrent);
             song.setTitle(mMp3InfoList.get(mCurrent).getTitle());
             song.setArtist(mMp3InfoList.get(mCurrent).getArtist());

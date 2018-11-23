@@ -25,6 +25,8 @@ import android.widget.LinearLayout;
 import android.widget.SeekBar;
 import android.widget.TextView;
 
+import com.bumptech.glide.Glide;
+import com.bumptech.glide.request.RequestOptions;
 import com.example.musicplayer.R;
 import com.example.musicplayer.constant.PlayerStatus;
 import com.example.musicplayer.entiy.Song;
@@ -79,6 +81,7 @@ public class MainActivity extends AppCompatActivity {
         intentFilter.addAction("android.song.change");
         intentFilter.addAction("SONG_PAUSE");
         intentFilter.addAction("SONG_RESUME");
+        intentFilter.addAction("SONG_ONLINE");
         songChangeReceiver = new SongChangeReceiver();
         registerReceiver(songChangeReceiver, intentFilter);
         initView();
@@ -113,7 +116,15 @@ public class MainActivity extends AppCompatActivity {
             mSingerTv.setText(mSong.getArtist());
             mSeekBar.setMax((int) mSong.getDuration());
             mSeekBar.setProgress((int) mSong.getCurrentTime());
-            FileHelper.setSingerImg(MainActivity.this,mSong.getArtist(),mCoverIv);
+            if (mSong.getImgUrl() == null) {
+                FileHelper.setSingerImg(MainActivity.this, mSong.getArtist(), mCoverIv);
+            } else {
+                Glide.with(this)
+                        .load(mSong.getImgUrl())
+                        .apply(RequestOptions.errorOf(R.drawable.background))
+                        .into(mCoverIv);
+            }
+
 
         } else {
             mLinear.setVisibility(View.GONE);
@@ -175,7 +186,11 @@ public class MainActivity extends AppCompatActivity {
                     mSeekBarThread = new Thread(new SeekBarThread());
                     mSeekBarThread.start();
                 } else {
-                    mPlayStatusBinder.play(0);
+                    if (FileHelper.getSong().getImgUrl() != null) {
+                        mPlayStatusBinder.playOnline();
+                    } else {
+                        mPlayStatusBinder.play(0);
+                    }
                     mMediaPlayer.seekTo((int) mSong.getCurrentTime());
                     mCircleAnimator.start();
                     mPlayerBtn.setSelected(true);
@@ -204,15 +219,18 @@ public class MainActivity extends AppCompatActivity {
 
                 //播放情况
                 if (mPlayStatusBinder.isPlaying()) {
-                    Song song=FileHelper.getSong();
+                    Song song = FileHelper.getSong();
                     song.setCurrentTime(mPlayStatusBinder.getCurrentTime());
                     FileHelper.saveSong(song);
                     toPlayActivityIntent.putExtra(PlayerStatus.PLAYER_STATUS, PlayerStatus.PLAY);
-                }else{
+                } else {
                     //暂停情况
-                    Song song=FileHelper.getSong();
+                    Song song = FileHelper.getSong();
                     song.setCurrentTime(mSeekBar.getProgress());
                     FileHelper.saveSong(song);
+                }
+                if(FileHelper.getSong().getImgUrl()!=null){
+                    toPlayActivityIntent.putExtra(SearchContentFragment.IS_ONLINE,true);
                 }
                 startActivity(toPlayActivityIntent,
                         ActivityOptions.makeSceneTransitionAnimation(MainActivity.this).toBundle());
@@ -265,23 +283,38 @@ public class MainActivity extends AppCompatActivity {
             mSong = FileHelper.getSong();
             mSongNameTv.setText(mSong.getTitle());
             mSingerTv.setText(mSong.getArtist());
-            FileHelper.setSingerImg(MainActivity.this,mSong.getArtist(),mCoverIv);
+
 
             mSeekBar.setMax((int) mSong.getDuration());
-            if(action.equals("SONG_PAUSE")){
-                mPlayerBtn.setSelected(false);
-                mCircleAnimator.pause();
-            }else if(action.equals("SONG_RESUME")){
-                mPlayerBtn.setSelected(true);
-                mCircleAnimator.resume();
-                mSeekBarThread = new Thread(new SeekBarThread());
-                mSeekBarThread.start();
 
-            }else{
+            if (!action.equals("SONG_ONLINE")) {
+                if(mSong.getImgUrl()==null) FileHelper.setSingerImg(MainActivity.this, mSong.getArtist(), mCoverIv);
+                if (action.equals("SONG_PAUSE")) {
+                    mPlayerBtn.setSelected(false);
+                    mCircleAnimator.pause();
+                } else if (action.equals("SONG_RESUME")) {
+                    mPlayerBtn.setSelected(true);
+                    mCircleAnimator.resume();
+                    mSeekBarThread = new Thread(new SeekBarThread());
+                    mSeekBarThread.start();
+
+                } else {
+                    mPlayerBtn.setSelected(true);
+                    mCircleAnimator.start();
+                    mSeekBarThread = new Thread(new SeekBarThread());
+                    mSeekBarThread.start();
+                }
+            } else {
+                Glide.with(MainActivity.this)
+                        .load(mSong.getImgUrl())
+                        .apply(RequestOptions.errorOf(R.drawable.background))
+                        .into(mCoverIv);
+
                 mPlayerBtn.setSelected(true);
                 mCircleAnimator.start();
                 mSeekBarThread = new Thread(new SeekBarThread());
                 mSeekBarThread.start();
+
             }
         }
     }

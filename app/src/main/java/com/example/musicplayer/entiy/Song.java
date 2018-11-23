@@ -18,6 +18,7 @@ public class Song implements Serializable {
     private int current;//在本地音乐的位置
     private long albumId;
     private long id;
+    private String imgUrl;
 
     public long getId() {
         return id;
@@ -91,7 +92,13 @@ public class Song implements Serializable {
         this.albumId = albumId;
     }
 
+    public String getImgUrl() {
+        return imgUrl;
+    }
 
+    public void setImgUrl(String imgUrl) {
+        this.imgUrl = imgUrl;
+    }
 
     public String toString(){
         return "artist="+artist+",title="+title+",url="+url+",duration="+duration+

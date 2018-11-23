@@ -34,7 +34,6 @@ public class SongAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
     private Context mContext;
     private int mLastPosition = -1;
     private int defaultPosition;
-    private Song song=new Song();
     private OnItemClickListener onItemClickListener;
 
     public void setOnItemClickListener(OnItemClickListener onItemClickListener){
@@ -114,6 +113,7 @@ public class SongAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
                 public void onClick(View v) {
                     Log.d(TAG, "onClick: "+mp3Info.getAlbumId()+"id="+mp3Info.getId());
                     //将点击的序列化到本地
+                    Song song=new Song();
                     song.setArtist(mp3Info.getArtist());
                     song.setDuration(mp3Info.getDuration());
                     song.setSize(mp3Info.getSize());

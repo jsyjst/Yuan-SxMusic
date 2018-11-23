@@ -1,6 +1,7 @@
 package com.example.musicplayer.https;
 
 import com.example.musicplayer.constant.BaseUri;
+import com.example.musicplayer.https.api.SearchApi;
 import com.example.musicplayer.https.api.SingerImgApi;
 
 import java.util.concurrent.TimeUnit;
@@ -12,6 +13,8 @@ import retrofit2.Retrofit;
 import retrofit2.adapter.rxjava2.RxJava2CallAdapterFactory;
 import retrofit2.converter.gson.GsonConverterFactory;
 
+import static com.example.musicplayer.constant.BaseUri.QQ_URL;
+import static com.example.musicplayer.constant.BaseUri.SEARCH_URL;
 import static com.example.musicplayer.constant.BaseUri.SINGER_URL;
 
 /**
@@ -23,6 +26,7 @@ public class NetWork {
     private static Converter.Factory gsonConverterFactory = GsonConverterFactory.create();
     private static CallAdapter.Factory rxJavaCallAdapterFactory = RxJava2CallAdapterFactory.create();
     private static  SingerImgApi singerImgApi;
+    private static SearchApi searchApi;
 
     public static SingerImgApi getSingerImgApi(){
         if(singerImgApi==null){
@@ -37,5 +41,17 @@ public class NetWork {
         return singerImgApi;
     }
 
+    public static SearchApi getSearchApi(){
+        if(searchApi ==null){
+            Retrofit retrofit =new Retrofit.Builder()
+                    .client(builder.build())
+                    .baseUrl(QQ_URL)
+                    .addCallAdapterFactory(rxJavaCallAdapterFactory)
+                    .addConverterFactory(gsonConverterFactory)
+                    .build();
+            searchApi =retrofit.create(SearchApi.class);
+        }
+        return searchApi;
+    }
 
 }

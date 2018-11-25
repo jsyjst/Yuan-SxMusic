@@ -28,7 +28,7 @@
             android:maxEms="15"
             android:singleLine="true"
             android:textColor="@color/white"
-            android:textSize="18sp" />
+            android:textSize="16sp" />
 
         <TextView
             android:id="@+id/tv_artist"
@@ -39,7 +39,8 @@
             android:ellipsize="end"
             android:maxEms="15"
             android:singleLine="true"
-            android:textColor="@color/short_white" />
+            android:textColor="@color/short_white"
+            android:textSize="14sp"/>
 
 
     </LinearLayout>

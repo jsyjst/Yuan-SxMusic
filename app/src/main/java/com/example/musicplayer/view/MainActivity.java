@@ -28,6 +28,7 @@ import android.widget.TextView;
 import com.bumptech.glide.Glide;
 import com.bumptech.glide.request.RequestOptions;
 import com.example.musicplayer.R;
+import com.example.musicplayer.constant.BroadcastName;
 import com.example.musicplayer.constant.PlayerStatus;
 import com.example.musicplayer.entiy.Song;
 import com.example.musicplayer.service.PlayerService;
@@ -78,10 +79,10 @@ public class MainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
         intentFilter = new IntentFilter();
-        intentFilter.addAction("android.song.change");
-        intentFilter.addAction("SONG_PAUSE");
-        intentFilter.addAction("SONG_RESUME");
-        intentFilter.addAction("SONG_ONLINE");
+        intentFilter.addAction(BroadcastName.SONG_CHANGE);
+        intentFilter.addAction(BroadcastName.SONG_PAUSE);
+        intentFilter.addAction(BroadcastName.SONG_RESUME);
+        intentFilter.addAction(BroadcastName.ONLINE_SONG);
         songChangeReceiver = new SongChangeReceiver();
         registerReceiver(songChangeReceiver, intentFilter);
         initView();
@@ -287,12 +288,12 @@ public class MainActivity extends AppCompatActivity {
 
             mSeekBar.setMax((int) mSong.getDuration());
 
-            if (!action.equals("SONG_ONLINE")) {
+            if (!action.equals(BroadcastName.ONLINE_SONG)) {
                 if(mSong.getImgUrl()==null) FileHelper.setSingerImg(MainActivity.this, mSong.getArtist(), mCoverIv);
-                if (action.equals("SONG_PAUSE")) {
+                if (action.equals(BroadcastName.SONG_PAUSE)) {
                     mPlayerBtn.setSelected(false);
                     mCircleAnimator.pause();
-                } else if (action.equals("SONG_RESUME")) {
+                } else if (action.equals(BroadcastName.SONG_RESUME)) {
                     mPlayerBtn.setSelected(true);
                     mCircleAnimator.resume();
                     mSeekBarThread = new Thread(new SeekBarThread());

@@ -17,6 +17,7 @@ import android.view.ViewGroup;
 
 import com.example.musicplayer.R;
 import com.example.musicplayer.adapter.SongAdapter;
+import com.example.musicplayer.constant.BroadcastName;
 import com.example.musicplayer.contract.ILocalMusicContract;
 import com.example.musicplayer.entiy.Mp3Info;
 import com.example.musicplayer.presenter.LocalMusicPresenter;
@@ -75,7 +76,7 @@ public class LocalMusicFragment extends Fragment implements ILocalMusicContract.
         super.onActivityCreated(savedInstanceState);
 
         intentFilter=new IntentFilter();
-        intentFilter.addAction("android.song.change.local.song.list");
+        intentFilter.addAction(BroadcastName.LOCAL_SONG_CHANGE_LIST);
         songChangeReceiver=new SongChangeLocalMusicReceiver();
         getActivity().registerReceiver(songChangeReceiver,intentFilter);
         initView();

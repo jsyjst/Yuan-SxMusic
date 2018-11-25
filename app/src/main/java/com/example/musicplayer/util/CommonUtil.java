@@ -4,10 +4,12 @@ import android.app.Activity;
 import android.content.Context;
 import android.graphics.Color;
 import android.os.Build;
+import android.text.Html;
 import android.view.View;
 import android.view.WindowManager;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.EditText;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import com.bumptech.glide.Glide;
@@ -95,6 +97,14 @@ public class CommonUtil {
         mEditText.clearFocus();
         InputMethodManager imm = (InputMethodManager) context.getSystemService(Context.INPUT_METHOD_SERVICE);
         imm.hideSoftInputFromWindow(mEditText.getWindowToken(), 0);
+    }
+
+    /**
+     * 使指定的字符串显示不同的颜色
+     */
+    public static void showStringColor(String appointStr, String originalStr, TextView textView){
+        originalStr = originalStr.replaceAll(appointStr, "<font color='#FFC66D'>" + appointStr+ "</font>");
+        textView.setText(Html.fromHtml(originalStr));
     }
 
 }

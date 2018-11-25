@@ -33,7 +33,6 @@ public class SongAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
     private List<Mp3Info> mMp3InfoList;
     private Context mContext;
     private int mLastPosition = -1;
-    private int defaultPosition;
     private OnItemClickListener onItemClickListener;
 
     public void setOnItemClickListener(OnItemClickListener onItemClickListener){
@@ -79,9 +78,9 @@ public class SongAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
         if (viewType == itemViewType) {
             View view = LayoutInflater.from(parent.getContext())
                     .inflate(R.layout.recycler_song_item, parent, false);
-            TypedValue typedValue = new TypedValue();
-            mContext.getTheme().resolveAttribute(R.attr.selectableItemBackground, typedValue, true);
-            view.setBackgroundResource(typedValue.resourceId);
+//            TypedValue typedValue = new TypedValue();
+//            mContext.getTheme().resolveAttribute(R.attr.selectableItemBackground, typedValue, true);
+//            view.setBackgroundResource(typedValue.resourceId);
 
             ViewHolder viewHolder = new ViewHolder(view);
             return viewHolder;
@@ -107,6 +106,13 @@ public class SongAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
             holder.artistTv.setTextColor(MyApplication.getContext().getResources().
                     getColor(position == mLastPosition ? R.color.musicStyle_low : R.color.short_white));
             holder.playingIv.setVisibility(position == mLastPosition ? View.VISIBLE : View.GONE);
+            if(FileHelper.getSong().getImgUrl()!=null){
+                holder.playingIv.setVisibility(View.GONE);
+                holder.songNameTv.setTextColor(MyApplication.getContext().getResources().
+                        getColor(R.color.white));
+                holder.artistTv.setTextColor(MyApplication.getContext().getResources().
+                        getColor(R.color.short_white));
+            }
 //            holder.playingIv.setVisibility(position==FileHelper.getSong().getCurrent()?View.VISIBLE:View.GONE);
             holder.songView.setOnClickListener(new View.OnClickListener() {
                 @Override
@@ -126,7 +132,6 @@ public class SongAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
                     FileHelper.saveSong(song);
                     onItemClickListener.onSongClick();
 
-                    defaultPosition=FileHelper.getSong().getCurrent();
                     equalPosition(position);
 
 

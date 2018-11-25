@@ -1,6 +1,9 @@
 package com.example.musicplayer.view;
 
+import android.content.BroadcastReceiver;
+import android.content.Context;
 import android.content.Intent;
+import android.content.IntentFilter;
 import android.media.MediaPlayer;
 import android.os.Bundle;
 import android.provider.SyncStateContract;
@@ -15,6 +18,7 @@ import android.widget.EditText;
 
 import com.example.musicplayer.R;
 import com.example.musicplayer.adapter.SearchContentAdapter;
+import com.example.musicplayer.constant.BroadcastName;
 import com.example.musicplayer.constant.Constant;
 import com.example.musicplayer.contract.ISearchContentContract;
 import com.example.musicplayer.entiy.SeachSong;
@@ -46,6 +50,8 @@ public class SearchContentFragment extends Fragment implements ISearchContentCon
     private LinearLayoutManager manager;
     private SearchContentAdapter mAdapter;
     private ArrayList<SeachSong.DataBean> mSongList=new ArrayList<>();
+    private SongFinishReceiver songChangeReceiver;
+    private IntentFilter intentFilter;
 
     private LRecyclerViewAdapter mLRecyclerViewAdapter;//下拉刷新
 
@@ -66,6 +72,12 @@ public class SearchContentFragment extends Fragment implements ISearchContentCon
         mPresenter.attachView(this);
         mPresenter.search(getSeekContent(),1);
 
+        //注册广播
+        intentFilter = new IntentFilter();
+        intentFilter.addAction(BroadcastName.ONLINE_SONG_FINISH);
+        SongFinishReceiver songFinishReceiver = new SongFinishReceiver();
+        getActivity().registerReceiver(songFinishReceiver,intentFilter);
+
         searchMore();
 
     }
@@ -79,7 +91,7 @@ public class SearchContentFragment extends Fragment implements ISearchContentCon
     @Override
     public void setSongsList(final ArrayList<SeachSong.DataBean> songListBeans) {
         mSongList.addAll(songListBeans);
-        mAdapter = new SearchContentAdapter(mSongList);
+        mAdapter = new SearchContentAdapter(mSongList,getSeekContent(),getActivity());
         mLRecyclerViewAdapter = new LRecyclerViewAdapter(mAdapter);
         mRecycler.setLayoutManager(manager);
         mRecycler.setAdapter(mLRecyclerViewAdapter);
@@ -121,6 +133,8 @@ public class SearchContentFragment extends Fragment implements ISearchContentCon
 
     @Override
     public void searchMore() {
+
+        mRecycler.setPullRefreshEnabled(false);
         mRecycler.setOnLoadMoreListener(new OnLoadMoreListener() {
             @Override
             public void onLoadMore() {
@@ -130,7 +144,7 @@ public class SearchContentFragment extends Fragment implements ISearchContentCon
             }
         });
         //设置底部加载颜色
-        mRecycler.setFooterViewColor(R.color.colorAccent, R.color.musicStyle_low ,R.color.transparent);
+        mRecycler.setFooterViewColor(R.color.colorAccent, R.color.musicStyle_low ,R.color.translucent);
         //设置底部加载文字提示
         mRecycler.setFooterViewHint("拼命加载中","已经全部为你呈现了","网络不给力啊，点击再试一次吧");
 
@@ -150,5 +164,12 @@ public class SearchContentFragment extends Fragment implements ISearchContentCon
                 mPresenter.searchMore(getSeekContent(),mOffset);
             }
         });
+    }
+    class SongFinishReceiver extends BroadcastReceiver {
+
+        @Override
+        public void onReceive(Context context, Intent intent) {
+            mAdapter.notifyDataSetChanged();
+        }
     }
 }

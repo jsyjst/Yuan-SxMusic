@@ -10,6 +10,7 @@ import android.os.IBinder;
 import android.util.Log;
 import android.widget.Toast;
 
+import com.example.musicplayer.constant.BroadcastName;
 import com.example.musicplayer.constant.MyApplication;
 import com.example.musicplayer.entiy.Mp3Info;
 import com.example.musicplayer.entiy.Song;
@@ -31,7 +32,6 @@ public class PlayerService extends Service {
     private List<Mp3Info> mMp3InfoList;
     private int mCurrent;
 
-    private IntentFilter intentFilter;
 
     @Override
     public void onCreate(){
@@ -63,8 +63,9 @@ public class PlayerService extends Service {
                 }else{
                     mPlayStatusBinder.stop();
                 }
-                sendBroadcast(new Intent("android.song.change")); //发送广播改变播放栏的信息
-                sendBroadcast(new Intent("android.song.change.local.song.list"));//发送广播改变当地列表的显示
+                sendBroadcast(new Intent(BroadcastName.SONG_CHANGE)); //发送广播改变播放栏的信息
+                sendBroadcast(new Intent(BroadcastName.LOCAL_SONG_CHANGE_LIST));//发送广播改变当地列表的显示
+                sendBroadcast(new Intent(BroadcastName.ONLINE_SONG_FINISH));//发送网络歌曲播放结束的广播改变网络搜索列表的改变
             }
         });
         mediaPlayer.setOnErrorListener(new MediaPlayer.OnErrorListener() {
@@ -99,7 +100,7 @@ public class PlayerService extends Service {
                 mediaPlayer.prepare();    //进行缓冲
                 isPlaying=true;
                 mediaPlayer.setOnPreparedListener(new PreparedListener(currentTime));
-                sendBroadcast(new Intent("android.song.change"));
+                sendBroadcast(new Intent(BroadcastName.SONG_CHANGE));
             } catch (Exception e) {
                 e.printStackTrace();
 
@@ -116,7 +117,7 @@ public class PlayerService extends Service {
                 FileHelper.saveSong(song);
                 isPlaying=true;
                 mediaPlayer.start();
-                sendBroadcast(new Intent("SONG_ONLINE"));
+                sendBroadcast(new Intent(BroadcastName.ONLINE_SONG));
             }catch (Exception e){
                 CommonUtil.showToast(MyApplication.getContext(),"抱歉该歌曲暂无版权");
                 e.printStackTrace();
@@ -132,7 +133,7 @@ public class PlayerService extends Service {
                 isPlaying=false;
                 mediaPlayer.pause();
                 isPause = true;
-                sendBroadcast(new Intent("SONG_PAUSE"));//发送暂停的广播给主活动
+                sendBroadcast(new Intent(BroadcastName.SONG_PAUSE));//发送暂停的广播给主活动
             }
         }
 
@@ -141,7 +142,7 @@ public class PlayerService extends Service {
                 mediaPlayer.start();
                 isPlaying=true;
                 isPause=false;
-                sendBroadcast(new Intent("SONG_RESUME"));
+                sendBroadcast(new Intent(BroadcastName.SONG_RESUME));
             }
         }
         public void next(){
@@ -164,8 +165,9 @@ public class PlayerService extends Service {
             mPlayStatusBinder.play(0);
 
 
-            sendBroadcast(new Intent("android.song.change")); //发送广播改变播放栏的信息
-            sendBroadcast(new Intent("android.song.change.local.song.list"));//发送广播改变当地列表的显示
+            sendBroadcast(new Intent(BroadcastName.SONG_CHANGE)); //发送广播改变播放栏的信息
+            sendBroadcast(new Intent(BroadcastName.LOCAL_SONG_CHANGE_LIST));//发送广播改变当地列表的显示
+            sendBroadcast(new Intent(BroadcastName.ONLINE_SONG_FINISH));//发送网络歌曲播放结束的广播改变网络搜索列表的改变
         }
         public  void last(){
             mCurrent=FileHelper.getSong().getCurrent();
@@ -187,8 +189,9 @@ public class PlayerService extends Service {
             mPlayStatusBinder.play(0);
 
 
-            sendBroadcast(new Intent("android.song.change")); //发送广播改变播放栏的信息
-            sendBroadcast(new Intent("android.song.change.local.song.list"));//发送广播改变当地列表的显示
+            sendBroadcast(new Intent(BroadcastName.SONG_CHANGE)); //发送广播改变播放栏的信息
+            sendBroadcast(new Intent(BroadcastName.LOCAL_SONG_CHANGE_LIST));//发送广播改变当地列表的显示
+            sendBroadcast(new Intent(BroadcastName.ONLINE_SONG_FINISH));//发送网络歌曲播放结束的广播改变网络搜索列表的改变
         }
 
         /**

@@ -10,7 +10,6 @@
     </View>
 
     <com.github.jdsjlzx.recyclerview.LRecyclerView
-        android:background="@color/translucent"
         android:id="@+id/recycler_song_list"
         android:layout_width="match_parent"
         android:layout_height="match_parent"

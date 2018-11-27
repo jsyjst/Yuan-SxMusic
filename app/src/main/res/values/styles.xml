@@ -14,8 +14,20 @@
         <item name="colorAccent">@color/musicStyle</item>
     </style>
 
+    <!-- 修改tablayout的背景色，提示线的颜色，字体颜色等-->
+    <style name="MyTabLayoutStyle" parent="android:Widget">
+        <item name="tabBackground">@color/tab</item>
+        <item name="tabIndicatorColor">@color/yellow</item>
+        <item name="tabIndicatorHeight">2dp</item>
+        <item name="tabTextAppearance">@style/TextAppearance.Design.Tab</item>
+        <item name="tabSelectedTextColor">@color/yellow</item>
+    </style>
 
-
+    <style name="TextAppearance.Design.Tab" parent="TextAppearance.AppCompat.Button">
+        <item name="android:textSize">15sp</item>
+        <item name="android:textColor">@color/white</item>
+        <item name="textAllCaps">true</item>
+    </style>
 
 
     <style name="neteasa_music_time_text_sytle">
@@ -25,11 +37,12 @@
         <item name="android:textSize">9sp</item>
     </style>
 
-    <style name="neteasa_music_time_seek_bar_sytle"
-        parent="Widget.AppCompat.SeekBar">
+    <style name="neteasa_music_time_seek_bar_sytle" parent="Widget.AppCompat.SeekBar">
         <item name="android:layout_width">match_parent</item>
         <item name="android:layout_height">wrap_content</item>
         <item name="android:thumb">@drawable/ic_seekbar_thumb</item>
     </style>
+
+
 
 </resources>

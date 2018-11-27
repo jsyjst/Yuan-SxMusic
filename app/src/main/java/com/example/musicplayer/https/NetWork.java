@@ -1,6 +1,8 @@
 package com.example.musicplayer.https;
 
 import com.example.musicplayer.constant.BaseUri;
+import com.example.musicplayer.entiy.Album;
+import com.example.musicplayer.https.api.AlbumApi;
 import com.example.musicplayer.https.api.SearchApi;
 import com.example.musicplayer.https.api.SingerImgApi;
 
@@ -27,6 +29,7 @@ public class NetWork {
     private static CallAdapter.Factory rxJavaCallAdapterFactory = RxJava2CallAdapterFactory.create();
     private static  SingerImgApi singerImgApi;
     private static SearchApi searchApi;
+    private static AlbumApi albumApi;
 
     public static SingerImgApi getSingerImgApi(){
         if(singerImgApi==null){
@@ -53,5 +56,18 @@ public class NetWork {
         }
         return searchApi;
     }
+    public static AlbumApi getAlbumApi(){
+        if(albumApi ==null){
+            Retrofit retrofit =new Retrofit.Builder()
+                    .client(builder.build())
+                    .baseUrl(QQ_URL)
+                    .addCallAdapterFactory(rxJavaCallAdapterFactory)
+                    .addConverterFactory(gsonConverterFactory)
+                    .build();
+            albumApi = retrofit.create(AlbumApi.class);
+        }
+        return  albumApi;
+    }
+
 
 }

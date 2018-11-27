@@ -74,7 +74,6 @@ public class LocalMusicFragment extends Fragment implements ILocalMusicContract.
     @Override
     public void onActivityCreated(Bundle savedInstanceState) {
         super.onActivityCreated(savedInstanceState);
-
         intentFilter=new IntentFilter();
         intentFilter.addAction(BroadcastName.LOCAL_SONG_CHANGE_LIST);
         songChangeReceiver=new SongChangeLocalMusicReceiver();

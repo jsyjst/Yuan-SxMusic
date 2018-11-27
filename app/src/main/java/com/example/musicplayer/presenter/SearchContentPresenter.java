@@ -2,10 +2,12 @@ package com.example.musicplayer.presenter;
 
 import com.example.musicplayer.base.BasePresenter;
 import com.example.musicplayer.contract.ISearchContentContract;
+import com.example.musicplayer.entiy.Album;
 import com.example.musicplayer.entiy.SeachSong;
 import com.example.musicplayer.model.SearchContentModel;
 
 import java.util.ArrayList;
+import java.util.List;
 import java.util.logging.Handler;
 
 /**
@@ -27,7 +29,7 @@ public class SearchContentPresenter extends BasePresenter<ISearchContentContract
     }
 
     @Override
-    public void searchMore(String seek, int offset) {
+    public void searchMore(String seek,int offset) {
         mModel.searchMore(seek,offset);
     }
 
@@ -75,5 +77,41 @@ public class SearchContentPresenter extends BasePresenter<ISearchContentContract
             }
         },500);
 
+    }
+
+    @Override
+    public void searchAlbum(String seek, int offset) {
+        mModel.searchAlbum(seek,offset);
+    }
+
+    @Override
+    public void searchAlbumSuccess(List<Album.DataBean> albumList) {
+        if(isAttachView()){
+            getMvpView().searchAlbumSuccess(albumList);
+        }
+    }
+
+    @Override
+    public void searchAlbumError() {
+        if(isAttachView()){
+            getMvpView().searchAlbumError();
+        }
+    }
+
+    @Override
+    public void searchAlbumMore(String seek, int offset) {
+        mModel.searchAlbumMore(seek,offset);
+    }
+
+    @Override
+    public void searchAlbumMoreSuccess(final List<Album.DataBean> songListBeans) {
+        mHandler.postDelayed(new Runnable() {
+            @Override
+            public void run() {
+                if(isAttachView()){
+                    getMvpView().searchAlbumMoreSuccess(songListBeans);
+                }
+            }
+        },500);
     }
 }

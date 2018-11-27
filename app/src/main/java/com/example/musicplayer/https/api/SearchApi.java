@@ -1,5 +1,6 @@
 package com.example.musicplayer.https.api;
 
+import com.example.musicplayer.entiy.Album;
 import com.example.musicplayer.entiy.SeachSong;
 
 import io.reactivex.Observable;
@@ -17,4 +18,7 @@ import retrofit2.http.Query;
 public interface SearchApi {
     @GET("search?key=579621905&type=song&limit=30")
     Observable<SeachSong> search(@Query("s") String seek,@Query("offset")int offset);
+
+    @GET("search?key=579621905&type=album&limit=30")
+    Observable<Album> searchAlbum(@Query("s") String seek,@Query("offset")int offset);
 }

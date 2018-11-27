@@ -23,7 +23,6 @@ public class SearchFragment extends Fragment {
     private static final String TAG = "SearchFragment";
     private EditText mSeekEdit;
     private TextView mSeekTv;
-    private SearchContentFragment mSearchContentFragment;
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
@@ -62,12 +61,7 @@ public class SearchFragment extends Fragment {
 
         FragmentManager manager = getActivity().getSupportFragmentManager();
         FragmentTransaction transaction = manager.beginTransaction();
-        mSearchContentFragment = new SearchContentFragment();
-        Bundle bundle = new Bundle();
-        Log.d(TAG, "seek:" + mSeekEdit.getText().toString());
-        bundle.putString("seek", mSeekEdit.getText().toString());
-        mSearchContentFragment.setArguments(bundle);
-        transaction.replace(R.id.container, mSearchContentFragment);
+        transaction.replace(R.id.container, ContentFragment.newInstance(mSeekEdit.getText().toString()));
         transaction.commit();
     }
 }

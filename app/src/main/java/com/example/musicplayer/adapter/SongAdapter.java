@@ -133,10 +133,6 @@ public class SongAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
                     onItemClickListener.onSongClick();
 
                     equalPosition(position);
-
-
-
-
                 }
             });
         }else{

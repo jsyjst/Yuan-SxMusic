@@ -3,6 +3,7 @@ package com.example.musicplayer.model;
 import android.util.Log;
 
 import com.example.musicplayer.contract.ISearchContentContract;
+import com.example.musicplayer.entiy.Album;
 import com.example.musicplayer.entiy.SeachSong;
 import com.example.musicplayer.https.NetWork;
 
@@ -27,7 +28,7 @@ public class SearchContentModel implements ISearchContentContract.Model {
 
     @Override
     public void search(String seek, int offset) {
-        NetWork.getSearchApi().search(seek, offset)
+        NetWork.getSearchApi().search(seek,offset)
                 .subscribeOn(Schedulers.io()).observeOn(AndroidSchedulers.mainThread())
                 .subscribe(new Observer<SeachSong>() {
                     @Override
@@ -55,7 +56,7 @@ public class SearchContentModel implements ISearchContentContract.Model {
     }
 
     @Override
-    public void searchMore(String seek, int offset) {
+    public void searchMore(String seek,int offset) {
         NetWork.getSearchApi().search(seek, offset)
                 .subscribeOn(Schedulers.io()).observeOn(AndroidSchedulers.mainThread())
                 .subscribe(new Observer<SeachSong>() {
@@ -72,6 +73,76 @@ public class SearchContentModel implements ISearchContentContract.Model {
                                 mPresenter.searchMoreError();
                             } else {
                                 mPresenter.searchMoreSuccess((ArrayList<SeachSong.DataBean>) value.getData());
+                            }
+                        } else {
+                            mPresenter.searchMoreError();
+                        }
+                    }
+
+                    @Override
+                    public void onError(Throwable e) {
+                        mPresenter.showSearchMoreNetworkError();
+                        Log.d(TAG, "onError: " + e.toString());
+                    }
+
+                    @Override
+                    public void onComplete() {
+
+                    }
+                });
+    }
+
+    @Override
+    public void searchAlbum(String seek, int offset) {
+        NetWork.getSearchApi().searchAlbum(seek,offset)
+                .subscribeOn(Schedulers.io()).observeOn(AndroidSchedulers.mainThread())
+                .subscribe(new Observer<Album>() {
+                    @Override
+                    public void onSubscribe(Disposable d) {
+
+                    }
+
+                    @Override
+                    public void onNext(Album value) {
+                        if(value.getResult().equals("SUCCESS")){
+                            mPresenter.searchAlbumSuccess(value.getData());
+                        }else{
+                            mPresenter.searchAlbumError();
+                        }
+                    }
+
+                    @Override
+                    public void onError(Throwable e) {
+                        mPresenter.searchAlbumError();
+                        Log.d(TAG, "onError: searchAlbumError" + e.toString());
+                    }
+
+                    @Override
+                    public void onComplete() {
+
+                    }
+                });
+
+    }
+
+    @Override
+    public void searchAlbumMore(String seek, int offset) {
+        NetWork.getSearchApi().searchAlbum(seek, offset)
+                .subscribeOn(Schedulers.io()).observeOn(AndroidSchedulers.mainThread())
+                .subscribe(new Observer<Album>() {
+                    @Override
+                    public void onSubscribe(Disposable d) {
+
+                    }
+
+                    @Override
+                    public void onNext(Album value) {
+                        if (value.getResult().equals("SUCCESS")) {
+                            Log.d(TAG, "onNext: success");
+                            if (value.getData().size() == 0) {
+                                mPresenter.searchMoreError();
+                            } else {
+                                mPresenter.searchAlbumMoreSuccess(value.getData());
                             }
                         } else {
                             mPresenter.searchMoreError();

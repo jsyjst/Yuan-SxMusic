@@ -47,7 +47,13 @@ dependencies {
     implementation 'com.google.code.gson:gson:2.8.2'
     implementation 'com.squareup.retrofit2:adapter-rxjava2:2.3.0'
     //glide
-    implementation 'com.github.bumptech.glide:glide:4.8.0'
+    implementation 'com.github.bumptech.glide:glide:4.0.0'
     //LRecyclerView
     implementation 'com.github.jdsjlzx:LRecyclerView:1.5.4.3'
+    //CardView
+    implementation 'com.android.support:cardview-v7:27.1.1'
+    //滑动page
+    implementation 'com.github.florent37:materialviewpager:1.2.3'
+    implementation 'com.flaviofaria:kenburnsview:1.0.7'
+    implementation 'com.jpardogo.materialtabstrip:library:1.1.0'
 }

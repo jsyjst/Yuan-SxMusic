@@ -1,10 +1,13 @@
 package com.example.musicplayer.view;
 
 import android.content.BroadcastReceiver;
+import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
+import android.content.ServiceConnection;
 import android.os.Bundle;
+import android.os.IBinder;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentTransaction;
@@ -23,6 +26,7 @@ import com.example.musicplayer.entiy.Album;
 import com.example.musicplayer.entiy.SeachSong;
 import com.example.musicplayer.entiy.Song;
 import com.example.musicplayer.presenter.SearchContentPresenter;
+import com.example.musicplayer.service.PlayerService;
 import com.example.musicplayer.util.CommonUtil;
 import com.example.musicplayer.util.FileHelper;
 import com.github.jdsjlzx.interfaces.OnLoadMoreListener;
@@ -61,6 +65,20 @@ public class SearchContentFragment extends Fragment implements ISearchContentCon
     private String mSeek;
     private String mType;
 
+    private PlayerService.PlayStatusBinder mPlayStatusBinder;
+
+    private ServiceConnection connection = new ServiceConnection() {
+        @Override
+        public void onServiceConnected(ComponentName name, IBinder service) {
+            mPlayStatusBinder = (PlayerService.PlayStatusBinder) service;
+        }
+
+        @Override
+        public void onServiceDisconnected(ComponentName name) {
+
+        }
+    };
+
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
@@ -72,13 +90,13 @@ public class SearchContentFragment extends Fragment implements ISearchContentCon
         }
 
         mRecycler = view.findViewById(R.id.recycler_song_list);
-
         mPresenter = new SearchContentPresenter();
         mPresenter.attachView(this);
         if (mType.equals("song")) {
             mPresenter.search(mSeek, 1);
         } else if (mType.equals("album")) {
             mPresenter.searchAlbum(mSeek, 1);
+            mRecycler.setBackgroundResource(R.color.translucent);
         }
         searchMore();
         return view;
@@ -92,8 +110,13 @@ public class SearchContentFragment extends Fragment implements ISearchContentCon
         //注册广播
         intentFilter = new IntentFilter();
         intentFilter.addAction(BroadcastName.ONLINE_SONG_FINISH);
+        intentFilter.addAction(BroadcastName.ONLINE_ALBUM_SONG_Change);
         SongFinishReceiver songFinishReceiver = new SongFinishReceiver();
         getActivity().registerReceiver(songFinishReceiver, intentFilter);
+
+        //启动服务
+        Intent playIntent = new Intent(getActivity(), PlayerService.class);
+        getActivity().bindService(playIntent, connection, Context.BIND_AUTO_CREATE);
 
 
     }
@@ -113,16 +136,16 @@ public class SearchContentFragment extends Fragment implements ISearchContentCon
             public void onClick(int position) {
                 SeachSong.DataBean dataBean = mSongList.get(position);
                 Song song = new Song();
-                song.setArtist(dataBean.getSinger());
-                song.setTitle(dataBean.getName());
+                song.setOnlineId(dataBean.getId());
+                song.setSinger(dataBean.getSinger());
+                song.setSongName(dataBean.getName());
                 song.setUrl(dataBean.getUrl());
                 song.setImgUrl(dataBean.getPic());
-                song.setCurrent(FileHelper.getSong() == null ? 0 : FileHelper.getSong().getCurrent());
+                song.setCurrent(position);
+                song.setOnline(true);
                 FileHelper.saveSong(song);
 
-                Intent intent = new Intent(getActivity(), PlayActivity.class);
-                intent.putExtra(IS_ONLINE, true);
-                startActivity(intent);
+                mPlayStatusBinder.playOnline();
             }
         });
     }
@@ -226,6 +249,7 @@ public class SearchContentFragment extends Fragment implements ISearchContentCon
 
         @Override
         public void onReceive(Context context, Intent intent) {
+            Log.d(TAG, "onReceive: "+intent.getAction());
             mAdapter.notifyDataSetChanged();
         }
     }

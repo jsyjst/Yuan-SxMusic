@@ -8,6 +8,7 @@ import com.example.musicplayer.entiy.AlbumSong;
 import com.example.musicplayer.model.AlbumSongModel;
 import com.example.musicplayer.view.AlbumSongFragment;
 
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -54,5 +55,10 @@ public class AlbumSongPresenter extends BasePresenter<IAlbumSongContract.View> i
         if (isAttachView()) {
             getMvpView().showNetError();
         }
+    }
+
+    @Override
+    public void insertAllAlbumSong(ArrayList<AlbumSong.DataBean.SongsBean> songList) {
+        mModel.insertAllAlbumSong(songList);
     }
 }

@@ -4,7 +4,13 @@ import android.util.Log;
 
 import com.example.musicplayer.contract.IAlbumSongContract;
 import com.example.musicplayer.entiy.AlbumSong;
+import com.example.musicplayer.entiy.OnlineSong;
 import com.example.musicplayer.https.NetWork;
+
+import org.litepal.LitePal;
+import org.litepal.crud.LitePalSupport;
+
+import java.util.ArrayList;
 
 import io.reactivex.Observer;
 import io.reactivex.android.schedulers.AndroidSchedulers;
@@ -55,6 +61,29 @@ public class AlbumSongModel implements IAlbumSongContract.Model {
 
                     }
                 });
+
+    }
+
+    @Override
+    public void insertAllAlbumSong(final ArrayList<AlbumSong.DataBean.SongsBean> songList) {
+        new Thread(new Runnable() {
+            @Override
+            public void run() {
+                LitePal.deleteAll(OnlineSong.class);
+                for(int i=0;i<songList.size();i++){
+                    AlbumSong.DataBean.SongsBean song=songList.get(i);
+                    OnlineSong onlineSong = new OnlineSong();
+                    onlineSong.setId(i+1);
+                    onlineSong.setUrl(song.getUrl());
+                    onlineSong.setName(song.getName());
+                    onlineSong.setPic(song.getPic());
+                    onlineSong.setSinger(song.getSinger());
+                    onlineSong.setLrc(song.getLrc());
+                    onlineSong.setSongId(song.getId());
+                    onlineSong.save();
+                }
+            }
+        }).start();
 
     }
 }

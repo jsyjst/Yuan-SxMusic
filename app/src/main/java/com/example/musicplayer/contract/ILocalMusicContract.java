@@ -1,8 +1,7 @@
 package com.example.musicplayer.contract;
 
-import com.example.musicplayer.entiy.Mp3Info;
+import com.example.musicplayer.entiy.LocalSong;
 
-import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -12,12 +11,14 @@ import java.util.List;
 public interface ILocalMusicContract {
     interface Model{
         void getLocalMp3Info(); //得到本地音乐列表
+        void saveSong(List<LocalSong> localSongs);//将本地音乐放到数据库中
     }
     interface View{
-        void showMusicList(List<Mp3Info> mp3InfoList); //显示本地音乐
+        void showMusicList(List<LocalSong> mp3InfoList); //显示本地音乐
     }
     interface Presenter{
-        void showMusicList(List<Mp3Info> mp3InfoList); //显示本地音乐
+        void showMusicList(List<LocalSong> mp3InfoList); //显示本地音乐
         void getLocalMp3Info(); //得到本地音乐列表
+        void saveSong(List<LocalSong> localSongs);//将本地音乐放到数据库中
     }
 }

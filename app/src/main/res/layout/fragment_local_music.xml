@@ -54,10 +54,11 @@
 
     <RelativeLayout
         android:layout_width="match_parent"
-        android:layout_height="match_parent">
+        android:layout_height="match_parent"
+        android:background="@color/translucent">
 
         <android.support.v7.widget.RecyclerView
-            android:background="@color/translucent"
+
             android:id="@+id/recycler_song_list"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
@@ -65,6 +66,12 @@
 
 
         </android.support.v7.widget.RecyclerView>
+        <ViewStub
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:id="@+id/stub_empty"
+            android:layout="@layout/empty_song"
+            />
 
 
     </RelativeLayout>

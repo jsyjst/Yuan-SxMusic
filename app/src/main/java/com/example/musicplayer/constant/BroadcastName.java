@@ -11,5 +11,7 @@ public class BroadcastName {
     public static final String LOCAL_SONG_CHANGE_LIST="local_song_change_list";
     public static final String SONG_PAUSE ="song_pause";
     public static final String SONG_RESUME="song_resume";
+    public static final String ONLINE_SONG_ERROR="online_song_error";
+    public static final String ONLINE_ALBUM_SONG_Change="online_album_song_change";
 
 }

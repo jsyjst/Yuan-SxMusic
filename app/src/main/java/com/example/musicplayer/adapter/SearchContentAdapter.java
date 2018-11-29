@@ -94,15 +94,19 @@ public class SearchContentAdapter extends RecyclerView.Adapter<RecyclerView.View
             songHolder.titleTv.setText(songListBean.getName());
             CommonUtil.showStringColor(mSeek, songListBean.getName(), songHolder.titleTv);
 
-            if (FileHelper.getSong().getImgUrl() != null) {
                 //根据点击显示
-                songHolder.playLine.setVisibility((position == mLastPosition ? View.VISIBLE : View.INVISIBLE));
-                songHolder.mItemView.setBackgroundResource((position == mLastPosition ? R.color.click : R.color.translucent));
+            if(songListBean.getId().equals(FileHelper.getSong().getOnlineId())){
+                songHolder.playLine.setVisibility(View.VISIBLE);
+                mLastPosition =position;
+                songHolder.mItemView.setBackgroundResource(R.color.click);
+            }else {
+                songHolder.playLine.setVisibility(View.INVISIBLE);
+                songHolder.mItemView.setBackgroundResource(R.color.translucent);
             }
+
             songHolder.mItemView.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
-                    Log.d(TAG, "onClick: song");
                     mItemClick.onClick(position);
                     equalPosition(position);
                 }
@@ -185,11 +189,15 @@ public class SearchContentAdapter extends RecyclerView.Adapter<RecyclerView.View
     }
 
     //判断点击的是否为上一个点击的项目
-    private void equalPosition(int position) {
+    public void equalPosition(int position) {
         if (position != mLastPosition) {
             if (mLastPosition != -1) notifyItemChanged(mLastPosition);
             mLastPosition = position;
         }
         notifyItemChanged(position);
+    }
+
+    public void setLastPosition(int position){
+        mLastPosition =position;
     }
 }

@@ -1,12 +1,19 @@
 package com.example.musicplayer.view;
 
+import android.content.BroadcastReceiver;
+import android.content.ComponentName;
+import android.content.Context;
 import android.content.Intent;
+import android.content.IntentFilter;
+import android.content.ServiceConnection;
 import android.graphics.BitmapFactory;
 import android.os.Bundle;
+import android.os.IBinder;
 import android.support.v4.app.Fragment;
 import android.support.v4.widget.NestedScrollView;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.view.InflateException;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -15,6 +22,7 @@ import android.widget.TextView;
 import com.example.musicplayer.R;
 import com.example.musicplayer.adapter.AlbumSongAdapter;
 import com.example.musicplayer.adapter.SearchContentAdapter;
+import com.example.musicplayer.constant.BroadcastName;
 import com.example.musicplayer.constant.Constant;
 import com.example.musicplayer.contract.IAlbumSongContract;
 import com.example.musicplayer.entiy.Album;
@@ -22,11 +30,15 @@ import com.example.musicplayer.entiy.AlbumSong;
 import com.example.musicplayer.entiy.SeachSong;
 import com.example.musicplayer.entiy.Song;
 import com.example.musicplayer.presenter.AlbumSongPresenter;
+import com.example.musicplayer.service.PlayerService;
 import com.example.musicplayer.util.CommonUtil;
 import com.example.musicplayer.util.FileHelper;
 import com.github.florent37.materialviewpager.MaterialViewPagerHelper;
 import com.github.florent37.materialviewpager.header.MaterialViewPagerHeaderDecorator;
 
+import org.litepal.LitePal;
+
+import java.util.ArrayList;
 import java.util.List;
 
 import static com.example.musicplayer.view.SearchContentFragment.IS_ONLINE;
@@ -39,6 +51,7 @@ public class AlbumSongFragment extends Fragment implements IAlbumSongContract.Vi
     private static final String TYPE_KEY = "type_key";
     public static final int ALBUM_SONG = 0;
     public static final int ALBUM_INFORATION = 1;
+    public static final String IS_ONLINE_ALBUM="online_album";
 
     private AlbumSongPresenter mPresenter;
     private String mId;
@@ -55,6 +68,22 @@ public class AlbumSongFragment extends Fragment implements IAlbumSongContract.Vi
     private LinearLayoutManager mLinearManager;
     private AlbumSongAdapter mAdapter;
 
+    private IntentFilter intentFilter;
+    private AlbumSongChangeReceiver albumSongChangeReceiver;
+
+    private PlayerService.PlayStatusBinder mPlayStatusBinder;
+
+    private ServiceConnection connection = new ServiceConnection() {
+        @Override
+        public void onServiceConnected(ComponentName name, IBinder service) {
+            mPlayStatusBinder = (PlayerService.PlayStatusBinder) service;
+        }
+
+        @Override
+        public void onServiceDisconnected(ComponentName name) {
+
+        }
+    };
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
@@ -63,6 +92,7 @@ public class AlbumSongFragment extends Fragment implements IAlbumSongContract.Vi
         if (mType == ALBUM_SONG) {
             view = inflater.inflate(R.layout.fragment_album_recycler, container, false);
             mRecycle = view.findViewById(R.id.recycler_song_list);
+            LitePal.getDatabase();
         } else {
             view = inflater.inflate(R.layout.fragment_album_song, container, false);
             mScrollView = view.findViewById(R.id.scrollView);
@@ -80,15 +110,23 @@ public class AlbumSongFragment extends Fragment implements IAlbumSongContract.Vi
     @Override
     public void onActivityCreated(Bundle save) {
         super.onActivityCreated(save);
-        MaterialViewPagerHelper.registerScrollView(getActivity(), mScrollView);
+        if(mType==ALBUM_SONG){
+            intentFilter=new IntentFilter();
+            intentFilter.addAction(BroadcastName.ONLINE_ALBUM_SONG_Change);
+            albumSongChangeReceiver = new AlbumSongChangeReceiver();
+            getActivity().registerReceiver(albumSongChangeReceiver,intentFilter);
+            //启动服务
+            Intent playIntent = new Intent(getActivity(), PlayerService.class);
+            getActivity().bindService(playIntent, connection, Context.BIND_AUTO_CREATE);
+        }else{
+            MaterialViewPagerHelper.registerScrollView(getActivity(), mScrollView);
+        }
+
         mPresenter =new AlbumSongPresenter();
         mPresenter.attachView(this);
         mPresenter.getAlbumDetail(mId,mType);
-        initView();
     }
-    private void initView(){
 
-    }
     private void getBundle(){
         Bundle bundle = getArguments();
         if (bundle != null) {
@@ -110,6 +148,7 @@ public class AlbumSongFragment extends Fragment implements IAlbumSongContract.Vi
 
     @Override
     public void setAlbumSongList(final List<AlbumSong.DataBean.SongsBean> songList) {
+        mPresenter.insertAllAlbumSong((ArrayList<AlbumSong.DataBean.SongsBean>) songList);//存到数据库中
         mLinearManager =new LinearLayoutManager(getActivity());
         mRecycle.setLayoutManager(mLinearManager);
         mAdapter =new AlbumSongAdapter(songList);
@@ -121,16 +160,18 @@ public class AlbumSongFragment extends Fragment implements IAlbumSongContract.Vi
             public void onClick(int position) {
                 AlbumSong.DataBean.SongsBean dataBean= songList.get(position);
                 Song song = new Song();
-                song.setArtist(dataBean.getSinger());
-                song.setTitle(dataBean.getName());
+                song.setOnlineId(dataBean.getId());
+                song.setSinger(dataBean.getSinger());
+                song.setSongName(dataBean.getName());
                 song.setUrl(dataBean.getUrl());
                 song.setImgUrl(dataBean.getPic());
-                song.setCurrent(FileHelper.getSong() == null ? 0 : FileHelper.getSong().getCurrent());
+                song.setCurrent(position);
+                song.setOnline(true);
+                song.setOnlineAlbum(true);
                 FileHelper.saveSong(song);
 
-                Intent intent = new Intent(getActivity(), PlayActivity.class);
-                intent.putExtra(IS_ONLINE, true);
-                startActivity(intent);
+                mPlayStatusBinder.play(Constant.LIST_TYPE_ONLINE);
+
             }
         });
     }
@@ -152,5 +193,13 @@ public class AlbumSongFragment extends Fragment implements IAlbumSongContract.Vi
     @Override
     public void showNetError() {
         CommonUtil.showToast(getActivity(),"网络错误");
+    }
+
+    class AlbumSongChangeReceiver extends BroadcastReceiver {
+
+        @Override
+        public void onReceive(Context context, Intent intent) {
+            mAdapter.notifyDataSetChanged();
+        }
     }
 }

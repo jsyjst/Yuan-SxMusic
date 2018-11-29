@@ -97,7 +97,7 @@ public class CommonUtil {
             editText.requestFocus();
             //调用系统输入法
             InputMethodManager inputManager = (InputMethodManager) context.getSystemService(Context.INPUT_METHOD_SERVICE);
-            inputManager.showSoftInput(editText, 0);
+            inputManager.toggleSoftInput(0,InputMethodManager.HIDE_NOT_ALWAYS);
         }
     }
 

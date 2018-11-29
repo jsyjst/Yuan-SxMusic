@@ -1,11 +1,8 @@
 package com.example.musicplayer.adapter;
 
 import android.content.Context;
-import android.content.Intent;
 import android.support.annotation.NonNull;
 import android.support.v7.widget.RecyclerView;
-import android.util.Log;
-import android.util.TypedValue;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -14,10 +11,8 @@ import android.widget.TextView;
 
 import com.example.musicplayer.constant.MyApplication;
 import com.example.musicplayer.entiy.Song;
-import com.example.musicplayer.service.PlayerService;
 import com.example.musicplayer.R;
-import com.example.musicplayer.constant.PlayerStatus;
-import com.example.musicplayer.entiy.Mp3Info;
+import com.example.musicplayer.entiy.LocalSong;
 import com.example.musicplayer.util.FileHelper;
 
 import java.util.List;
@@ -27,19 +22,19 @@ import java.util.List;
  */
 
 public class SongAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
-    private static final String TAG="SongAdapter";
+    private static final String TAG = "SongAdapter";
     private int footerViewType = 1;
     private int itemViewType = 0;
-    private List<Mp3Info> mMp3InfoList;
+    private List<LocalSong> mMp3InfoList;
     private Context mContext;
     private int mLastPosition = -1;
     private OnItemClickListener onItemClickListener;
 
-    public void setOnItemClickListener(OnItemClickListener onItemClickListener){
-        this.onItemClickListener=onItemClickListener;
+    public void setOnItemClickListener(OnItemClickListener onItemClickListener) {
+        this.onItemClickListener = onItemClickListener;
     }
 
-    public SongAdapter(Context context, List<Mp3Info> mp3InfoList) {
+    public SongAdapter(Context context, List<LocalSong> mp3InfoList) {
         mContext = context;
         mMp3InfoList = mp3InfoList;
     }
@@ -86,7 +81,7 @@ public class SongAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
             return viewHolder;
         } else {
             View footerView = LayoutInflater.from(parent.getContext())
-                    .inflate(R.layout.item_local_songs_footer, parent, false);
+                    .inflate(R.layout.footer_local_songs_item, parent, false);
             FooterHolder footerHolder = new FooterHolder(footerView);
             return footerHolder;
         }
@@ -95,18 +90,20 @@ public class SongAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
     @Override
     public void onBindViewHolder(RecyclerView.ViewHolder viewHolder, final int position) {
         if (viewHolder instanceof ViewHolder) {
-            ViewHolder holder=(ViewHolder)viewHolder;
-            final Mp3Info mp3Info = mMp3InfoList.get(position);
+            ViewHolder holder = (ViewHolder) viewHolder;
+            final LocalSong mp3Info = mMp3InfoList.get(position);
 
-            holder.songNameTv.setText(mp3Info.getTitle());
-            holder.artistTv.setText(mp3Info.getArtist());
-            mLastPosition=FileHelper.getSong().getCurrent();
+            holder.songNameTv.setText(mp3Info.getName());
+            holder.artistTv.setText(mp3Info.getSinger());
+            if (FileHelper.getSong() != null) {
+                mLastPosition = FileHelper.getSong().getCurrent();
+            }
             holder.songNameTv.setTextColor(MyApplication.getContext().getResources().
                     getColor(position == mLastPosition ? R.color.musicStyle_low : R.color.white));
             holder.artistTv.setTextColor(MyApplication.getContext().getResources().
                     getColor(position == mLastPosition ? R.color.musicStyle_low : R.color.short_white));
             holder.playingIv.setVisibility(position == mLastPosition ? View.VISIBLE : View.GONE);
-            if(FileHelper.getSong().getImgUrl()!=null){
+            if (FileHelper.getSong().isOnline()) {
                 holder.playingIv.setVisibility(View.GONE);
                 holder.songNameTv.setTextColor(MyApplication.getContext().getResources().
                         getColor(R.color.white));
@@ -117,27 +114,24 @@ public class SongAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
             holder.songView.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
-                    Log.d(TAG, "onClick: "+mp3Info.getAlbumId()+"id="+mp3Info.getId());
+
                     //将点击的序列化到本地
-                    Song song=new Song();
-                    song.setArtist(mp3Info.getArtist());
-                    song.setDuration(mp3Info.getDuration());
-                    song.setSize(mp3Info.getSize());
-                    song.setTitle(mp3Info.getTitle());
+                    Song song = new Song();
+                    song.setSongName(mp3Info.getName());
+                    song.setSinger(mp3Info.getSinger());
                     song.setUrl(mp3Info.getUrl());
+                    song.setDuration(mp3Info.getDuration());
                     song.setCurrent(position);
-                    song.setAlbumId(mp3Info.getAlbumId());
-                    song.setId(mp3Info.getId());
-
+                    song.setOnline(false);
                     FileHelper.saveSong(song);
-                    onItemClickListener.onSongClick();
 
+                    onItemClickListener.onSongClick();
                     equalPosition(position);
                 }
             });
-        }else{
-            FooterHolder footerHolder=(FooterHolder)viewHolder;
-            footerHolder.numTv.setText("共"+mMp3InfoList.size()+"首音乐");
+        } else {
+            FooterHolder footerHolder = (FooterHolder) viewHolder;
+            footerHolder.numTv.setText("共" + mMp3InfoList.size() + "首音乐");
         }
     }
 
@@ -161,7 +155,7 @@ public class SongAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
     }
 
 
-    public interface OnItemClickListener{
+    public interface OnItemClickListener {
         void onSongClick();
     }
 

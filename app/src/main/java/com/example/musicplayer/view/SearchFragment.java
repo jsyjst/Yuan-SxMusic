@@ -13,7 +13,13 @@ import android.widget.EditText;
 import android.widget.TextView;
 
 import com.example.musicplayer.R;
+import com.example.musicplayer.entiy.History;
 import com.example.musicplayer.util.CommonUtil;
+
+import org.litepal.LitePal;
+import org.litepal.LitePalDB;
+
+import java.util.List;
 
 /**
  * Created by 残渊 on 2018/11/20.
@@ -30,6 +36,7 @@ public class SearchFragment extends Fragment {
         View view = inflater.inflate(R.layout.fragment_search, container, false);
         mSeekEdit = view.findViewById(R.id.edit_seek);
         mSeekTv = view.findViewById(R.id.tv_search);
+        replaceFragment(new SearchHistoryFragment());
         return view;
     }
 
@@ -42,7 +49,8 @@ public class SearchFragment extends Fragment {
             public void onClick(View v) {
                 CommonUtil.closeKeybord(mSeekEdit, getActivity());
                 mSeekEdit.setCursorVisible(false);//隐藏光标
-                replaceFragment();
+                saveDatabase(mSeekEdit.getText().toString());
+                replaceFragment(ContentFragment.newInstance(mSeekEdit.getText().toString()));
             }
         });
         mSeekEdit.setOnTouchListener(new View.OnTouchListener() {
@@ -56,12 +64,35 @@ public class SearchFragment extends Fragment {
         });
     }
 
-    //搜索后的页面
-    private void replaceFragment() {
+    private void saveDatabase(String seekHistory) {
+        List<History> historyList = LitePal.where("history=?", seekHistory).find(History.class);
+        if (historyList.size() == 1) {
+            LitePal.delete(History.class, historyList.get(0).getId());
+        }
+        History history = new History();
+        history.setHistory(seekHistory);
+        history.save();
 
-        FragmentManager manager = getActivity().getSupportFragmentManager();
-        FragmentTransaction transaction = manager.beginTransaction();
-        transaction.replace(R.id.container, ContentFragment.newInstance(mSeekEdit.getText().toString()));
+    }
+    public void setSeekEdit(String seek){
+        mSeekEdit.setText(seek);
+        mSeekEdit.setCursorVisible(false);//隐藏光标
+        mSeekEdit.setSelection(seek.length());
+        CommonUtil.closeKeybord(mSeekEdit, getActivity());
+        saveDatabase(seek);
+        replaceFragment(ContentFragment.newInstance(mSeekEdit.getText().toString()));
+    }
+
+    //搜索后的页面
+    private void replaceFragment(Fragment fragment) {
+        FragmentTransaction transaction = getChildFragmentManager().beginTransaction();
+        transaction.replace(R.id.container, fragment);
         transaction.commit();
     }
+    @Override
+    public void onDestroyView(){
+        super.onDestroyView();
+        Log.d(TAG, "onDestroyView: true");
+    }
+
 }

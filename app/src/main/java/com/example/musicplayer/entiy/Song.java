@@ -9,100 +9,101 @@ import java.io.Serializable;
 public class Song implements Serializable {
     private static final long serialVersionUID=1L;
 
-    private String artist;
+    private String onlineId;
+    private String singer;
     private long duration;
-    private String title;
-    private long size;
+    private String songName;
     private String url;
     private long currentTime;
     private int current;//在本地音乐的位置
-    private long albumId;
-    private long id;
     private String imgUrl;
+    private boolean isOnline;
+    private boolean isOnlineAlbum;
 
-    public long getId() {
-        return id;
-    }
-
-    public void setId(long id) {
-        this.id = id;
-    }
-
-    public long getSize() {
-        return size;
-    }
-
-    public String getArtist() {
-        return artist;
-    }
-
-    public long getDuration() {
-        return duration;
-    }
-
-    public String getTitle() {
-        return title;
-    }
-
-    public String getUrl() {
-        return url;
-    }
-
-    public void setArtist(String artist) {
-        this.artist = artist;
-    }
-
-    public void setDuration(long duration) {
-        this.duration = duration;
-    }
-
-    public void setSize(long size) {
-        this.size = size;
-    }
-
-    public void setTitle(String title) {
-        this.title = title;
-    }
-
-    public void setUrl(String url) {
-        this.url = url;
-    }
-
-    public long getCurrentTime() {
-        return currentTime;
-    }
-
-    public void setCurrentTime(long currentTime) {
-        this.currentTime = currentTime;
+    public String getImgUrl() {
+        return imgUrl;
     }
 
     public int getCurrent() {
         return current;
     }
 
-    public void setCurrent(int current) {
-        this.current = current;
+    public long getDuration() {
+        return duration;
     }
 
-    public long getAlbumId() {
-        return albumId;
+    public long getCurrentTime() {
+        return currentTime;
     }
 
-    public void setAlbumId(long albumId) {
-        this.albumId = albumId;
+    public String getUrl() {
+        return url;
     }
 
-    public String getImgUrl() {
-        return imgUrl;
+    public String getSinger() {
+        return singer;
+    }
+
+    public String getSongName() {
+        return songName;
     }
 
     public void setImgUrl(String imgUrl) {
         this.imgUrl = imgUrl;
     }
 
+    public void setCurrent(int current) {
+        this.current = current;
+    }
+
+    public void setCurrentTime(long currentTime) {
+        this.currentTime = currentTime;
+    }
+
+    public void setDuration(long duration) {
+        this.duration = duration;
+    }
+
+    public void setUrl(String url) {
+        this.url = url;
+    }
+
+    public void setSinger(String singer) {
+        this.singer = singer;
+    }
+
+    public void setSongName(String songName) {
+        this.songName = songName;
+    }
+
+    public boolean isOnline() {
+        return isOnline;
+    }
+
+    public void setOnline(boolean online) {
+        isOnline = online;
+    }
+
+    public boolean isOnlineAlbum() {
+        return isOnlineAlbum;
+    }
+
+    public void setOnlineAlbum(boolean onlineAlbum) {
+        isOnlineAlbum = onlineAlbum;
+    }
+
+    public String getOnlineId() {
+        return onlineId;
+    }
+
+    public void setOnlineId(String onlineId) {
+        this.onlineId = onlineId;
+    }
+
     public String toString(){
-        return "artist="+artist+",title="+title+",url="+url+",duration="+duration+
-                ",size"+size+",currentTime="+currentTime+",current="+current+",albumId="+albumId;
+        return "songName="+songName+",singer="+singer+",url="+url+",imgUrl="+imgUrl
+                +",duration="+duration+",currentTime="+currentTime+",current="+current
+                +",onlineId="+onlineId+",isOnline="+isOnline+",isOnlineAlbum="+isOnlineAlbum;
 
     }
 }

@@ -1,8 +1,14 @@
 package com.example.musicplayer.model;
 
+import android.database.Cursor;
+import android.provider.MediaStore;
+
+import com.example.musicplayer.constant.MyApplication;
 import com.example.musicplayer.contract.ILocalMusicContract;
-import com.example.musicplayer.entiy.Mp3Info;
+import com.example.musicplayer.entiy.LocalSong;
 import com.example.musicplayer.util.MediaUtil;
+
+import org.litepal.LitePal;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -14,7 +20,6 @@ import java.util.List;
 public class LocalMusicModel implements ILocalMusicContract.Model {
 
     private ILocalMusicContract.Presenter mPresenter;
-    private List<Mp3Info> mMp3InfoList=new ArrayList<>();
 
     public LocalMusicModel(ILocalMusicContract.Presenter presenter){
         mPresenter=presenter;
@@ -25,10 +30,68 @@ public class LocalMusicModel implements ILocalMusicContract.Model {
         new Thread(new Runnable() {
             @Override
             public void run() {
-                mMp3InfoList= MediaUtil.getMp3Info();
-                mPresenter.showMusicList(mMp3InfoList);
+                List<LocalSong> mp3InfoList = new ArrayList<>();
+                Cursor cursor = MyApplication.getContext().getContentResolver().query(
+                        MediaStore.Audio.Media.EXTERNAL_CONTENT_URI, null, null, null,
+                        MediaStore.Audio.Media.DEFAULT_SORT_ORDER);
+                for (int i = 0; i < cursor.getCount(); i++) {
+
+                    cursor.moveToNext();
+                    LocalSong mp3Info = new LocalSong();
+                    long id = cursor.getLong(cursor
+                            .getColumnIndex(MediaStore.Audio.Media._ID));    //音乐id
+                    String title = cursor.getString((cursor
+                            .getColumnIndex(MediaStore.Audio.Media.TITLE)));//音乐标题
+                    String artist = cursor.getString(cursor
+                            .getColumnIndex(MediaStore.Audio.Media.ARTIST));//艺术家
+                    long duration = cursor.getLong(cursor
+                            .getColumnIndex(MediaStore.Audio.Media.DURATION));//时长
+                    long size = cursor.getLong(cursor
+                            .getColumnIndex(MediaStore.Audio.Media.SIZE));    //文件大小
+                    long albumId = cursor.getInt(cursor.getColumnIndex(MediaStore.Audio.Media.ALBUM_ID));
+                    String url = cursor.getString(cursor
+                            .getColumnIndex(MediaStore.Audio.Media.DATA));     //文件路径
+                    int isMusic = cursor.getInt(cursor
+                            .getColumnIndex(MediaStore.Audio.Media.IS_MUSIC));//是否为音乐
+                    if (isMusic != 0) {//只把音乐添加到集合当中
+                        if (size > 1000 * 800) {
+                            // 注释部分是切割标题，分离出歌曲名和歌手 （本地媒体库读取的歌曲信息不规范）
+                            if (title.contains("-")) {
+                                String[] str = title.split("-");
+                                artist = str[0];
+                                title = str[1];
+                            }
+                            mp3Info.setName(title.trim());
+                            mp3Info.setSinger(artist);
+                            mp3Info.setDuration(duration);
+                            mp3Info.setUrl(url);
+                            mp3InfoList.add(mp3Info);
+                        }
+                    }
+                }
+                cursor.close();
+                mPresenter.showMusicList(mp3InfoList);
 
             }
+        }).start();
+    }
+
+    @Override
+    public void saveSong(final List<LocalSong> localSongs) {
+        new Thread(new Runnable() {
+            @Override
+            public void run() {
+                LitePal.deleteAll(LocalSong.class);
+                for(LocalSong localSong:localSongs){
+                    LocalSong song = new LocalSong();
+                    song.setName(localSong.getName());
+                    song.setSinger(localSong.getSinger());
+                    song.setUrl(localSong.getUrl());
+                    song.setDuration(localSong.getDuration());
+                    song.save();
+                }
+            }
+
         }).start();
     }
 

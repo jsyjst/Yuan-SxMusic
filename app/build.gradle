@@ -56,4 +56,7 @@ dependencies {
     implementation 'com.github.florent37:materialviewpager:1.2.3'
     implementation 'com.flaviofaria:kenburnsview:1.0.7'
     implementation 'com.jpardogo.materialtabstrip:library:1.1.0'
+    //litePal
+    implementation 'org.litepal.android:java:3.0.0'
+
 }

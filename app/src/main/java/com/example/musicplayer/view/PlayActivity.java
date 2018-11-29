@@ -1,6 +1,5 @@
 package com.example.musicplayer.view;
 
-import android.animation.ObjectAnimator;
 import android.content.BroadcastReceiver;
 import android.content.ComponentName;
 import android.content.Context;
@@ -14,7 +13,6 @@ import android.graphics.PorterDuff;
 import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.Drawable;
 import android.media.MediaPlayer;
-import android.os.Environment;
 import android.os.Handler;
 import android.os.IBinder;
 import android.os.Message;
@@ -39,10 +37,11 @@ import com.bumptech.glide.request.transition.Transition;
 import com.example.musicplayer.R;
 import com.example.musicplayer.base.BaseActivity;
 import com.example.musicplayer.constant.BaseUri;
-import com.example.musicplayer.constant.MyApplication;
+import com.example.musicplayer.constant.BroadcastName;
+import com.example.musicplayer.constant.Constant;
 import com.example.musicplayer.constant.PlayerStatus;
 import com.example.musicplayer.contract.IPlayContract;
-import com.example.musicplayer.entiy.Mp3Info;
+import com.example.musicplayer.entiy.LocalSong;
 import com.example.musicplayer.entiy.Song;
 import com.example.musicplayer.presenter.PlayPresenter;
 import com.example.musicplayer.service.PlayerService;
@@ -54,9 +53,11 @@ import com.example.musicplayer.util.MediaUtil;
 import com.example.musicplayer.widget.BackgroundAnimationRelativeLayout;
 import com.example.musicplayer.widget.DiscView;
 
-import java.io.FileNotFoundException;
-import java.util.ArrayList;
+import org.litepal.LitePal;
+
 import java.util.List;
+
+import static com.example.musicplayer.view.AlbumSongFragment.IS_ONLINE_ALBUM;
 
 /**
  * 播放界面
@@ -65,6 +66,7 @@ public class PlayActivity extends BaseActivity implements IPlayContract.View {
 
     private String TAG = "PlayActivity";
     private boolean isOnline; //判断是否为网络歌曲
+    private boolean isOnlineAlbum;//判断是否为网络专辑
     private int mPlayStatus;
 
     private boolean isChange; //拖动进度条
@@ -93,7 +95,7 @@ public class PlayActivity extends BaseActivity implements IPlayContract.View {
     private Bitmap mImgBmp;
     private Button mGetImgAndLrcBtn;//获取封面和歌词
     private BackgroundAnimationRelativeLayout mRootLayout;
-    private List<Mp3Info> mMp3InfoList;//用来判断是否有本地照片
+    private List<LocalSong> mLocalSong;//用来判断是否有本地照片
 
     //服务
     private Thread mSeekBarThread;
@@ -104,17 +106,20 @@ public class PlayActivity extends BaseActivity implements IPlayContract.View {
         @Override
         public void onServiceConnected(ComponentName name, IBinder service) {
             mPlayStatusBinder = (PlayerService.PlayStatusBinder) service;
-            if(isOnline){
+            isOnline = FileHelper.getSong().isOnline();
+            isOnlineAlbum = FileHelper.getSong().isOnlineAlbum();
+            if (isOnline) {
                 mGetImgAndLrcBtn.setVisibility(View.GONE);
-                if(mPlayStatus==PlayerStatus.PAUSE) mPlayStatusBinder.playOnline();
                 mDurationTimeTv.setText(MediaUtil.formatTime(FileHelper.getSong().getDuration()));
                 setSingerImg(FileHelper.getSong().getImgUrl());
-                mDisc.play();
-                mPlayBtn.setSelected(true);
-                startUpdateSeekBarProgress();
-            }else{
+                if (mPlayStatus == PlayerStatus.PLAY) {
+                    mDisc.play();
+                    mPlayBtn.setSelected(true);
+                    startUpdateSeekBarProgress();
+                }
+            } else {
                 mDurationTimeTv.setText(MediaUtil.formatTime(mSong.getDuration()));
-                setLocalImg(mSong.getArtist());
+                setLocalImg(mSong.getSinger());
             }
         }
 
@@ -141,7 +146,7 @@ public class PlayActivity extends BaseActivity implements IPlayContract.View {
 
     @Override
     protected void initViews() {
-        CommonUtil.hideStatusBar(this,true);
+        CommonUtil.hideStatusBar(this, true);
         setContentView(R.layout.activity_play);
 
         //设置进入退出动画
@@ -152,14 +157,15 @@ public class PlayActivity extends BaseActivity implements IPlayContract.View {
         mPresenter = new PlayPresenter();
         mPresenter.attachView(this);
         //是否为网络歌曲
-        isOnline=getIntent().getBooleanExtra(SearchContentFragment.IS_ONLINE,false);
-        Log.d(TAG, "isOnline="+isOnline);
-        mPlayStatus=getIntent().getIntExtra(PlayerStatus.PLAYER_STATUS, 2);
+
+
+        mPlayStatus = getIntent().getIntExtra(PlayerStatus.PLAYER_STATUS, 2);
 
         //注册广播
         mIntentFilter = new IntentFilter();
-        mIntentFilter.addAction("android.song.change");
-        mIntentFilter.addAction("SONG_ONLINE");
+        mIntentFilter.addAction(BroadcastName.SONG_CHANGE);
+        mIntentFilter.addAction(BroadcastName.ONLINE_SONG);
+        mIntentFilter.addAction(BroadcastName.ONLINE_ALBUM_SONG_Change);
         songChangeReceiver = new SongChangeReceiver();
         registerReceiver(songChangeReceiver, mIntentFilter);
 
@@ -180,10 +186,10 @@ public class PlayActivity extends BaseActivity implements IPlayContract.View {
         mDisc = findViewById(R.id.disc_view);
         mDiscImg = findViewById(R.id.iv_disc_background);
 
+        //界面填充
         mSong = FileHelper.getSong();
-        mMp3InfoList = MediaUtil.getMp3Info();
-        mSingerTv.setText(mSong.getArtist());
-        mSongTv.setText(mSong.getTitle());
+        mSingerTv.setText(mSong.getSinger());
+        mSongTv.setText(mSong.getSongName());
         mCurrentTimeTv.setText(MediaUtil.formatTime(mSong.getCurrentTime()));
         mSeekBar.setMax((int) mSong.getDuration());
         mSeekBar.setProgress((int) mSong.getCurrentTime());
@@ -195,12 +201,9 @@ public class PlayActivity extends BaseActivity implements IPlayContract.View {
             startUpdateSeekBarProgress();
         }
 
-
         //绑定服务
         Intent playIntent = new Intent(PlayActivity.this, PlayerService.class);
         bindService(playIntent, connection, Context.BIND_AUTO_CREATE);
-
-
 
 
     }
@@ -310,7 +313,13 @@ public class PlayActivity extends BaseActivity implements IPlayContract.View {
                     startUpdateSeekBarProgress();
                 } else {
                     Log.d(TAG, "onClick: --------play");
-                    mPlayStatusBinder.play(0);
+                    if (isOnline) {
+                        mPlayStatusBinder.playOnline();
+                    } else if (isOnlineAlbum) {
+                        mPlayStatusBinder.play(Constant.LIST_TYPE_ONLINE);
+                    } else {
+                        mPlayStatusBinder.play(Constant.LIST_TYPE_LOCAL);
+                    }
                     mMediaPlayer.seekTo((int) mSong.getCurrentTime());
                     mDisc.play();
                     mPlayBtn.setSelected(true);
@@ -343,11 +352,11 @@ public class PlayActivity extends BaseActivity implements IPlayContract.View {
     @Override
     public String getSingerName() {
         Song song = FileHelper.getSong();
-        if (song.getArtist().contains("/")) {
-            String[] s = song.getArtist().split("/");
+        if (song.getSinger().contains("/")) {
+            String[] s = song.getSinger().split("/");
             return s[0].trim();
         } else {
-            return song.getArtist().trim();
+            return song.getSinger().trim();
         }
 
     }
@@ -366,13 +375,18 @@ public class PlayActivity extends BaseActivity implements IPlayContract.View {
             public void onResourceReady(@Nullable Drawable resource, Transition<? super Drawable> transition) {
                 mImgBmp = ((BitmapDrawable) resource).getBitmap();
                 //如果是本地音乐
-                if(!isOnline){
+                if (!isOnline) {
                     //保存图片到本地
                     FileHelper.saveImgToNative(PlayActivity.this, mImgBmp, getSingerName());
                     CommonUtil.showToast(PlayActivity.this, "获取封面歌词成功");
+
+//                    //将封面地址放到数据库中
+//                    LocalSong localSong =new LocalSong();
+//                    mLocalSong = LitePal.findAll(LocalSong.class);
+//                    localSong.setPic(BaseUri.STORAGE_IMG_FILE + FileHelper.getSong().getSinger() + ".jpg");
+//                    localSong.updateAll("singer",FileHelper.getSong().getSinger());
                 }
-                Song song = FileHelper.getSong();
-                mMp3InfoList.get(song.getCurrent()).setImgSave(true);
+
                 try2UpdateMusicPicBackground(mImgBmp);
                 setDiscImg(mImgBmp);
                 mGetImgAndLrcBtn.setVisibility(View.GONE);
@@ -415,14 +429,16 @@ public class PlayActivity extends BaseActivity implements IPlayContract.View {
         public void onReceive(Context context, Intent intent) {
             String action = intent.getAction();
             Song mSong = FileHelper.getSong();
-            mSongTv.setText(mSong.getTitle());
-            mSingerTv.setText(mSong.getArtist());
+            mSongTv.setText(mSong.getSongName());
+            mSingerTv.setText(mSong.getSinger());
             mDurationTimeTv.setText(MediaUtil.formatTime(mSong.getDuration()));
             mPlayBtn.setSelected(true);
             mSeekBar.setMax((int) mSong.getDuration());
             startUpdateSeekBarProgress();
-            if(!action.equals("SONG_ONLINE")){
-                setLocalImg(mSong.getArtist());//显示照片
+            if (action.equals(BroadcastName.ONLINE_ALBUM_SONG_Change) || action.equals(BroadcastName.ONLINE_SONG)) {
+                setSingerImg(mSong.getImgUrl());
+            } else {
+                setLocalImg(mSong.getSinger());//显示照片
             }
         }
     }

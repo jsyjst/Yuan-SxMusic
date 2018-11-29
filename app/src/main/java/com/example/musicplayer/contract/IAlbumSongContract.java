@@ -2,6 +2,7 @@ package com.example.musicplayer.contract;
 
 import com.example.musicplayer.entiy.AlbumSong;
 
+import java.util.ArrayList;
 import java.util.List;
 
 
@@ -12,6 +13,7 @@ import java.util.List;
 public interface IAlbumSongContract {
     interface Model{
         void getAlbumDetail(String id,int type); //获取专辑的更多信息
+        void insertAllAlbumSong(ArrayList<AlbumSong.DataBean.SongsBean> songList); //将专辑歌曲添加到数据库
     }
     interface View{
         void setAlbumSongList(List<AlbumSong.DataBean.SongsBean> songList); //成功获取专辑歌曲后填充列表
@@ -25,5 +27,7 @@ public interface IAlbumSongContract {
                                    String name,String singer,String company,String desc); //成功获取专辑信息
         void getAlbumDetailError(); //获取专辑信息失败
         void getAlbumError(); //接口出现问题
+
+        void insertAllAlbumSong(ArrayList<AlbumSong.DataBean.SongsBean> songList); //将专辑歌曲添加到数据库
     }
 }

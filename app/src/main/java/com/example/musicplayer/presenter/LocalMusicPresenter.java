@@ -2,10 +2,9 @@ package com.example.musicplayer.presenter;
 
 import com.example.musicplayer.base.BasePresenter;
 import com.example.musicplayer.contract.ILocalMusicContract;
-import com.example.musicplayer.entiy.Mp3Info;
+import com.example.musicplayer.entiy.LocalSong;
 import com.example.musicplayer.model.LocalMusicModel;
 
-import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -21,7 +20,7 @@ public class LocalMusicPresenter extends BasePresenter<ILocalMusicContract.View>
 
 
     @Override
-    public void showMusicList(List<Mp3Info> mp3InfoList) {
+    public void showMusicList(List<LocalSong> mp3InfoList) {
         if(isAttachView()){
             getMvpView().showMusicList(mp3InfoList);
         }
@@ -30,5 +29,10 @@ public class LocalMusicPresenter extends BasePresenter<ILocalMusicContract.View>
     @Override
     public void getLocalMp3Info() {
         mModel.getLocalMp3Info();
+    }
+
+    @Override
+    public void saveSong(List<LocalSong> localSongs) {
+        mModel.saveSong(localSongs);
     }
 }

@@ -24,12 +24,12 @@ public class AlbumSongAdapter extends RecyclerView.Adapter<AlbumSongAdapter.View
     private int mLastPosition = -1;
     private SongClick mSongClick;
 
-    public AlbumSongAdapter(List<AlbumSong.DataBean.SongsBean> songsBeans){
-        mSongsBeanList =songsBeans;
+    public AlbumSongAdapter(List<AlbumSong.DataBean.SongsBean> songsBeans) {
+        mSongsBeanList = songsBeans;
     }
 
-    public void setSongClick(SongClick songClick){
-        mSongClick =songClick;
+    public void setSongClick(SongClick songClick) {
+        mSongClick = songClick;
     }
 
     @NonNull
@@ -43,15 +43,16 @@ public class AlbumSongAdapter extends RecyclerView.Adapter<AlbumSongAdapter.View
 
     @Override
     public void onBindViewHolder(@NonNull ViewHolder holder, final int position) {
-        AlbumSong.DataBean.SongsBean songsBean=mSongsBeanList.get(position);
+        AlbumSong.DataBean.SongsBean songsBean = mSongsBeanList.get(position);
         holder.artistTv.setText(songsBean.getSinger());
         holder.titleTv.setText(songsBean.getName());
 
-        if (FileHelper.getSong().getImgUrl() != null) {
-            //根据点击显示
-            holder.playLine.setVisibility((position == mLastPosition ? View.VISIBLE : View.INVISIBLE));
-            holder.mItemView.setBackgroundResource((position == mLastPosition ? R.color.click : R.color.translucent));
-        }
+        //根据点击显示
+        mLastPosition = FileHelper.getSong().getCurrent();
+        holder.playLine.setVisibility((songsBean.getId().equals(FileHelper.getSong().getOnlineId())
+                ? View.VISIBLE : View.INVISIBLE));
+        holder.mItemView.setBackgroundResource((songsBean.getId().equals(FileHelper.getSong().getOnlineId())
+                ? R.color.click : R.color.translucent));
         holder.mItemView.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -66,7 +67,7 @@ public class AlbumSongAdapter extends RecyclerView.Adapter<AlbumSongAdapter.View
         return mSongsBeanList.size();
     }
 
-    class ViewHolder extends RecyclerView.ViewHolder{
+    class ViewHolder extends RecyclerView.ViewHolder {
 
         TextView titleTv;
         TextView artistTv;
@@ -81,6 +82,7 @@ public class AlbumSongAdapter extends RecyclerView.Adapter<AlbumSongAdapter.View
             mItemView = itemView;
         }
     }
+
     //判断点击的是否为上一个点击的项目
     private void equalPosition(int position) {
         if (position != mLastPosition) {

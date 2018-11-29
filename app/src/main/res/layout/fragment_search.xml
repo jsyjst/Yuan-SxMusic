@@ -34,7 +34,9 @@
             android:background="@drawable/seek_sp"
             android:paddingStart="15dp"
             android:textColor="@color/white"
-            android:textSize="16sp" />
+            android:textSize="16sp"
+            android:focusable="true"
+            android:focusableInTouchMode="true"/>
 
         <TextView
             android:id="@+id/tv_search"

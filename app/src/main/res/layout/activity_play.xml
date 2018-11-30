@@ -161,6 +161,16 @@
                 android:layout_height="60dp"
                 android:background="@drawable/activity_play_next" />
         </LinearLayout>
+
+
+        <Button
+            android:id="@+id/btn_love"
+            android:layout_width="30dp"
+            android:layout_height="30dp"
+            android:layout_centerVertical="true"
+            android:layout_alignParentEnd="true"
+            android:layout_marginEnd="20dp"
+            android:background="@drawable/love" />
     </RelativeLayout>
 
 </com.example.musicplayer.widget.BackgroundAnimationRelativeLayout>

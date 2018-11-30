@@ -9,6 +9,7 @@ import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.TextView;
 
+import com.example.musicplayer.constant.Constant;
 import com.example.musicplayer.constant.MyApplication;
 import com.example.musicplayer.entiy.Song;
 import com.example.musicplayer.R;
@@ -73,10 +74,6 @@ public class SongAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
         if (viewType == itemViewType) {
             View view = LayoutInflater.from(parent.getContext())
                     .inflate(R.layout.recycler_song_item, parent, false);
-//            TypedValue typedValue = new TypedValue();
-//            mContext.getTheme().resolveAttribute(R.attr.selectableItemBackground, typedValue, true);
-//            view.setBackgroundResource(typedValue.resourceId);
-
             ViewHolder viewHolder = new ViewHolder(view);
             return viewHolder;
         } else {
@@ -123,6 +120,8 @@ public class SongAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
                     song.setDuration(mp3Info.getDuration());
                     song.setCurrent(position);
                     song.setOnline(false);
+                    song.setOnlineId(mp3Info.getSongId());
+                    song.setListType(Constant.LIST_TYPE_LOCAL);
                     FileHelper.saveSong(song);
 
                     onItemClickListener.onSongClick();
@@ -131,7 +130,8 @@ public class SongAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
             });
         } else {
             FooterHolder footerHolder = (FooterHolder) viewHolder;
-            footerHolder.numTv.setText("共" + mMp3InfoList.size() + "首音乐");
+            int num=mMp3InfoList.size()-1;
+            footerHolder.numTv.setText("共" + num + "首音乐");
         }
     }
 

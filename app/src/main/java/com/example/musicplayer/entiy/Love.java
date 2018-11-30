@@ -1,20 +1,20 @@
 package com.example.musicplayer.entiy;
 
-import org.litepal.LitePal;
 import org.litepal.crud.LitePalSupport;
 
 /**
- * Created by 残渊 on 2018/10/10.
+ * Created by 残渊 on 2018/11/30.
  */
 
-public class LocalSong extends LitePalSupport{
+public class Love extends LitePalSupport{
     private int id;
     private String songId;
     private String name;
     private String singer;
     private String url;
     private String pic;
-    private long duration;
+    private boolean isOnline;
+
 
     public int getId() {
         return id;
@@ -57,19 +57,19 @@ public class LocalSong extends LitePalSupport{
     }
 
 
-    public void setDuration(long duration) {
-        this.duration = duration;
-    }
-
-    public long getDuration() {
-        return duration;
+    public String getSongId() {
+        return songId;
     }
 
     public void setSongId(String songId) {
         this.songId = songId;
     }
 
-    public String getSongId() {
-        return songId;
+    public void setOnline(boolean online) {
+        isOnline = online;
+    }
+
+    public boolean isOnline() {
+        return isOnline;
     }
 }

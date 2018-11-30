@@ -4,6 +4,7 @@ import android.annotation.SuppressLint;
 import android.app.Service;
 import android.content.Intent;
 import android.media.MediaPlayer;
+import android.net.ConnectivityManager;
 import android.os.Binder;
 import android.os.IBinder;
 import android.util.Log;
@@ -11,6 +12,7 @@ import android.util.Log;
 import com.example.musicplayer.constant.BroadcastName;
 import com.example.musicplayer.constant.Constant;
 import com.example.musicplayer.entiy.LocalSong;
+import com.example.musicplayer.entiy.Love;
 import com.example.musicplayer.entiy.OnlineSong;
 import com.example.musicplayer.entiy.Song;
 import com.example.musicplayer.util.FileHelper;
@@ -28,10 +30,10 @@ public class PlayerService extends Service {
     private PlayStatusBinder mPlayStatusBinder = new PlayStatusBinder();
     private MediaPlayer mediaPlayer = new MediaPlayer();       //媒体播放器对象
     private boolean isPause;                    //暂停状态
-    private Song song;
     private boolean isPlaying; //是否播放
     private List<LocalSong> mLocalSongList;
     private List<OnlineSong> mSongList;
+    private List<Love> mLoveList;
     private int mCurrent;
     private int mListType;
 
@@ -60,7 +62,7 @@ public class PlayerService extends Service {
                     } else {
                         mPlayStatusBinder.stop();
                     }
-                } else {
+                } else if(mListType == Constant.LIST_TYPE_ONLINE){
                     saveOnlineSongInfo(mCurrent);
                     if (mCurrent <= mSongList.size()) {
                         mPlayStatusBinder.play(Constant.LIST_TYPE_ONLINE);
@@ -69,8 +71,15 @@ public class PlayerService extends Service {
                         mPlayStatusBinder.stop();
                     }
 
+                } else {
+                    saveLoveInfo(mCurrent,FileHelper.getSong().isOnline());
+                    if (mCurrent <= mLoveList.size()) {
+                        mPlayStatusBinder.play(Constant.LIST_TYPE_LOVE);
+                        sendBroadcast(new Intent(BroadcastName.LOVE_SONG_CHANGE));//专辑列表的改变
+                    } else {
+                        mPlayStatusBinder.stop();
+                    }
                 }
-                sendBroadcast(new Intent(BroadcastName.SONG_CHANGE)); //发送广播改变播放栏的信息
                 sendBroadcast(new Intent(BroadcastName.ONLINE_SONG_FINISH));//发送网络歌曲播放结束的广播改变网络搜索列表的改变
             }
         });
@@ -90,15 +99,6 @@ public class PlayerService extends Service {
     }
 
     public class PlayStatusBinder extends Binder {
-        //确认播放列表的类型
-        public void setListType(int listType) {
-            mListType = listType;
-            if (mListType == Constant.LIST_TYPE_ONLINE) {
-                mSongList = LitePal.findAll(OnlineSong.class);
-            } else if (mListType == Constant.LIST_TYPE_LOCAL) {
-                mLocalSongList = LitePal.findAll(LocalSong.class);
-            }
-        }
 
 
         /**
@@ -115,13 +115,17 @@ public class PlayerService extends Service {
                     mSongList = LitePal.findAll(OnlineSong.class);
                 } else if (mListType == Constant.LIST_TYPE_LOCAL) {
                     mLocalSongList = LitePal.findAll(LocalSong.class);
+                }else if(mListType == Constant.LIST_TYPE_LOVE){
+                    mLoveList = orderList(LitePal.findAll(Love.class));
                 }
                 mCurrent = FileHelper.getSong().getCurrent();
                 mediaPlayer.reset();//把各项参数恢复到初始状态
                 if (mListType == Constant.LIST_TYPE_LOCAL) {
                     mediaPlayer.setDataSource(mLocalSongList.get(mCurrent).getUrl());
-                } else {
+                } else if(mListType == Constant.LIST_TYPE_ONLINE){
                     mediaPlayer.setDataSource(mSongList.get(mCurrent).getUrl());
+                } else{
+                    mediaPlayer.setDataSource(mLoveList.get(mCurrent).getUrl());
                 }
                 mediaPlayer.prepare();    //进行缓冲
                 isPlaying = true;
@@ -185,16 +189,21 @@ public class PlayerService extends Service {
                 saveLocalSongInfo(mCurrent);
                 mPlayStatusBinder.play(Constant.LIST_TYPE_LOCAL);
                 sendBroadcast(new Intent(BroadcastName.LOCAL_SONG_CHANGE_LIST));//发送广播改变当地列表的显示
-            } else {
+            } else if(mListType == Constant.LIST_TYPE_ONLINE){
                 if (mCurrent >= mSongList.size()) {
                     mCurrent = 0;
                 }
                 saveOnlineSongInfo(mCurrent);
                 mPlayStatusBinder.play(Constant.LIST_TYPE_ONLINE);
                 sendBroadcast(new Intent(BroadcastName.ONLINE_ALBUM_SONG_Change));//专辑列表的改变
+            } else{
+                if (mCurrent >= mLoveList.size()) {
+                    mCurrent = 0;
+                }
+                saveLoveInfo(mCurrent,FileHelper.getSong().isOnline());
+                mPlayStatusBinder.play(Constant.LIST_TYPE_LOVE);
+                sendBroadcast(new Intent(BroadcastName.LOVE_SONG_CHANGE));
             }
-
-            sendBroadcast(new Intent(BroadcastName.SONG_CHANGE)); //发送广播改变播放栏的信息
             sendBroadcast(new Intent(BroadcastName.ONLINE_SONG_FINISH));//发送网络歌曲播放结束的广播改变网络搜索列表的改变
         }
 
@@ -202,18 +211,27 @@ public class PlayerService extends Service {
             mCurrent = FileHelper.getSong().getCurrent();
             mCurrent--;
             if (mCurrent == -1) {
-                mCurrent = mListType == Constant.LIST_TYPE_LOCAL ? mLocalSongList.size() - 1 : mSongList.size() - 1;
+                if(mListType == Constant.LIST_TYPE_LOCAL){
+                    mCurrent = mLocalSongList.size()-1;
+                }else if(mListType ==Constant.LIST_TYPE_ONLINE){
+                    mCurrent =mSongList.size()-1;
+                }else {
+                    mCurrent = mLoveList.size()-1;
+                }
             }
             if (mListType == Constant.LIST_TYPE_LOCAL) {
                 saveLocalSongInfo(mCurrent);
-                mPlayStatusBinder.play(Constant.LIST_TYPE_LOCAL);
+                mPlayStatusBinder.play(mListType);
                 sendBroadcast(new Intent(BroadcastName.LOCAL_SONG_CHANGE_LIST));//发送广播改变当地列表的显示
-            } else {
+            } else if(mListType == Constant.LIST_TYPE_ONLINE){
                 saveOnlineSongInfo(mCurrent);
-                mPlayStatusBinder.play(Constant.LIST_TYPE_ONLINE);
+                mPlayStatusBinder.play(mListType);
                 sendBroadcast(new Intent(BroadcastName.ONLINE_ALBUM_SONG_Change));//专辑列表的改变
+            } else{
+                saveLoveInfo(mCurrent,FileHelper.getSong().isOnline());
+                mPlayStatusBinder.play(mListType);
+                sendBroadcast(new Intent(BroadcastName.LOVE_SONG_CHANGE));
             }
-            sendBroadcast(new Intent(BroadcastName.SONG_CHANGE)); //发送广播改变播放栏的信息
             sendBroadcast(new Intent(BroadcastName.ONLINE_SONG_FINISH));//发送网络歌曲播放结束的广播改变网络搜索列表的改变
         }
 
@@ -296,7 +314,7 @@ public class PlayerService extends Service {
         song.setDuration(localSong.getDuration());
         song.setUrl(localSong.getUrl());
         song.setOnline(false);
-        song.setOnlineAlbum(false);
+        song.setListType(Constant.LIST_TYPE_LOCAL);
         FileHelper.saveSong(song);
     }
 
@@ -311,8 +329,29 @@ public class PlayerService extends Service {
         song.setUrl(mSongList.get(current).getUrl());
         song.setImgUrl(mSongList.get(current).getPic());
         song.setOnline(true);
-        song.setOnlineAlbum(true);
+        song.setListType(Constant.LIST_TYPE_ONLINE);
         FileHelper.saveSong(song);
+    }
+    private void saveLoveInfo(int current,boolean isOnline){
+        mLoveList = orderList(LitePal.findAll(Love.class));
+        Love love = mLoveList.get(current);
+        Song song = new Song();
+        song.setCurrent(current);
+        song.setOnlineId(love.getSongId());
+        song.setSongName(love.getName());
+        song.setSinger(love.getSinger());
+        song.setUrl(love.getUrl());
+        song.setImgUrl(love.getPic());
+        song.setListType(Constant.LIST_TYPE_LOVE);
+        song.setOnline(isOnline);
+    }
+    private List<Love> orderList(List<Love> tempList){
+        List<Love> loveList=new ArrayList<>();
+        loveList.clear();
+        for(int i=tempList.size()-1;i>=0;i--){
+            loveList.add(tempList.get(i));
+        }
+        return loveList;
     }
 }
 

@@ -18,7 +18,7 @@ public class Song implements Serializable {
     private int current;//在本地音乐的位置
     private String imgUrl;
     private boolean isOnline;
-    private boolean isOnlineAlbum;
+    private int listType;
 
     public String getImgUrl() {
         return imgUrl;
@@ -84,12 +84,12 @@ public class Song implements Serializable {
         isOnline = online;
     }
 
-    public boolean isOnlineAlbum() {
-        return isOnlineAlbum;
+    public int getListType() {
+        return listType;
     }
 
-    public void setOnlineAlbum(boolean onlineAlbum) {
-        isOnlineAlbum = onlineAlbum;
+    public void setListType(int listType) {
+        this.listType = listType;
     }
 
     public String getOnlineId() {
@@ -103,7 +103,7 @@ public class Song implements Serializable {
     public String toString(){
         return "songName="+songName+",singer="+singer+",url="+url+",imgUrl="+imgUrl
                 +",duration="+duration+",currentTime="+currentTime+",current="+current
-                +",onlineId="+onlineId+",isOnline="+isOnline+",isOnlineAlbum="+isOnlineAlbum;
+                +",onlineId="+onlineId+",isOnline="+isOnline+",listType="+listType;
 
     }
 }

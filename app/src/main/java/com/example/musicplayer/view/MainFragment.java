@@ -19,8 +19,13 @@ import android.widget.TextView;
 
 import com.example.musicplayer.R;
 import com.example.musicplayer.adapter.ExpandableListViewAdapter;
+import com.example.musicplayer.entiy.History;
+import com.example.musicplayer.entiy.LocalSong;
+import com.example.musicplayer.entiy.Love;
 import com.example.musicplayer.util.CommonUtil;
 import com.example.musicplayer.widget.MyListView;
+
+import org.litepal.LitePal;
 
 /**
  * A simple {@link Fragment} subclass.
@@ -30,11 +35,10 @@ public class MainFragment extends Fragment {
     private LinearLayout mFunctionLinear;
 
     private MyListView myListView;
-    private LocalMusicFragment mLocalMusicFragment;
-    private SearchFragment mSearchFragment;
     private ExpandableListAdapter mAdapter;
-    private LinearLayout mLocalMusicLinear;
+    private LinearLayout mLocalMusicLinear,mCollectionLinear;
     private Button playerBtn;
+    private TextView mLocalMusicNum,mLoveMusicNum,mHistoryMusicNum;
 
     private TextView mSeekBtn;
     private String[] mGroupStrings = {"自建歌单", "收藏歌单"};
@@ -49,12 +53,16 @@ public class MainFragment extends Fragment {
                              Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_main, container, false);
         mLocalMusicLinear = view.findViewById(R.id.linear_local_music);
+        mCollectionLinear = view.findViewById(R.id.linear_collection);
         playerBtn = view.findViewById(R.id.btn_player);
         mFunctionLinear = view.findViewById(R.id.linear_function);
         //获取焦点
         mFunctionLinear.setFocusableInTouchMode(true);
         myListView = view.findViewById(R.id.expand_lv_song_list);
         mSeekBtn = view.findViewById(R.id.tv_seek);
+        mLocalMusicNum = view.findViewById(R.id.tv_local_music_num);
+        mLoveMusicNum = view.findViewById(R.id.tv_love_num);
+        mHistoryMusicNum = view.findViewById(R.id.tv_history_num);
         return view;
     }
 
@@ -65,13 +73,12 @@ public class MainFragment extends Fragment {
         mAdapter = new ExpandableListViewAdapter(getActivity(), mGroupStrings, mSongStrings);
         myListView.setAdapter(mAdapter);
         onClick();
-
-
     }
     @Override
     public void onResume(){
         super.onResume();
         CommonUtil.hideStatusBar(getActivity(),true);
+        showMusicNum();
         Log.d(TAG, "onResume: true");
     }
 
@@ -79,37 +86,41 @@ public class MainFragment extends Fragment {
         mLocalMusicLinear.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                replaceFragment(1);
+                replaceFragment(new LocalMusicFragment());
             }
         });
 
         mSeekBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                replaceFragment(2);
+                replaceFragment(new SearchFragment());
+            }
+        });
+
+        mCollectionLinear.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                replaceFragment(new CollectionFragment());
             }
         });
     }
 
 
-    private void replaceFragment(int type) {
+    private void replaceFragment(Fragment fragment) {
         FragmentManager fragmentManager = getActivity().getSupportFragmentManager();
         FragmentTransaction transaction = fragmentManager.beginTransaction();
 
-
         //进入和退出动画
         transaction.setCustomAnimations(R.anim.fragment_in, R.anim.fragment_out, R.anim.slide_in_right, R.anim.slide_out_right);
-        if (type == 1) {
-            mLocalMusicFragment = new LocalMusicFragment();
-            transaction.add(R.id.fragment_container, mLocalMusicFragment);
-        } else if (type ==2) {
-            mSearchFragment = new SearchFragment();
-            transaction.add(R.id.fragment_container,mSearchFragment);
-        }
+        transaction.add(R.id.fragment_container, fragment);
         transaction.hide(this);
         //将事务提交到返回栈
         transaction.addToBackStack(null);
         transaction.commit();
+    }
+    private void showMusicNum(){
+        mLoveMusicNum.setText(""+LitePal.findAll(LocalSong.class).size());
+        mLoveMusicNum.setText(""+LitePal.findAll(Love.class).size());
     }
 
 }

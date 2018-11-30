@@ -42,7 +42,13 @@
         <item name="android:layout_height">wrap_content</item>
         <item name="android:thumb">@drawable/ic_seekbar_thumb</item>
     </style>
-
+    <style name="MyDialog" parent="android:style/Theme.Dialog">
+        <item name="android:windowNoTitle">true</item>  <!-- 没有标题-->
+        <item name="android:windowBackground">@android:color/transparent</item>   <!-- 背景颜色 -->
+        <item name="android:windowFrame">@null</item>   <!-- 没有边框 -->
+        <item name="android:windowIsFloating">true</item>   <!-- 窗口浮动 -->
+        <item name="android:windowContentOverlay">@null</item>  <!-- 没有阴影 -->
+    </style>
 
 
 

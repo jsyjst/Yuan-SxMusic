@@ -1,13 +1,13 @@
-<?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:background="@drawable/background"
     android:orientation="vertical">
+
     <View
         android:layout_width="match_parent"
         android:layout_height="20dp"
-        android:background="@color/actionBarColor"/>
+        android:background="@color/actionBarColor" />
 
     <RelativeLayout
         android:layout_width="match_parent"
@@ -18,8 +18,8 @@
             android:id="@+id/iv_back"
             android:layout_width="30dp"
             android:layout_height="30dp"
-            android:layout_marginStart="10dp"
             android:layout_centerVertical="true"
+            android:layout_marginStart="10dp"
             android:src="@drawable/back" />
 
         <TextView
@@ -29,52 +29,58 @@
             android:layout_centerVertical="true"
             android:layout_marginStart="5dp"
             android:layout_toRightOf="@id/iv_back"
-            android:text="@string/local_music"
+            android:text="@string/collection"
             android:textColor="@color/white"
             android:textSize="16sp" />
-        <ImageView
-            android:clickable="true"
-            android:focusable="true"
-            android:id="@+id/iv_find_local_song"
-            android:layout_width="25dp"
-            android:layout_height="25dp"
-            android:layout_alignParentEnd="true"
-            android:layout_centerVertical="true"
-            android:layout_marginEnd="15dp"
-            android:src="@drawable/find_local_song"
-            />
 
     </RelativeLayout>
-
-    <LinearLayout
+    <View
         android:layout_width="match_parent"
         android:layout_height="20dp"
         android:background="@color/seekColor">
+    </View>
 
-    </LinearLayout>
-
-    <RelativeLayout
+    <LinearLayout
+        android:id="@+id/linear_song_list"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:background="@color/translucent">
+        android:background="@color/translucent"
+        android:orientation="vertical">
 
         <android.support.v7.widget.RecyclerView
-
-            android:id="@+id/recycler_song_list"
+            android:id="@+id/recycler_love_songs"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             android:layout_marginBottom="65dp">
 
-
         </android.support.v7.widget.RecyclerView>
-        <ViewStub
+        <View
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            android:id="@+id/stub_empty"
-            android:layout="@layout/empty_song"
+            android:layout_marginBottom="65dp"/>
+    </LinearLayout>
+
+    <RelativeLayout
+        android:id="@+id/relative_empty"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:background="@color/translucent">
+        <ImageView
+            android:id="@+id/iv_empty"
+            android:layout_width="120dp"
+            android:layout_height="120dp"
+            android:src="@drawable/empty_song"
+            android:scaleType="centerCrop"
+            android:layout_centerInParent="true"/>
+        <TextView
+            android:layout_marginTop="20dp"
+            android:layout_below="@+id/iv_empty"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textSize="16sp"
+            android:textColor="@color/white_blue"
+            android:text="收藏列表为空，赶紧去收藏自己喜欢的歌吧"
+            android:layout_centerHorizontal="true"
             />
-
-
     </RelativeLayout>
-
 </LinearLayout>

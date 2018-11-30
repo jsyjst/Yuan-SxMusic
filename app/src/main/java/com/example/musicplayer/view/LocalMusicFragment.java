@@ -55,9 +55,6 @@ public class LocalMusicFragment extends Fragment implements ILocalMusicContract.
     private ImageView mBackIv;
     private ViewStub mEmptyViewStub;
 
-
-
-
     private ServiceConnection connection = new ServiceConnection() {
         @Override
         public void onServiceConnected(ComponentName name, IBinder service) {

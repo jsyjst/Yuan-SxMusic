@@ -2,6 +2,7 @@ package com.example.musicplayer.model;
 
 import android.database.Cursor;
 import android.provider.MediaStore;
+import android.util.Log;
 
 import com.example.musicplayer.constant.MyApplication;
 import com.example.musicplayer.contract.ILocalMusicContract;
@@ -18,6 +19,7 @@ import java.util.List;
  */
 
 public class LocalMusicModel implements ILocalMusicContract.Model {
+    private static final String TAG="LocalMusicModel";
 
     private ILocalMusicContract.Presenter mPresenter;
 
@@ -65,6 +67,8 @@ public class LocalMusicModel implements ILocalMusicContract.Model {
                             mp3Info.setSinger(artist);
                             mp3Info.setDuration(duration);
                             mp3Info.setUrl(url);
+                            mp3Info.setSongId(String.valueOf(id));
+                            Log.d(TAG, "run: "+mp3Info.getSongId());
                             mp3InfoList.add(mp3Info);
                         }
                     }
@@ -88,6 +92,7 @@ public class LocalMusicModel implements ILocalMusicContract.Model {
                     song.setSinger(localSong.getSinger());
                     song.setUrl(localSong.getUrl());
                     song.setDuration(localSong.getDuration());
+                    song.setSongId(localSong.getSongId());
                     song.save();
                 }
             }

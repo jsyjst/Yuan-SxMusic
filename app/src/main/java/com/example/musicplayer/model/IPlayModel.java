@@ -4,10 +4,17 @@ import android.support.annotation.MainThread;
 import android.util.Log;
 
 import com.example.musicplayer.contract.IPlayContract;
+import com.example.musicplayer.entiy.Love;
 import com.example.musicplayer.entiy.SingerImg;
+import com.example.musicplayer.entiy.Song;
 import com.example.musicplayer.https.NetWork;
 
+import org.litepal.LitePal;
+import org.litepal.crud.callback.FindMultiCallback;
+import org.litepal.crud.callback.SaveCallback;
+
 import java.io.IOException;
+import java.util.List;
 
 import io.reactivex.Observer;
 import io.reactivex.android.schedulers.AndroidSchedulers;
@@ -62,5 +69,58 @@ public class IPlayModel implements IPlayContract.Model {
 
                     }
                 });
+    }
+
+    @Override
+    public void queryLove(final String songId) {
+        new Thread(new Runnable() {
+            @Override
+            public void run() {
+                LitePal.where("songId=?",songId).findAsync(Love.class).listen(new FindMultiCallback<Love>() {
+                    @Override
+                    public void onFinish(List<Love> list) {
+                        if(list.size()==0){
+                            mPresenter.showLove(false);
+                        }else{
+                            mPresenter.showLove(true);
+                        }
+                    }
+                });
+            }
+        }).start();
+    }
+
+    @Override
+    public void saveToLove(final Song song) {
+        new Thread(new Runnable() {
+            @Override
+            public void run() {
+                Love love =new Love();
+                love.setName(song.getSongName());
+                love.setSinger(song.getSinger());
+                love.setUrl(song.getUrl());
+                love.setPic(song.getImgUrl());
+                love.setSongId(song.getOnlineId());
+                love.setOnline(song.isOnline());
+                love.saveAsync().listen(new SaveCallback() {
+                    @Override
+                    public void onFinish(boolean success) {
+                        if(success){
+                            mPresenter.saveToLoveSuccess();
+                        }
+                    }
+                });
+            }
+        }).start();
+    }
+
+    @Override
+    public void deleteFromLove(final String songId) {
+        new Thread(new Runnable() {
+            @Override
+            public void run() {
+                LitePal.deleteAll("songId=?",songId);
+            }
+        }).start();
     }
 }

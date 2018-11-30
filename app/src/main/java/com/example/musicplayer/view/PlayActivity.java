@@ -1,5 +1,7 @@
 package com.example.musicplayer.view;
 
+import android.animation.AnimatorInflater;
+import android.animation.AnimatorSet;
 import android.content.BroadcastReceiver;
 import android.content.ComponentName;
 import android.content.Context;
@@ -66,7 +68,7 @@ public class PlayActivity extends BaseActivity implements IPlayContract.View {
 
     private String TAG = "PlayActivity";
     private boolean isOnline; //判断是否为网络歌曲
-    private boolean isOnlineAlbum;//判断是否为网络专辑
+    private int mListType; //列表类型
     private int mPlayStatus;
 
     private boolean isChange; //拖动进度条
@@ -90,6 +92,9 @@ public class PlayActivity extends BaseActivity implements IPlayContract.View {
     private TextView mDurationTimeTv;
 
 
+    private Button mLoveBtn;
+    private boolean isLove;//是否已经在我喜欢的列表中
+
     private DiscView mDisc; //唱碟
     private ImageView mDiscImg; //唱碟中的歌手头像
     private Bitmap mImgBmp;
@@ -107,7 +112,6 @@ public class PlayActivity extends BaseActivity implements IPlayContract.View {
         public void onServiceConnected(ComponentName name, IBinder service) {
             mPlayStatusBinder = (PlayerService.PlayStatusBinder) service;
             isOnline = FileHelper.getSong().isOnline();
-            isOnlineAlbum = FileHelper.getSong().isOnlineAlbum();
             if (isOnline) {
                 mGetImgAndLrcBtn.setVisibility(View.GONE);
                 mDurationTimeTv.setText(MediaUtil.formatTime(FileHelper.getSong().getDuration()));
@@ -156,6 +160,7 @@ public class PlayActivity extends BaseActivity implements IPlayContract.View {
         //与Presenter建立关系
         mPresenter = new PlayPresenter();
         mPresenter.attachView(this);
+
         //是否为网络歌曲
 
 
@@ -185,15 +190,19 @@ public class PlayActivity extends BaseActivity implements IPlayContract.View {
 
         mDisc = findViewById(R.id.disc_view);
         mDiscImg = findViewById(R.id.iv_disc_background);
+        mLoveBtn = findViewById(R.id.btn_love);
+
+
 
         //界面填充
         mSong = FileHelper.getSong();
+        mListType = mSong.getListType();
         mSingerTv.setText(mSong.getSinger());
         mSongTv.setText(mSong.getSongName());
         mCurrentTimeTv.setText(MediaUtil.formatTime(mSong.getCurrentTime()));
         mSeekBar.setMax((int) mSong.getDuration());
         mSeekBar.setProgress((int) mSong.getCurrentTime());
-
+        mPresenter.queryLove(mSong.getOnlineId()); //查找歌曲是否为我喜欢的歌曲
 
         if (mPlayStatus == PlayerStatus.PLAY) {
             mDisc.play();
@@ -204,7 +213,6 @@ public class PlayActivity extends BaseActivity implements IPlayContract.View {
         //绑定服务
         Intent playIntent = new Intent(PlayActivity.this, PlayerService.class);
         bindService(playIntent, connection, Context.BIND_AUTO_CREATE);
-
 
     }
 
@@ -315,10 +323,8 @@ public class PlayActivity extends BaseActivity implements IPlayContract.View {
                     Log.d(TAG, "onClick: --------play");
                     if (isOnline) {
                         mPlayStatusBinder.playOnline();
-                    } else if (isOnlineAlbum) {
-                        mPlayStatusBinder.play(Constant.LIST_TYPE_ONLINE);
                     } else {
-                        mPlayStatusBinder.play(Constant.LIST_TYPE_LOCAL);
+                        mPlayStatusBinder.play(mListType);
                     }
                     mMediaPlayer.seekTo((int) mSong.getCurrentTime());
                     mDisc.play();
@@ -345,6 +351,21 @@ public class PlayActivity extends BaseActivity implements IPlayContract.View {
                 mPlayStatusBinder.last();
                 mPlayBtn.setSelected(true);
                 mDisc.last();
+            }
+        });
+
+        mLoveBtn.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                showLoveAnim();
+                if(isLove){
+                    mLoveBtn.setSelected(false);
+                    mPresenter.deleteFromLove(FileHelper.getSong().getOnlineId());
+                }else {
+                    mLoveBtn.setSelected(true);
+                    mPresenter.saveToLove(FileHelper.getSong());
+                }
+
             }
         });
     }
@@ -379,12 +400,11 @@ public class PlayActivity extends BaseActivity implements IPlayContract.View {
                     //保存图片到本地
                     FileHelper.saveImgToNative(PlayActivity.this, mImgBmp, getSingerName());
                     CommonUtil.showToast(PlayActivity.this, "获取封面歌词成功");
-
-//                    //将封面地址放到数据库中
-//                    LocalSong localSong =new LocalSong();
-//                    mLocalSong = LitePal.findAll(LocalSong.class);
-//                    localSong.setPic(BaseUri.STORAGE_IMG_FILE + FileHelper.getSong().getSinger() + ".jpg");
-//                    localSong.updateAll("singer",FileHelper.getSong().getSinger());
+                    //将封面地址放到数据库中
+                    LocalSong localSong =new LocalSong();
+                    mLocalSong = LitePal.findAll(LocalSong.class);
+                    localSong.setPic(BaseUri.STORAGE_IMG_FILE + FileHelper.getSong().getSinger() + ".jpg");
+                    localSong.updateAll("singer",FileHelper.getSong().getSinger());
                 }
 
                 try2UpdateMusicPicBackground(mImgBmp);
@@ -406,8 +426,32 @@ public class PlayActivity extends BaseActivity implements IPlayContract.View {
     }
 
     @Override
-    public void setSearchImg() {
+    public void showLove(final boolean love) {
+        isLove =love;
+        runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                if(love){
+                    mLoveBtn.setSelected(true);
+                }else{
+                    mLoveBtn.setSelected(false);
+                }
+            }
+        });
 
+    }
+
+    @Override
+    public void showLoveAnim() {
+        mLoveBtn.setSelected(true);
+        AnimatorSet animatorSet = (AnimatorSet) AnimatorInflater.loadAnimator(PlayActivity.this, R.animator.favorites_anim);
+        animatorSet.setTarget(mLoveBtn);
+        animatorSet.start();
+    }
+
+    @Override
+    public void saveToLoveSuccess() {
+        CommonUtil.showToast(PlayActivity.this,"添加成功");
     }
 
 
@@ -427,7 +471,6 @@ public class PlayActivity extends BaseActivity implements IPlayContract.View {
 
         @Override
         public void onReceive(Context context, Intent intent) {
-            String action = intent.getAction();
             Song mSong = FileHelper.getSong();
             mSongTv.setText(mSong.getSongName());
             mSingerTv.setText(mSong.getSinger());
@@ -435,7 +478,7 @@ public class PlayActivity extends BaseActivity implements IPlayContract.View {
             mPlayBtn.setSelected(true);
             mSeekBar.setMax((int) mSong.getDuration());
             startUpdateSeekBarProgress();
-            if (action.equals(BroadcastName.ONLINE_ALBUM_SONG_Change) || action.equals(BroadcastName.ONLINE_SONG)) {
+            if (mSong.isOnline()) {
                 setSingerImg(mSong.getImgUrl());
             } else {
                 setLocalImg(mSong.getSinger());//显示照片

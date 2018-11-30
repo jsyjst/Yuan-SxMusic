@@ -11,6 +11,7 @@ import android.view.ViewGroup;
 import com.example.musicplayer.R;
 import com.example.musicplayer.adapter.SearchHistoryAdapter;
 import com.example.musicplayer.entiy.History;
+import com.example.musicplayer.widget.DeleteDialog;
 
 import org.litepal.LitePal;
 
@@ -56,14 +57,34 @@ public class SearchHistoryFragment extends Fragment {
         mAdapter.setFooterClickListener(new SearchHistoryAdapter.OnFooterClickListener() {
             @Override
             public void onClick() {
-                LitePal.deleteAll(History.class);
-                mRecycler.setVisibility(View.GONE);
+                final DeleteDialog dialog = new DeleteDialog(getActivity());
+                dialog.setOnClickListener(new DeleteDialog.OnClickListener() {
+                    @Override
+                    public void selectCancel() {
+                        dialog.dismiss();
+                    }
+
+                    @Override
+                    public void selectDelete() {
+                        //删除数据库中的历史记录
+                        LitePal.deleteAll(History.class);
+                        mRecycler.setVisibility(View.GONE);
+                        dialog.dismiss();
+                    }
+
+                    @Override
+                    public String setTitle() {
+                        return "确定清空搜索历史？";
+                    }
+                });
+                dialog.show();
+
             }
         });
         mAdapter.setOnDeleteClickListener(new SearchHistoryAdapter.OnDeleteClickListener() {
             @Override
             public void onClick(int position) {
-                History history =mTempList.get(position);
+                History history =mHistoryList.get(position);
                 LitePal.deleteAll(History.class,"history = ?",history.getHistory());
                 mTempList =LitePal.findAll(History.class);
                 changeList();

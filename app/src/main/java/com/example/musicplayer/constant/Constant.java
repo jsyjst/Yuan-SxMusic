@@ -11,4 +11,5 @@ public class Constant {
     public static final int TYPE_ALBUM_SONG=3;
     public static final int LIST_TYPE_LOCAL=4;
     public static final int LIST_TYPE_ONLINE=5;
+    public static final int LIST_TYPE_LOVE=6;
 }

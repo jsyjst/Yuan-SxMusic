@@ -90,6 +90,7 @@ public class MainActivity extends AppCompatActivity {
         intentFilter.addAction(BroadcastName.ONLINE_ALBUM_SONG_Change);
         songChangeReceiver = new SongChangeReceiver();
         registerReceiver(songChangeReceiver, intentFilter);
+        LitePal.getDatabase();
 
         initView();
         onClick();
@@ -196,10 +197,8 @@ public class MainActivity extends AppCompatActivity {
                 } else {
                     if (FileHelper.getSong().isOnline()) {
                         mPlayStatusBinder.playOnline();
-                    } else if(FileHelper.getSong().isOnlineAlbum()){
-                        mPlayStatusBinder.play(Constant.LIST_TYPE_ONLINE);
-                    }else{
-                        mPlayStatusBinder.play(Constant.LIST_TYPE_LOCAL);
+                    } else{
+                        mPlayStatusBinder.play(FileHelper.getSong().getListType());
                     }
                     mMediaPlayer.seekTo((int) mSong.getCurrentTime());
                     mCircleAnimator.start();

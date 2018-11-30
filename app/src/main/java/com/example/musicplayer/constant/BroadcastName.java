@@ -13,5 +13,6 @@ public class BroadcastName {
     public static final String SONG_RESUME="song_resume";
     public static final String ONLINE_SONG_ERROR="online_song_error";
     public static final String ONLINE_ALBUM_SONG_Change="online_album_song_change";
+    public static final String LOVE_SONG_CHANGE="love_song_change";
 
 }

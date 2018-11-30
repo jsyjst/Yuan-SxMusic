@@ -28,8 +28,8 @@
 
     <ImageView
         android:id="@+id/iv_history_delete"
-        android:layout_width="20dp"
-        android:layout_height="20dp"
+        android:layout_width="23dp"
+        android:layout_height="23dp"
         android:layout_alignParentEnd="true"
         android:layout_centerVertical="true"
         android:layout_marginEnd="20dp"

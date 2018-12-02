@@ -2,12 +2,13 @@
 <litepal>
     <dbname value="SongList"></dbname>
 
-    <version value="8"></version>
+    <version value="11"></version>
 
     <list>
         <mapping class="com.example.musicplayer.entiy.OnlineSong"></mapping>
         <mapping class="com.example.musicplayer.entiy.LocalSong"></mapping>
-        <mapping class="com.example.musicplayer.entiy.History"></mapping>
+        <mapping class="com.example.musicplayer.entiy.SearchHistory"></mapping>
         <mapping class="com.example.musicplayer.entiy.Love"></mapping>
+        <mapping class="com.example.musicplayer.entiy.HistorySong"></mapping>
     </list>
 </litepal>

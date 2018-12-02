@@ -9,7 +9,7 @@ import android.widget.ImageView;
 import android.widget.TextView;
 
 import com.example.musicplayer.R;
-import com.example.musicplayer.entiy.History;
+import com.example.musicplayer.entiy.SearchHistory;
 
 import java.util.List;
 
@@ -19,15 +19,15 @@ import java.util.List;
  */
 
 public class SearchHistoryAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
-    private List<History> mHistoryList;
+    private List<SearchHistory> mSearchHistoryList;
     private static final int mHistoryType =0;
     private static final int mFooterType = 1;
     private static OnItemClickListener mOnItemClcikListener;
     private static OnDeleteClickListener mOnDeleteClickListener;
     private static OnFooterClickListener mFooterClickListener;
 
-    public SearchHistoryAdapter(List<History> historyList){
-        mHistoryList = historyList;
+    public SearchHistoryAdapter(List<SearchHistory> searchHistoryList){
+        mSearchHistoryList = searchHistoryList;
     }
 
     @NonNull
@@ -51,7 +51,7 @@ public class SearchHistoryAdapter extends RecyclerView.Adapter<RecyclerView.View
     public void onBindViewHolder(@NonNull RecyclerView.ViewHolder holder, final int position) {
         if(holder instanceof HistoryHolder){
             HistoryHolder historyHolder =(HistoryHolder) holder;
-            historyHolder.historyTv.setText(mHistoryList.get(position).getHistory());
+            historyHolder.historyTv.setText(mSearchHistoryList.get(position).getHistory());
             historyHolder.deleteIv.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
@@ -78,7 +78,7 @@ public class SearchHistoryAdapter extends RecyclerView.Adapter<RecyclerView.View
 
     @Override
     public int getItemCount() {
-        return mHistoryList.size()+1;
+        return mSearchHistoryList.size()+1;
     }
     @Override
     public int getItemViewType(int position) {

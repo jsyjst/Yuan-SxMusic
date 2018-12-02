@@ -10,6 +10,6 @@
         android:layout_height="wrap_content"
         android:layout_centerInParent="true"
         android:text="共150首音乐"
-        android:textColor="@color/white" />
+        android:textColor="@color/white_blue" />
 
 </RelativeLayout>

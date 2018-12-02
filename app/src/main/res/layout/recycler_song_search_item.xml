@@ -50,7 +50,7 @@
             android:ellipsize="end"
             android:maxEms="15"
             android:singleLine="true"
-            android:textColor="@color/short_white"
+            android:textColor="@color/white_blue"
             android:textSize="14sp" />
 
 

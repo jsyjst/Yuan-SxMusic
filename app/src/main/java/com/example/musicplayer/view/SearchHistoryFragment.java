@@ -10,7 +10,7 @@ import android.view.ViewGroup;
 
 import com.example.musicplayer.R;
 import com.example.musicplayer.adapter.SearchHistoryAdapter;
-import com.example.musicplayer.entiy.History;
+import com.example.musicplayer.entiy.SearchHistory;
 import com.example.musicplayer.widget.DeleteDialog;
 
 import org.litepal.LitePal;
@@ -27,8 +27,8 @@ public class SearchHistoryFragment extends Fragment {
     private RecyclerView mRecycler;
     private SearchHistoryAdapter mAdapter;
     private LinearLayoutManager mLayoutManager;
-    private List<History> mHistoryList;
-    private List<History> mTempList;
+    private List<SearchHistory> mSearchHistoryList;
+    private List<SearchHistory> mTempList;
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
@@ -46,10 +46,10 @@ public class SearchHistoryFragment extends Fragment {
 
 
     private void showHistory(){
-        mHistoryList = new ArrayList<>();
+        mSearchHistoryList = new ArrayList<>();
         mTempList = new ArrayList<>();
         changeList();
-        mAdapter = new SearchHistoryAdapter(mHistoryList);
+        mAdapter = new SearchHistoryAdapter(mSearchHistoryList);
         mLayoutManager = new LinearLayoutManager(getActivity());
         mRecycler.setLayoutManager(mLayoutManager);
         mRecycler.setAdapter(mAdapter);
@@ -68,7 +68,7 @@ public class SearchHistoryFragment extends Fragment {
                     @Override
                     public void selectDelete() {
                         //删除数据库中的历史记录
-                        LitePal.deleteAll(History.class);
+                        LitePal.deleteAll(SearchHistory.class);
                         mRecycler.setVisibility(View.GONE);
                         dialog.dismiss();
                     }
@@ -85,9 +85,11 @@ public class SearchHistoryFragment extends Fragment {
         mAdapter.setOnDeleteClickListener(new SearchHistoryAdapter.OnDeleteClickListener() {
             @Override
             public void onClick(int position) {
-                History history =mHistoryList.get(position);
-                LitePal.deleteAll(History.class,"history = ?",history.getHistory());
-                mTempList =LitePal.findAll(History.class);
+                SearchHistory searchHistory = mSearchHistoryList.get(position);
+                if(searchHistory.isSaved()){
+                    searchHistory.delete();
+                }
+                mTempList =LitePal.findAll(SearchHistory.class);
                 changeList();
                 mAdapter.notifyDataSetChanged();
             }
@@ -95,21 +97,21 @@ public class SearchHistoryFragment extends Fragment {
         mAdapter.setOnItemClcikListener(new SearchHistoryAdapter.OnItemClickListener() {
             @Override
             public void onClick(int position) {
-                ((SearchFragment)(getParentFragment())).setSeekEdit(mHistoryList.get(position).getHistory());
+                ((SearchFragment)(getParentFragment())).setSeekEdit(mSearchHistoryList.get(position).getHistory());
             }
         });
     }
     private void changeList(){
-        mHistoryList.clear();
-        mTempList = LitePal.findAll(History.class);
+        mSearchHistoryList.clear();
+        mTempList = LitePal.findAll(SearchHistory.class);
         if(mTempList.size()==0){
             mRecycler.setVisibility(View.INVISIBLE);
         }else{
             mRecycler.setVisibility(View.VISIBLE);
         }
         for(int i=mTempList.size()-1;i>=0;i--){
-            History history = mTempList.get(i);
-            mHistoryList.add(history);
+            SearchHistory searchHistory = mTempList.get(i);
+            mSearchHistoryList.add(searchHistory);
         }
     }
 

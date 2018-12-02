@@ -106,6 +106,7 @@
                 android:textColor="@drawable/selector_linear_click"/>
         </LinearLayout>
         <LinearLayout
+            android:id="@+id/linear_history"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_weight="1"
@@ -125,7 +126,7 @@
                 android:layout_gravity="center_horizontal"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="@string/history"
+                android:text="@string/searchHistory"
                 android:textColor="@drawable/selector_linear_click"/>
             <TextView
                 android:id="@+id/tv_history_num"

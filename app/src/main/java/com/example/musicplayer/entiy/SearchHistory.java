@@ -6,7 +6,7 @@ import org.litepal.crud.LitePalSupport;
  * Created by 残渊 on 2018/11/29.
  */
 
-public class History extends LitePalSupport {
+public class SearchHistory extends LitePalSupport {
     String history;
     int id;
 

@@ -56,7 +56,6 @@ public class SearchContentFragment extends Fragment implements ISearchContentCon
     private SearchContentAdapter mAdapter;
     private ArrayList<SeachSong.DataBean> mSongList = new ArrayList<>();
     private List<Album.DataBean> mAlbumList;
-    private SongFinishReceiver songChangeReceiver;
     private IntentFilter intentFilter;
 
     private LRecyclerViewAdapter mLRecyclerViewAdapter;//下拉刷新
@@ -124,7 +123,6 @@ public class SearchContentFragment extends Fragment implements ISearchContentCon
     public void onDestroy(){
         super.onDestroy();
         getActivity().unbindService(connection);
-        getActivity().unregisterReceiver(songChangeReceiver);
     }
 
 

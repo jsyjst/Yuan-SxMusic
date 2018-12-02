@@ -12,4 +12,5 @@ public class Constant {
     public static final int LIST_TYPE_LOCAL=4;
     public static final int LIST_TYPE_ONLINE=5;
     public static final int LIST_TYPE_LOVE=6;
+    public static final int LIST_TYPE_HISTORY=7;
 }

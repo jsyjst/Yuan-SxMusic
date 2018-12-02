@@ -1,13 +1,14 @@
 package com.example.musicplayer.view;
 
 
-import android.graphics.Color;
-import android.os.Build;
+import android.content.BroadcastReceiver;
+import android.content.Context;
+import android.content.Intent;
+import android.content.IntentFilter;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentTransaction;
-import android.transition.Transition;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -19,7 +20,9 @@ import android.widget.TextView;
 
 import com.example.musicplayer.R;
 import com.example.musicplayer.adapter.ExpandableListViewAdapter;
-import com.example.musicplayer.entiy.History;
+import com.example.musicplayer.adapter.HistoryAdapter;
+import com.example.musicplayer.constant.BroadcastName;
+import com.example.musicplayer.entiy.HistorySong;
 import com.example.musicplayer.entiy.LocalSong;
 import com.example.musicplayer.entiy.Love;
 import com.example.musicplayer.util.CommonUtil;
@@ -36,7 +39,7 @@ public class MainFragment extends Fragment {
 
     private MyListView myListView;
     private ExpandableListAdapter mAdapter;
-    private LinearLayout mLocalMusicLinear,mCollectionLinear;
+    private LinearLayout mLocalMusicLinear,mCollectionLinear,mHistoryMusicLinear;
     private Button playerBtn;
     private TextView mLocalMusicNum,mLoveMusicNum,mHistoryMusicNum;
 
@@ -46,6 +49,9 @@ public class MainFragment extends Fragment {
             {"我喜欢", "默认收藏", "哎呀不错哦", "残渊"},
             {"啦啦", "哈哈"}
     };
+    //注册广播
+    private IntentFilter intentFilter;
+    private SongChangeReceiver songChangeReceiver;
 
 
     @Override
@@ -56,6 +62,7 @@ public class MainFragment extends Fragment {
         mCollectionLinear = view.findViewById(R.id.linear_collection);
         playerBtn = view.findViewById(R.id.btn_player);
         mFunctionLinear = view.findViewById(R.id.linear_function);
+        mHistoryMusicLinear = view.findViewById(R.id.linear_history);
         //获取焦点
         mFunctionLinear.setFocusableInTouchMode(true);
         myListView = view.findViewById(R.id.expand_lv_song_list);
@@ -72,7 +79,17 @@ public class MainFragment extends Fragment {
         CommonUtil.hideStatusBar(getActivity(),true);
         mAdapter = new ExpandableListViewAdapter(getActivity(), mGroupStrings, mSongStrings);
         myListView.setAdapter(mAdapter);
+        //注册广播
+        intentFilter = new IntentFilter();
+        intentFilter.addAction(BroadcastName.SONG_CHANGE);
+        songChangeReceiver = new SongChangeReceiver();
+        getActivity().registerReceiver(songChangeReceiver, intentFilter);
         onClick();
+    }
+    @Override
+    public void onDestroy(){
+        super.onDestroy();
+        getActivity().unregisterReceiver(songChangeReceiver);
     }
     @Override
     public void onResume(){
@@ -103,6 +120,13 @@ public class MainFragment extends Fragment {
                 replaceFragment(new CollectionFragment());
             }
         });
+
+        mHistoryMusicLinear.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                replaceFragment(new HistoryFragment());
+            }
+        });
     }
 
 
@@ -121,6 +145,14 @@ public class MainFragment extends Fragment {
     private void showMusicNum(){
         mLoveMusicNum.setText(""+LitePal.findAll(LocalSong.class).size());
         mLoveMusicNum.setText(""+LitePal.findAll(Love.class).size());
+        mHistoryMusicNum.setText(""+LitePal.findAll(HistorySong.class).size());
+
+    }
+    private class SongChangeReceiver extends BroadcastReceiver {
+        @Override
+        public void onReceive(Context context, Intent intent) {
+            mHistoryMusicNum.setText(""+LitePal.findAll(HistorySong.class).size());
+        }
     }
 
 }

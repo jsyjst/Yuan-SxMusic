@@ -2,7 +2,6 @@ package com.example.musicplayer.view;
 
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
-import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentTransaction;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -13,11 +12,10 @@ import android.widget.EditText;
 import android.widget.TextView;
 
 import com.example.musicplayer.R;
-import com.example.musicplayer.entiy.History;
+import com.example.musicplayer.entiy.SearchHistory;
 import com.example.musicplayer.util.CommonUtil;
 
 import org.litepal.LitePal;
-import org.litepal.LitePalDB;
 
 import java.util.List;
 
@@ -65,13 +63,13 @@ public class SearchFragment extends Fragment {
     }
 
     private void saveDatabase(String seekHistory) {
-        List<History> historyList = LitePal.where("history=?", seekHistory).find(History.class);
-        if (historyList.size() == 1) {
-            LitePal.delete(History.class, historyList.get(0).getId());
+        List<SearchHistory> searchHistoryList = LitePal.where("history=?", seekHistory).find(SearchHistory.class);
+        if (searchHistoryList.size() == 1) {
+            LitePal.delete(SearchHistory.class, searchHistoryList.get(0).getId());
         }
-        History history = new History();
-        history.setHistory(seekHistory);
-        history.save();
+        SearchHistory searchHistory = new SearchHistory();
+        searchHistory.setHistory(seekHistory);
+        searchHistory.save();
 
     }
     public void setSeekEdit(String seek){

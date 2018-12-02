@@ -4,7 +4,7 @@
     <string name="local_music">本地音乐</string>
     <string name="collection">我的收藏</string>
     <string name="download">下载</string>
-    <string name="history">最近播放</string>
+    <string name="searchHistory">最近播放</string>
     <string name="song_list">自建歌单</string>
     <string name="love">我喜欢</string>
     <string name="collection_start">默认收藏</string>

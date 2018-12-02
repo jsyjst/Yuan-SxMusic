@@ -3,55 +3,54 @@ package com.example.musicplayer.adapter;
 import android.content.Context;
 import android.support.annotation.NonNull;
 import android.support.v7.widget.RecyclerView;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
 
 import com.example.musicplayer.R;
-import com.example.musicplayer.entiy.Love;
+import com.example.musicplayer.entiy.HistorySong;
 import com.example.musicplayer.util.FileHelper;
 
 import java.util.List;
 
 /**
- * Created by 残渊 on 2018/11/30.
+ * Created by 残渊 on 2018/12/2.
  */
 
-public class LoveSongAdapter  extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
-    private static final String TAG = "LoveSongAdapter";
-        private int footerViewType = 1;
-        private int itemViewType = 0;
-        private List<Love> mLoveList;
-        private Context mContext;
-        private int mLastPosition = -1;
-        private OnItemClickListener onItemClickListener;
+public class HistoryAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
+    private static final String TAG = "HistoryAdapter";
+    private int footerViewType = 1;
+    private int itemViewType = 0;
+    private List<HistorySong> mHistoryList;
+    private Context mContext;
+    private int mLastPosition = -1;
+    private OnItemClickListener onItemClickListener;
 
-        public void setOnItemClickListener(OnItemClickListener onItemClickListener) {
-            this.onItemClickListener = onItemClickListener;
+    public void setOnItemClickListener(OnItemClickListener onItemClickListener) {
+        this.onItemClickListener = onItemClickListener;
+    }
+
+    public HistoryAdapter(Context context, List<HistorySong> historyList) {
+        mContext = context;
+        mHistoryList =historyList;
+    }
+
+
+
+    class ViewHolder extends RecyclerView.ViewHolder {
+        TextView songNameTv;
+        TextView singerTv;
+        View mItemView;
+        View playLine;
+
+        public ViewHolder(View itemView) {
+            super(itemView);
+            songNameTv = itemView.findViewById(R.id.tv_title);
+            singerTv = itemView.findViewById(R.id.tv_artist);
+            playLine = itemView.findViewById(R.id.line_play);
+            mItemView = itemView;
         }
-
-        public LoveSongAdapter(Context context, List<Love> loveList) {
-            mContext = context;
-            mLoveList = loveList;
-        }
-
-
-
-        class ViewHolder extends RecyclerView.ViewHolder {
-            TextView songNameTv;
-            TextView singerTv;
-            View mItemView;
-            View playLine;
-
-            public ViewHolder(View itemView) {
-                super(itemView);
-                songNameTv = itemView.findViewById(R.id.tv_title);
-                singerTv = itemView.findViewById(R.id.tv_artist);
-                playLine = itemView.findViewById(R.id.line_play);
-                mItemView = itemView;
-            }
     }
 
     /**
@@ -86,13 +85,12 @@ public class LoveSongAdapter  extends RecyclerView.Adapter<RecyclerView.ViewHold
     public void onBindViewHolder(RecyclerView.ViewHolder viewHolder, final int position) {
         if (viewHolder instanceof ViewHolder) {
             ViewHolder holder = (ViewHolder) viewHolder;
-            final Love love = mLoveList.get(position);
-            Log.d(TAG, "onBindViewHolder: "+position);
+            final HistorySong history = mHistoryList.get(position);
 
-            holder.songNameTv.setText(love.getName());
-            holder.singerTv.setText(love.getSinger());
+            holder.songNameTv.setText(history.getName());
+            holder.singerTv.setText(history.getSinger());
             //根据点击显示
-            if(love.getSongId().equals(FileHelper.getSong().getOnlineId())){
+            if(history.getSongId().equals(FileHelper.getSong().getOnlineId())){
                 holder.playLine.setVisibility(View.VISIBLE);
                 mLastPosition =position;
                 holder.mItemView.setBackgroundResource(R.color.click);
@@ -109,7 +107,7 @@ public class LoveSongAdapter  extends RecyclerView.Adapter<RecyclerView.ViewHold
             });
         } else {
             FooterHolder footerHolder = (FooterHolder) viewHolder;
-            footerHolder.numTv.setText("共" + mLoveList.size() + "首音乐");
+            footerHolder.numTv.setText("这里会记录你最近播放的100首歌");
         }
     }
 
@@ -124,7 +122,7 @@ public class LoveSongAdapter  extends RecyclerView.Adapter<RecyclerView.ViewHold
 
     @Override
     public int getItemCount() {
-        return mLoveList.size() + 1;
+        return mHistoryList.size() + 1;
     }
 
     @Override
@@ -136,5 +134,4 @@ public class LoveSongAdapter  extends RecyclerView.Adapter<RecyclerView.ViewHold
     public interface OnItemClickListener {
         void onSongClick(int position);
     }
-
 }

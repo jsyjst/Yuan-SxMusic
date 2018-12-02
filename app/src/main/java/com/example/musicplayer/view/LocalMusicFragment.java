@@ -89,6 +89,12 @@ public class LocalMusicFragment extends Fragment implements ILocalMusicContract.
         initView();
         setOnClickListener();
     }
+    @Override
+    public void onDestroy(){
+        super.onDestroy();
+        getActivity().unbindService(connection);
+        getActivity().unregisterReceiver(songChangeReceiver);
+    }
 
     private void initView() {
         LitePal.getDatabase(); //创建数据库

@@ -12,6 +12,7 @@ import com.example.musicplayer.https.NetWork;
 import org.litepal.LitePal;
 import org.litepal.crud.callback.FindMultiCallback;
 import org.litepal.crud.callback.SaveCallback;
+import org.litepal.crud.callback.UpdateOrDeleteCallback;
 
 import java.io.IOException;
 import java.util.List;
@@ -27,12 +28,12 @@ import io.reactivex.schedulers.Schedulers;
  * Created by 残渊 on 2018/10/26.
  */
 
-public class IPlayModel implements IPlayContract.Model {
-    private String TAG="IPlayModel";
+public class PlayModel implements IPlayContract.Model {
+    private String TAG="PlayModel";
 
     private IPlayContract.Presenter mPresenter;
 
-    public IPlayModel(IPlayContract.Presenter presenter){
+    public PlayModel(IPlayContract.Presenter presenter){
         mPresenter=presenter;
     }
 
@@ -119,7 +120,13 @@ public class IPlayModel implements IPlayContract.Model {
         new Thread(new Runnable() {
             @Override
             public void run() {
-                LitePal.deleteAll("songId=?",songId);
+                LitePal.deleteAllAsync(Love.class,"songId=?",songId)
+                        .listen(new UpdateOrDeleteCallback() {
+                            @Override
+                            public void onFinish(int rowsAffected) {
+                                mPresenter.deleteSuccess();
+                            }
+                        });
             }
         }).start();
     }

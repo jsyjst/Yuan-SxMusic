@@ -92,22 +92,20 @@ public class SongAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
 
             holder.songNameTv.setText(mp3Info.getName());
             holder.artistTv.setText(mp3Info.getSinger());
-            if (FileHelper.getSong() != null) {
-                mLastPosition = FileHelper.getSong().getCurrent();
-            }
-            holder.songNameTv.setTextColor(MyApplication.getContext().getResources().
-                    getColor(position == mLastPosition ? R.color.musicStyle_low : R.color.white));
-            holder.artistTv.setTextColor(MyApplication.getContext().getResources().
-                    getColor(position == mLastPosition ? R.color.musicStyle_low : R.color.short_white));
-            holder.playingIv.setVisibility(position == mLastPosition ? View.VISIBLE : View.GONE);
-            if (FileHelper.getSong().isOnline()) {
+            //根据播放的歌曲是否为当前列表的歌曲显示
+            if(mp3Info.getSongId().equals(FileHelper.getSong().getOnlineId())){
+                holder.songNameTv.setTextColor(MyApplication.getContext().
+                        getResources().getColor(R.color.musicStyle_low));
+                holder.artistTv.setTextColor(MyApplication.getContext().
+                        getResources().getColor(R.color.musicStyle_low));
+                holder.playingIv.setVisibility(View.VISIBLE);
+            }else {
+                holder.songNameTv.setTextColor(MyApplication.getContext().
+                        getResources().getColor(R.color.white));
+                holder.artistTv.setTextColor(MyApplication.getContext().
+                        getResources().getColor(R.color.white));
                 holder.playingIv.setVisibility(View.GONE);
-                holder.songNameTv.setTextColor(MyApplication.getContext().getResources().
-                        getColor(R.color.white));
-                holder.artistTv.setTextColor(MyApplication.getContext().getResources().
-                        getColor(R.color.short_white));
             }
-//            holder.playingIv.setVisibility(position==FileHelper.getSong().getCurrent()?View.VISIBLE:View.GONE);
             holder.songView.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {

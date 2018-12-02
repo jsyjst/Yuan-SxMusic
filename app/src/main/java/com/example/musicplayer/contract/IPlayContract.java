@@ -22,6 +22,7 @@ public interface IPlayContract {
         void showLove(boolean love); //判断是否显示我喜欢的图标
         void showLoveAnim(); //喜欢的动画
         void saveToLoveSuccess();//保存到我喜欢数据库成功
+        void sendUpdateCollection(); //发送广播更新收藏列表
     }
     interface Presenter{
         void getSingerImg(String singer);
@@ -32,5 +33,6 @@ public interface IPlayContract {
         void deleteFromLove(String songId); //从我喜欢的表中移除
         void saveToLoveSuccess();//保存到我喜欢数据库成功
         void showLove(boolean love); //判断是否显示我喜欢的图标
+        void deleteSuccess();//从我的收藏中移除
     }
 }

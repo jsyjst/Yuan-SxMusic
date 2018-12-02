@@ -3,6 +3,7 @@ package com.example.musicplayer.adapter;
 import android.content.Context;
 import android.support.annotation.NonNull;
 import android.support.v7.widget.RecyclerView;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -85,6 +86,7 @@ public class LoveSongAdapter  extends RecyclerView.Adapter<RecyclerView.ViewHold
         if (viewHolder instanceof ViewHolder) {
             ViewHolder holder = (ViewHolder) viewHolder;
             final Love love = mLoveList.get(position);
+            Log.d(TAG, "onBindViewHolder: "+position);
 
             holder.songNameTv.setText(love.getName());
             holder.singerTv.setText(love.getSinger());

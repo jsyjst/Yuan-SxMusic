@@ -99,7 +99,7 @@ public class MainActivity extends AppCompatActivity {
 
     private void initView() {
         mSong = FileHelper.getSong();
-        Log.d(TAG, "jsyjst: "+mSong.toString());
+        Log.d(TAG, "jsyjst: " + mSong.toString());
         mSongNameTv = findViewById(R.id.tv_song_name);
         mSingerTv = findViewById(R.id.tv_singer);
         mLinear = findViewById(R.id.linear_player);
@@ -161,13 +161,12 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void onStopTrackingTouch(SeekBar seekBar) {
                 if (mPlayStatusBinder.isPlaying()) {
-                    mMediaPlayer.seekTo(seekBar.getProgress());
+                    mPlayStatusBinder.getMediaPlayer().seekTo(seekBar.getProgress());
                 } else {
                     time = seekBar.getProgress();
                 }
                 isChange = false;
-                mSeekBarThread = new Thread(new SeekBarThread());
-                mSeekBarThread.start();
+                seekBarStart();
             }
         });
 
@@ -197,14 +196,13 @@ public class MainActivity extends AppCompatActivity {
                 } else {
                     if (FileHelper.getSong().isOnline()) {
                         mPlayStatusBinder.playOnline();
-                    } else{
+                    } else {
                         mPlayStatusBinder.play(FileHelper.getSong().getListType());
                     }
                     mMediaPlayer.seekTo((int) mSong.getCurrentTime());
                     mCircleAnimator.start();
                     mPlayerBtn.setSelected(true);
-                    mSeekBarThread = new Thread(new SeekBarThread());
-                    mSeekBarThread.start();
+                    seekBarStart();
                 }
             }
         });
@@ -268,15 +266,22 @@ public class MainActivity extends AppCompatActivity {
 
     }
 
+    private void seekBarStart() {
+        mSeekBarThread = new Thread(new SeekBarThread());
+        mSeekBarThread.start();
+    }
+
     class SeekBarThread implements Runnable {
         @Override
         public void run() {
-            while (!isChange && mPlayStatusBinder.isPlaying()) {
-                mSeekBar.setProgress((int) mPlayStatusBinder.getCurrentTime());
-                try {
-                    Thread.sleep(1000);
-                } catch (InterruptedException e) {
-                    e.printStackTrace();
+            if (mPlayStatusBinder!=null) {
+                while (!isChange && mPlayStatusBinder.isPlaying()) {
+                    mSeekBar.setProgress((int) mPlayStatusBinder.getCurrentTime());
+                    try {
+                        Thread.sleep(1000);
+                    } catch (InterruptedException e) {
+                        e.printStackTrace();
+                    }
                 }
             }
         }
@@ -307,14 +312,12 @@ public class MainActivity extends AppCompatActivity {
             } else if (action.equals(BroadcastName.SONG_RESUME)) {
                 mPlayerBtn.setSelected(true);
                 mCircleAnimator.resume();
-                mSeekBarThread = new Thread(new SeekBarThread());
-                mSeekBarThread.start();
+                seekBarStart();
 
-            } else  {
+            } else {
                 mPlayerBtn.setSelected(true);
                 mCircleAnimator.start();
-                mSeekBarThread = new Thread(new SeekBarThread());
-                mSeekBarThread.start();
+                seekBarStart();
             }
         }
     }

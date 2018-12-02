@@ -120,6 +120,12 @@ public class SearchContentFragment extends Fragment implements ISearchContentCon
 
 
     }
+    @Override
+    public void onDestroy(){
+        super.onDestroy();
+        getActivity().unbindService(connection);
+        getActivity().unregisterReceiver(songChangeReceiver);
+    }
 
 
     @Override

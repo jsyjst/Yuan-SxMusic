@@ -127,6 +127,13 @@ public class AlbumSongFragment extends Fragment implements IAlbumSongContract.Vi
         mPresenter.getAlbumDetail(mId,mType);
     }
 
+    @Override
+    public void onDestroy(){
+        super.onDestroy();
+        getActivity().unbindService(connection);
+        getActivity().unregisterReceiver(albumSongChangeReceiver);
+    }
+
     private void getBundle(){
         Bundle bundle = getArguments();
         if (bundle != null) {

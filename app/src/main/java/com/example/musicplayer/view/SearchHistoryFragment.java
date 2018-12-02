@@ -44,6 +44,7 @@ public class SearchHistoryFragment extends Fragment {
         onClick();
     }
 
+
     private void showHistory(){
         mHistoryList = new ArrayList<>();
         mTempList = new ArrayList<>();

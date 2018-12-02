@@ -404,7 +404,7 @@ public class PlayActivity extends BaseActivity implements IPlayContract.View {
                     LocalSong localSong =new LocalSong();
                     mLocalSong = LitePal.findAll(LocalSong.class);
                     localSong.setPic(BaseUri.STORAGE_IMG_FILE + FileHelper.getSong().getSinger() + ".jpg");
-                    localSong.updateAll("singer",FileHelper.getSong().getSinger());
+                    localSong.save();
                 }
 
                 try2UpdateMusicPicBackground(mImgBmp);
@@ -452,6 +452,11 @@ public class PlayActivity extends BaseActivity implements IPlayContract.View {
     @Override
     public void saveToLoveSuccess() {
         CommonUtil.showToast(PlayActivity.this,"添加成功");
+    }
+
+    @Override
+    public void sendUpdateCollection() {
+        sendBroadcast(new Intent(BroadcastName.LOVE_SONG_CANCEL));
     }
 
 

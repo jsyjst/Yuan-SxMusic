@@ -3,17 +3,17 @@ package com.example.musicplayer.presenter;
 import com.example.musicplayer.base.BasePresenter;
 import com.example.musicplayer.contract.IPlayContract;
 import com.example.musicplayer.entiy.Song;
-import com.example.musicplayer.model.IPlayModel;
+import com.example.musicplayer.model.PlayModel;
 
 /**
  * Created by 残渊 on 2018/10/26.
  */
 
 public class PlayPresenter extends BasePresenter<IPlayContract.View> implements IPlayContract.Presenter {
-    private IPlayModel mModel;
+    private PlayModel mModel;
 
     public PlayPresenter(){
-        mModel=new IPlayModel(this);
+        mModel=new PlayModel(this);
     }
 
 
@@ -62,6 +62,13 @@ public class PlayPresenter extends BasePresenter<IPlayContract.View> implements 
     public void showLove(boolean love) {
         if(isAttachView()){
             getMvpView().showLove(love);
+        }
+    }
+
+    @Override
+    public void deleteSuccess() {
+        if(isAttachView()){
+            getMvpView().sendUpdateCollection();
         }
     }
 }

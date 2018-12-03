@@ -76,7 +76,6 @@ public class MainFragment extends Fragment {
     @Override
     public void onActivityCreated(Bundle savedInstanceState) {
         super.onActivityCreated(savedInstanceState);
-        CommonUtil.hideStatusBar(getActivity(),true);
         mAdapter = new ExpandableListViewAdapter(getActivity(), mGroupStrings, mSongStrings);
         myListView.setAdapter(mAdapter);
         //注册广播
@@ -94,7 +93,6 @@ public class MainFragment extends Fragment {
     @Override
     public void onResume(){
         super.onResume();
-        CommonUtil.hideStatusBar(getActivity(),true);
         showMusicNum();
         Log.d(TAG, "onResume: true");
     }

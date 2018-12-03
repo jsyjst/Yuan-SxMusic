@@ -11,7 +11,9 @@ import android.support.v4.app.FragmentStatePagerAdapter;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
+import android.util.Log;
 import android.view.LayoutInflater;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
@@ -34,6 +36,8 @@ import javax.microedition.khronos.opengles.GL;
  */
 
 public class AlbumContentFragment extends Fragment {
+    private static final String TAG="AlbumContentFragment";
+
     public static final String ALBUM_ID_KEY="id";
     private static final String ALBUM_NAME_KEY="albumName";
     private static final  String SINGER_NAME_KEY="singerName";
@@ -102,6 +106,13 @@ public class AlbumContentFragment extends Fragment {
                 actionBar.setHomeButtonEnabled(true);
             }
         }
+        //返回键的监听
+        toolbar.setNavigationOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                getActivity().getSupportFragmentManager().popBackStack();
+            }
+        });
 
         mViewPager.getViewPager().setAdapter(new FragmentStatePagerAdapter(getActivity().getSupportFragmentManager()) {
 
@@ -141,6 +152,7 @@ public class AlbumContentFragment extends Fragment {
 
 
     }
+
 
     public static Fragment newInstance(String id,String albumName,String albumPic,String singerName,String publicTime){
         AlbumContentFragment albumContentFragment = new AlbumContentFragment();

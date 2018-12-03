@@ -124,6 +124,12 @@ public class HistoryFragment extends Fragment {
                 mPlayStatusBinder.play(Constant.LIST_TYPE_HISTORY);
             }
         });
+        mBackIv.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                getActivity().getSupportFragmentManager().popBackStack();
+            }
+        });
     }
     private List<HistorySong> orderList(List<HistorySong> tempList){
         List<HistorySong> historyList=new ArrayList<>();

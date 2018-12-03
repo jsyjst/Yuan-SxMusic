@@ -130,7 +130,8 @@ public class MainActivity extends AppCompatActivity {
             } else {
                 Glide.with(this)
                         .load(mSong.getImgUrl())
-                        .apply(RequestOptions.errorOf(R.drawable.background))
+                        .apply(RequestOptions.placeholderOf(R.drawable.welcome))
+                        .apply(RequestOptions.errorOf(R.drawable.welcome))
                         .into(mCoverIv);
             }
 
@@ -303,7 +304,8 @@ public class MainActivity extends AppCompatActivity {
             } else {
                 Glide.with(MainActivity.this)
                         .load(mSong.getImgUrl())
-                        .apply(RequestOptions.errorOf(R.drawable.background))
+                        .apply(RequestOptions.placeholderOf(R.drawable.welcome))
+                        .apply(RequestOptions.errorOf(R.drawable.welcome))
                         .into(mCoverIv);
             }
             if (action.equals(BroadcastName.SONG_PAUSE)) {

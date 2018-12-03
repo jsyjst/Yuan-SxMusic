@@ -95,10 +95,16 @@ public class LoveSongAdapter  extends RecyclerView.Adapter<RecyclerView.ViewHold
             if(love.getSongId().equals(FileHelper.getSong().getOnlineId())){
                 holder.playLine.setVisibility(View.VISIBLE);
                 mLastPosition =position;
-                holder.mItemView.setBackgroundResource(R.color.click);
+                holder.songNameTv.setTextColor(mContext.getResources()
+                        .getColor(R.color.yellow));
+                holder.singerTv.setTextColor(mContext.getResources()
+                        .getColor(R.color.yellow));
             }else {
                 holder.playLine.setVisibility(View.INVISIBLE);
-                holder.mItemView.setBackgroundResource(R.color.transparent);
+                holder.songNameTv.setTextColor(mContext.getResources()
+                        .getColor(R.color.white));
+                holder.singerTv.setTextColor(mContext.getResources()
+                        .getColor(R.color.white_blue));
             }
             holder.mItemView.setOnClickListener(new View.OnClickListener() {
                 @Override

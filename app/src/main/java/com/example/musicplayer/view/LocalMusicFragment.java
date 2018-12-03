@@ -145,6 +145,12 @@ public class LocalMusicFragment extends Fragment implements ILocalMusicContract.
                 mPresenter.getLocalMp3Info(); //执行presenter里面的方法
             }
         });
+        mBackIv.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                getActivity().getSupportFragmentManager().popBackStack();
+            }
+        });
     }
 
 

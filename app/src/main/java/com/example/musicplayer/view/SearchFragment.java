@@ -9,6 +9,7 @@ import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.EditText;
+import android.widget.ImageView;
 import android.widget.TextView;
 
 import com.example.musicplayer.R;
@@ -27,6 +28,7 @@ public class SearchFragment extends Fragment {
     private static final String TAG = "SearchFragment";
     private EditText mSeekEdit;
     private TextView mSeekTv;
+    private ImageView mBackIv;
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
@@ -34,6 +36,7 @@ public class SearchFragment extends Fragment {
         View view = inflater.inflate(R.layout.fragment_search, container, false);
         mSeekEdit = view.findViewById(R.id.edit_seek);
         mSeekTv = view.findViewById(R.id.tv_search);
+        mBackIv = view.findViewById(R.id.iv_back);
         replaceFragment(new SearchHistoryFragment());
         return view;
     }
@@ -42,6 +45,7 @@ public class SearchFragment extends Fragment {
     public void onActivityCreated(Bundle saveInstanceState) {
         super.onActivityCreated(saveInstanceState);
         CommonUtil.showKeyboard(mSeekEdit, getActivity());
+
         mSeekTv.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -60,6 +64,13 @@ public class SearchFragment extends Fragment {
                 return false;
             }
         });
+        mBackIv.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                CommonUtil.closeKeybord(mSeekEdit,getActivity());
+                getActivity().getSupportFragmentManager().popBackStack();
+            }
+        });
     }
 
     private void saveDatabase(String seekHistory) {
@@ -72,7 +83,8 @@ public class SearchFragment extends Fragment {
         searchHistory.save();
 
     }
-    public void setSeekEdit(String seek){
+
+    public void setSeekEdit(String seek) {
         mSeekEdit.setText(seek);
         mSeekEdit.setCursorVisible(false);//隐藏光标
         mSeekEdit.setSelection(seek.length());
@@ -87,8 +99,9 @@ public class SearchFragment extends Fragment {
         transaction.replace(R.id.container, fragment);
         transaction.commit();
     }
+
     @Override
-    public void onDestroyView(){
+    public void onDestroyView() {
         super.onDestroyView();
         Log.d(TAG, "onDestroyView: true");
     }

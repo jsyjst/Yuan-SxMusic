@@ -414,8 +414,8 @@ public class PlayActivity extends BaseActivity implements IPlayContract.View {
         };
         Glide.with(this)
                 .load(ImgUrl)
-                .apply(RequestOptions.placeholderOf(R.drawable.background))
-                .apply(RequestOptions.errorOf(R.drawable.background))
+                .apply(RequestOptions.placeholderOf(R.drawable.welcome))
+                .apply(RequestOptions.errorOf(R.drawable.welcome))
                 .into(target);
 
     }
@@ -530,7 +530,8 @@ public class PlayActivity extends BaseActivity implements IPlayContract.View {
                         return false;
                     }
                 })
-                .apply(RequestOptions.errorOf(R.drawable.background))
+                .apply(RequestOptions.placeholderOf(R.drawable.welcome))
+                .apply(RequestOptions.errorOf(R.drawable.welcome))
                 .into(target);
 
     }

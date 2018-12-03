@@ -3,14 +3,14 @@
     <!-- Base application theme. -->
     <style name="AppTheme" parent="Theme.AppCompat.Light.NoActionBar">
         <!-- Customize your theme here. -->
-        <item name="colorPrimary">@color/colorPrimary</item>
-        <item name="colorPrimaryDark">@color/colorPrimaryDark</item>
+        <item name="colorPrimary">#020828</item>
+        <item name="colorPrimaryDark">#0f1934</item>
         <item name="colorAccent">@color/musicStyle</item>
     </style>
 
     <style name="local" parent="Theme.AppCompat.Light.NoActionBar">
         <item name="colorPrimary">#020828</item>
-        <item name="colorPrimaryDark">#050e41</item>
+        <item name="colorPrimaryDark">#0f1934</item>
         <item name="colorAccent">@color/musicStyle</item>
     </style>
 

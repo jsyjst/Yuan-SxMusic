@@ -142,7 +142,6 @@ public class PlayerService extends Service {
 
         public void play(int listType) {
             try {
-
                 mListType = listType;
                 if (mListType == Constant.LIST_TYPE_ONLINE) {
                     mSongList = LitePal.findAll(OnlineSong.class);

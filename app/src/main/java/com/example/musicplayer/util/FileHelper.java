@@ -127,7 +127,8 @@ public class FileHelper {
 
         Glide.with(context)
                 .load(imgUrl)
-                .apply(RequestOptions.errorOf(R.drawable.background))
+                .apply(RequestOptions.placeholderOf(R.drawable.welcome))
+                .apply(RequestOptions.errorOf(R.drawable.welcome))
                 .into(view);
     }
 }

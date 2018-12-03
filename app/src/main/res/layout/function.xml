@@ -6,6 +6,47 @@
     android:background="@color/translucent"
     android:orientation="vertical"
    >
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="100dp">
+
+        <de.hdodenhof.circleimageview.CircleImageView
+            android:id="@+id/cv_jay"
+            android:layout_width="60dp"
+            android:layout_height="60dp"
+            android:layout_centerVertical="true"
+            android:src="@drawable/jay"
+            android:layout_marginStart="20dp"
+            android:layout_marginEnd="20dp"
+            android:scaleType="centerCrop"/>
+        <TextView
+            android:id="@+id/tv_name"
+            android:layout_marginTop="30dp"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/name"
+            android:textColor="@color/white"
+            android:layout_toRightOf="@+id/cv_jay"
+            android:textSize="16sp"/>
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/student_id"
+            android:textColor="@color/white_blue"
+            android:layout_toRightOf="@+id/cv_jay"
+            android:layout_below="@id/tv_name"
+            android:layout_marginTop="5dp"
+            android:textSize="14sp"/>
+
+
+
+    </RelativeLayout>
+
+    <View
+        android:layout_width="match_parent"
+        android:layout_height="1dp"
+        android:background="@color/line"/>
+
 
     <LinearLayout
         android:layout_marginTop="20dp"
@@ -26,8 +67,8 @@
 
             <ImageView
                 android:layout_gravity="center_horizontal"
-                android:layout_width="50dp"
-                android:layout_height="50dp"
+                android:layout_width="40dp"
+                android:layout_height="40dp"
                 android:src="@drawable/selector_linear_drawable" />
             <TextView
                 android:layout_marginTop="5dp"
@@ -57,8 +98,8 @@
 
             <ImageView
                 android:layout_gravity="center_horizontal"
-                android:layout_width="50dp"
-                android:layout_height="50dp"
+                android:layout_width="40dp"
+                android:layout_height="40dp"
                 android:src="@drawable/collection" />
             <TextView
                 android:layout_marginTop="5dp"
@@ -87,8 +128,8 @@
             <ImageView
                 android:layout_marginTop="5dp"
                 android:layout_gravity="center_horizontal"
-                android:layout_width="45dp"
-                android:layout_height="45dp"
+                android:layout_width="35dp"
+                android:layout_height="35dp"
                 android:src="@drawable/download" />
             <TextView
                 android:layout_marginTop="5dp"
@@ -117,8 +158,8 @@
             <ImageView
                 android:layout_marginTop="5dp"
                 android:layout_gravity="center_horizontal"
-                android:layout_width="45dp"
-                android:layout_height="45dp"
+                android:layout_width="35dp"
+                android:layout_height="35dp"
                 android:src="@drawable/history" />
             <TextView
                 android:layout_marginTop="5dp"
@@ -127,7 +168,8 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="@string/searchHistory"
-                android:textColor="@drawable/selector_linear_click"/>
+                android:textColor="@drawable/selector_linear_click"
+                />
             <TextView
                 android:id="@+id/tv_history_num"
                 android:layout_width="wrap_content"

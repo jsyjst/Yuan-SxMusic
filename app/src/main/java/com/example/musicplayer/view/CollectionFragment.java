@@ -128,6 +128,12 @@ public class CollectionFragment extends Fragment {
                 mPlayStatusBinder.play(Constant.LIST_TYPE_LOVE);
             }
         });
+        mBackIv.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                getActivity().getSupportFragmentManager().popBackStack();
+            }
+        });
     }
     private List<Love> orderList(List<Love> tempList){
         List<Love> loveList=new ArrayList<>();

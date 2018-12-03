@@ -8,10 +8,6 @@
     android:fitsSystemWindows="true"
     android:clipToPadding="false"
     >
-    <View
-        android:layout_width="match_parent"
-        android:layout_height="25dp"
-        android:background="@color/actionBarColor"/>
 
     <com.github.florent37.materialviewpager.MaterialViewPager
         android:fitsSystemWindows="true"

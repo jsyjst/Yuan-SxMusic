@@ -25,6 +25,7 @@ import android.widget.LinearLayout;
 import android.widget.SeekBar;
 import android.widget.TextView;
 
+import com.andexert.library.RippleView;
 import com.bumptech.glide.Glide;
 import com.bumptech.glide.request.RequestOptions;
 import com.example.musicplayer.R;
@@ -50,7 +51,7 @@ public class MainActivity extends AppCompatActivity {
     private boolean flag; //用做暂停的标记
     private int time;   //记录暂停的时间
     private Button mPlayerBtn;
-    private ImageView mNextIv;
+    private RippleView mNextIv;
     private TextView mSongNameTv;
     private TextView mSingerTv;
     private CircleImageView mCoverIv;//封面
@@ -258,6 +259,7 @@ public class MainActivity extends AppCompatActivity {
     public void onDestroy() {
         unbindService(connection);
         unregisterReceiver(songChangeReceiver);
+        mSeekBarThread.interrupt();
         Song song = FileHelper.getSong();
         song.setCurrentTime(mPlayStatusBinder.getCurrentTime());
         Log.d(TAG, "onServiceDisconnected: " + song.getCurrentTime());

@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:ripple="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="vertical">
@@ -10,13 +11,19 @@
         android:layout_height="?android:attr/actionBarSize"
         android:background="@color/actionBarColor">
 
-        <ImageView
+        <com.andexert.library.RippleView
             android:id="@+id/iv_back"
-            android:layout_marginStart="10dp"
-            android:layout_width="30dp"
-            android:layout_height="30dp"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
             android:layout_centerVertical="true"
-            android:src="@drawable/back" />
+            android:layout_marginStart="10dp"
+            ripple:rv_centered="true">
+
+            <ImageView
+                android:layout_width="30dp"
+                android:layout_height="30dp"
+                android:src="@drawable/back" />
+        </com.andexert.library.RippleView>
 
         <EditText
             android:id="@+id/edit_seek"
@@ -28,31 +35,36 @@
             android:layout_toEndOf="@id/iv_back"
             android:layout_toStartOf="@+id/tv_search"
             android:background="@drawable/seek_sp"
+            android:focusable="true"
+            android:focusableInTouchMode="true"
             android:paddingStart="15dp"
-            android:textColor="@color/white"
-            android:textSize="16sp"
-            android:focusable="true"
-            android:focusableInTouchMode="true"/>
-
-        <TextView
-            android:id="@+id/tv_search"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_alignParentEnd="true"
-            android:layout_centerVertical="true"
-            android:layout_marginEnd="20dp"
-            android:clickable="true"
-            android:focusable="true"
-            android:text="@string/search"
             android:textColor="@color/white"
             android:textSize="16sp" />
 
+        <com.andexert.library.RippleView
+            android:id="@+id/tv_search"
+            android:layout_width="50dp"
+            android:layout_height="40dp"
+            ripple:rv_centered="true"
+            android:layout_alignParentEnd="true"
+            android:layout_centerVertical="true"
+            android:layout_marginEnd="20dp">
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/search"
+            android:textColor="@color/white"
+            android:layout_centerInParent="true"
+            android:textSize="16sp" />
+        </com.andexert.library.RippleView>
     </RelativeLayout>
 
     <FrameLayout
         android:id="@+id/container"
         android:layout_width="match_parent"
         android:layout_height="match_parent">
+
     </FrameLayout>
 
 

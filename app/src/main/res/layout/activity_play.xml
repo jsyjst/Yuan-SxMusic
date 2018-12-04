@@ -102,10 +102,13 @@
             android:id="@+id/seek"
             style="@style/neteasa_music_time_seek_bar_sytle"
             android:layout_centerInParent="true"
+            android:progressDrawable="@drawable/seekbar_bg"
+            android:maxHeight="2dp"
             android:layout_toEndOf="@id/tv_current_time"
             android:layout_toStartOf="@+id/tv_duration_time"
             android:paddingEnd="15dp"
-            android:paddingStart="15dp" />
+            android:paddingStart="15dp"
+            />
 
         <TextView
             android:id="@+id/tv_duration_time"

@@ -17,6 +17,7 @@ import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.RelativeLayout;
+import android.widget.TextView;
 
 import com.example.musicplayer.R;
 import com.example.musicplayer.adapter.HistoryAdapter;
@@ -47,6 +48,7 @@ public class HistoryFragment extends Fragment {
     private LinearLayout mSongListLinear;
     private RelativeLayout mEmptyRelative;
     private List<HistorySong> mHistoryList;
+    private TextView mTitleTv;
     //注册广播
     private IntentFilter intentFilter;
     private SongChangeReceiver songChangeReceiver;
@@ -73,6 +75,8 @@ public class HistoryFragment extends Fragment {
         mBackIv = view.findViewById(R.id.iv_back);
         mEmptyRelative = view.findViewById(R.id.relative_empty);
         mSongListLinear = view.findViewById(R.id.linear_song_list);
+        mTitleTv = view.findViewById(R.id.tv_title);
+        mTitleTv.setText("最近播放");
         return view;
     }
 

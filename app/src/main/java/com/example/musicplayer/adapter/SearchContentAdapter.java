@@ -11,6 +11,7 @@ import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
+import com.andexert.library.RippleView;
 import com.bumptech.glide.Glide;
 import com.bumptech.glide.request.RequestOptions;
 import com.example.musicplayer.R;
@@ -103,10 +104,9 @@ public class SearchContentAdapter extends RecyclerView.Adapter<RecyclerView.View
                 songHolder.playLine.setVisibility(View.INVISIBLE);
                 songHolder.mItemView.setBackgroundResource(R.color.translucent);
             }
-
-            songHolder.mItemView.setOnClickListener(new View.OnClickListener() {
+            songHolder.mItemView.setOnRippleCompleteListener(new RippleView.OnRippleCompleteListener() {
                 @Override
-                public void onClick(View v) {
+                public void onComplete(RippleView rippleView) {
                     mItemClick.onClick(position);
                     equalPosition(position);
                 }
@@ -122,9 +122,9 @@ public class SearchContentAdapter extends RecyclerView.Adapter<RecyclerView.View
             CommonUtil.showStringColor(mSeek, albumList.getAlbumName(), albumHolder.albumName);
             CommonUtil.showStringColor(mSeek, albumList.getSingerName(), albumHolder.singerName);
             CommonUtil.showStringColor(mSeek, albumList.getPublicTime(), albumHolder.publicTime);
-            albumHolder.item.setOnClickListener(new View.OnClickListener() {
+            albumHolder.item.setOnRippleCompleteListener(new RippleView.OnRippleCompleteListener() {
                 @Override
-                public void onClick(View v) {
+                public void onComplete(RippleView rippleView) {
                     Log.d(TAG, "onClick: album");
                     mAlbumClick.onClick(position);
                 }
@@ -146,7 +146,7 @@ public class SearchContentAdapter extends RecyclerView.Adapter<RecyclerView.View
     class ViewHolder extends RecyclerView.ViewHolder {
         TextView titleTv;
         TextView artistTv;
-        View mItemView;
+        RippleView mItemView;
         View playLine;
 
         public ViewHolder(View itemView) {
@@ -154,7 +154,7 @@ public class SearchContentAdapter extends RecyclerView.Adapter<RecyclerView.View
             titleTv = itemView.findViewById(R.id.tv_title);
             artistTv = itemView.findViewById(R.id.tv_artist);
             playLine = itemView.findViewById(R.id.line_play);
-            mItemView = itemView;
+            mItemView = itemView.findViewById(R.id.ripple);
         }
     }
 
@@ -163,7 +163,7 @@ public class SearchContentAdapter extends RecyclerView.Adapter<RecyclerView.View
         TextView singerName;
         TextView albumName;
         TextView publicTime;
-        View item;
+        RippleView item;
 
         public AlbumHolder(View itemView) {
             super(itemView);
@@ -171,7 +171,7 @@ public class SearchContentAdapter extends RecyclerView.Adapter<RecyclerView.View
             singerName = itemView.findViewById(R.id.tv_singer_name);
             albumName = itemView.findViewById(R.id.tv_album_name);
             publicTime = itemView.findViewById(R.id.tv_public_time);
-            item = itemView;
+            item = itemView.findViewById(R.id.ripple);
         }
     }
 

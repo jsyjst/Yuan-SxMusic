@@ -8,6 +8,7 @@ import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.TextView;
 
+import com.andexert.library.RippleView;
 import com.example.musicplayer.R;
 import com.example.musicplayer.entiy.SearchHistory;
 
@@ -59,9 +60,9 @@ public class SearchHistoryAdapter extends RecyclerView.Adapter<RecyclerView.View
                 }
             });
 
-            historyHolder.mItemView.setOnClickListener(new View.OnClickListener() {
+            historyHolder.mItemView.setOnRippleCompleteListener(new RippleView.OnRippleCompleteListener() {
                 @Override
-                public void onClick(View v) {
+                public void onComplete(RippleView rippleView) {
                     mOnItemClcikListener.onClick(position);
                 }
             });
@@ -88,13 +89,13 @@ public class SearchHistoryAdapter extends RecyclerView.Adapter<RecyclerView.View
     private class HistoryHolder extends RecyclerView.ViewHolder {
         TextView historyTv;
         ImageView deleteIv;
-        View mItemView;
+        RippleView mItemView;
 
         public HistoryHolder(View itemView) {
             super(itemView);
             historyTv = itemView.findViewById(R.id.tv_seek_history);
             deleteIv = itemView.findViewById(R.id.iv_history_delete);
-            mItemView = itemView;
+            mItemView = itemView.findViewById(R.id.ripple);
         }
     }
 

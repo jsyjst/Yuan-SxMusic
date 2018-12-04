@@ -447,12 +447,14 @@ public class PlayerService extends Service {
                         history.saveAsync().listen(new SaveCallback() {
                             @Override
                             public void onFinish(boolean success) {
-                                Log.d(TAG, "onFinish: " + success);
                                 if (success) {
-                                    Log.d(TAG, "onFinish: " + history.getName());
+                                    if(LitePal.findAll(HistorySong.class).size()>Constant.HISTORY_MAX_SIZE){
+                                        LitePal.delete(HistorySong.class,LitePal.findAll(HistorySong.class).get(0).getId());
+                                    }
                                 }
                             }
                         });
+
                     }
                 });
 

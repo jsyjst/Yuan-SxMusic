@@ -1,13 +1,14 @@
 <?xml version="1.0" encoding="utf-8"?>
 
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:ripple="http://schemas.android.com/apk/res-auto"
     android:id="@+id/linear_player"
     android:layout_width="match_parent"
-    android:clickable="true"
-    android:focusable="true"
     android:layout_height="wrap_content"
     android:layout_alignParentBottom="true"
-    android:elevation="10dp">
+    android:clickable="true"
+    android:elevation="10dp"
+    android:focusable="true">
 
     <FrameLayout
         android:layout_width="match_parent"
@@ -27,53 +28,64 @@
 
 
                 <SeekBar
-                    style="@style/neteasa_music_time_seek_bar_sytle"
-                    android:id="@+id/sb_progress"/>
+                    android:id="@+id/sb_progress"
+                    style="@style/neteasa_music_time_seek_bar_sytle" />
 
                 <TextView
                     android:id="@+id/tv_song_name"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_below="@+id/sb_progress"
+                    android:layout_marginStart="15dp"
                     android:ellipsize="end"
                     android:maxEms="10"
                     android:singleLine="true"
                     android:textColor="@color/white"
-                    android:textSize="14sp"
-                    android:layout_marginStart="15dp"/>
+                    android:textSize="14sp" />
 
                 <TextView
                     android:id="@+id/tv_singer"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_below="@id/tv_song_name"
+                    android:layout_marginStart="15dp"
                     android:ellipsize="end"
                     android:maxEms="10"
                     android:singleLine="true"
-                    android:textSize="12sp"
                     android:textColor="@color/white_blue"
-                    android:layout_marginStart="15dp"/>
+                    android:textSize="12sp" />
 
-                <ImageView
-                    android:clickable="true"
-                    android:focusable="true"
+                <com.andexert.library.RippleView
                     android:id="@+id/song_next"
-                    android:layout_width="30dp"
-                    android:layout_height="30dp"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
                     android:layout_alignParentEnd="true"
-                    android:layout_marginEnd="10dp"
                     android:layout_below="@+id/sb_progress"
+                    android:layout_marginEnd="10dp"
                     android:layout_marginTop="8dp"
-                    android:src="@drawable/song_next" />
+                    ripple:rv_centered="true">
 
-                <Button
-                    android:id="@+id/btn_player"
-                    android:layout_width="55dp"
-                    android:layout_height="55dp"
+                    <ImageView
+                        android:layout_width="30dp"
+                        android:layout_height="30dp"
+                        android:layout_centerInParent="true"
+                        android:src="@drawable/song_next" />
+                </com.andexert.library.RippleView>
+
+                <com.andexert.library.RippleView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
                     android:layout_below="@+id/sb_progress"
                     android:layout_marginEnd="10dp"
                     android:layout_toLeftOf="@+id/song_next"
-                    android:background="@drawable/selector_player" />
+                    ripple:rv_centered="true">
+
+                    <Button
+                        android:id="@+id/btn_player"
+                        android:layout_width="55dp"
+                        android:layout_height="55dp"
+                        android:background="@drawable/selector_player" />
+                </com.andexert.library.RippleView>
             </RelativeLayout>
         </RelativeLayout>
 

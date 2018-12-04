@@ -8,6 +8,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
 
+import com.andexert.library.RippleView;
 import com.example.musicplayer.R;
 import com.example.musicplayer.entiy.AlbumSong;
 import com.example.musicplayer.util.FileHelper;
@@ -64,9 +65,9 @@ public class AlbumSongAdapter extends RecyclerView.Adapter<RecyclerView.ViewHold
                     ? View.VISIBLE : View.INVISIBLE));
             holder.mItemView.setBackgroundResource((songsBean.getId().equals(FileHelper.getSong().getOnlineId())
                     ? R.color.click : R.color.translucent));
-            holder.mItemView.setOnClickListener(new View.OnClickListener() {
+            holder.mItemView.setOnRippleCompleteListener(new RippleView.OnRippleCompleteListener() {
                 @Override
-                public void onClick(View v) {
+                public void onComplete(RippleView rippleView) {
                     mSongClick.onClick(position);
                     equalPosition(position);
                 }
@@ -88,7 +89,7 @@ public class AlbumSongAdapter extends RecyclerView.Adapter<RecyclerView.ViewHold
 
         TextView titleTv;
         TextView artistTv;
-        View mItemView;
+        RippleView mItemView;
         View playLine;
 
         public ViewHolder(View itemView) {
@@ -96,7 +97,7 @@ public class AlbumSongAdapter extends RecyclerView.Adapter<RecyclerView.ViewHold
             titleTv = itemView.findViewById(R.id.tv_title);
             artistTv = itemView.findViewById(R.id.tv_artist);
             playLine = itemView.findViewById(R.id.line_play);
-            mItemView = itemView;
+            mItemView = itemView.findViewById(R.id.ripple);
         }
     }
 

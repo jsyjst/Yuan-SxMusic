@@ -9,6 +9,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
 
+import com.andexert.library.RippleView;
 import com.example.musicplayer.R;
 import com.example.musicplayer.entiy.Love;
 import com.example.musicplayer.util.FileHelper;
@@ -19,39 +20,38 @@ import java.util.List;
  * Created by 残渊 on 2018/11/30.
  */
 
-public class LoveSongAdapter  extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
+public class LoveSongAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
     private static final String TAG = "LoveSongAdapter";
-        private int footerViewType = 1;
-        private int itemViewType = 0;
-        private List<Love> mLoveList;
-        private Context mContext;
-        private int mLastPosition = -1;
-        private OnItemClickListener onItemClickListener;
+    private int footerViewType = 1;
+    private int itemViewType = 0;
+    private List<Love> mLoveList;
+    private Context mContext;
+    private int mLastPosition = -1;
+    private OnItemClickListener onItemClickListener;
 
-        public void setOnItemClickListener(OnItemClickListener onItemClickListener) {
-            this.onItemClickListener = onItemClickListener;
+    public void setOnItemClickListener(OnItemClickListener onItemClickListener) {
+        this.onItemClickListener = onItemClickListener;
+    }
+
+    public LoveSongAdapter(Context context, List<Love> loveList) {
+        mContext = context;
+        mLoveList = loveList;
+    }
+
+
+    class ViewHolder extends RecyclerView.ViewHolder {
+        TextView songNameTv;
+        TextView singerTv;
+        View playLine;
+        RippleView item;
+
+        public ViewHolder(View itemView) {
+            super(itemView);
+            songNameTv = itemView.findViewById(R.id.tv_title);
+            singerTv = itemView.findViewById(R.id.tv_artist);
+            playLine = itemView.findViewById(R.id.line_play);
+            item = itemView.findViewById(R.id.ripple);
         }
-
-        public LoveSongAdapter(Context context, List<Love> loveList) {
-            mContext = context;
-            mLoveList = loveList;
-        }
-
-
-
-        class ViewHolder extends RecyclerView.ViewHolder {
-            TextView songNameTv;
-            TextView singerTv;
-            View mItemView;
-            View playLine;
-
-            public ViewHolder(View itemView) {
-                super(itemView);
-                songNameTv = itemView.findViewById(R.id.tv_title);
-                singerTv = itemView.findViewById(R.id.tv_artist);
-                playLine = itemView.findViewById(R.id.line_play);
-                mItemView = itemView;
-            }
     }
 
     /**
@@ -87,29 +87,31 @@ public class LoveSongAdapter  extends RecyclerView.Adapter<RecyclerView.ViewHold
         if (viewHolder instanceof ViewHolder) {
             ViewHolder holder = (ViewHolder) viewHolder;
             final Love love = mLoveList.get(position);
-            Log.d(TAG, "onBindViewHolder: "+position);
+            Log.d(TAG, "onBindViewHolder: " + position);
 
             holder.songNameTv.setText(love.getName());
             holder.singerTv.setText(love.getSinger());
             //根据点击显示
-            if(love.getSongId().equals(FileHelper.getSong().getOnlineId())){
+            if (love.getSongId().equals(FileHelper.getSong().getOnlineId())) {
                 holder.playLine.setVisibility(View.VISIBLE);
-                mLastPosition =position;
+                mLastPosition = position;
                 holder.songNameTv.setTextColor(mContext.getResources()
                         .getColor(R.color.yellow));
                 holder.singerTv.setTextColor(mContext.getResources()
                         .getColor(R.color.yellow));
-            }else {
+            } else {
                 holder.playLine.setVisibility(View.INVISIBLE);
                 holder.songNameTv.setTextColor(mContext.getResources()
                         .getColor(R.color.white));
                 holder.singerTv.setTextColor(mContext.getResources()
                         .getColor(R.color.white_blue));
             }
-            holder.mItemView.setOnClickListener(new View.OnClickListener() {
+            holder.item.setOnRippleCompleteListener(new RippleView.OnRippleCompleteListener() {
                 @Override
-                public void onClick(View v) {
-                    onItemClickListener.onSongClick(position);
+                public void onComplete(RippleView rippleView) {
+                    if (onItemClickListener != null) {
+                        onItemClickListener.onSongClick(position);
+                    }
                     equalPosition(position);
                 }
             });

@@ -102,6 +102,7 @@ public class CollectionFragment extends Fragment {
     }
 
     private void showSongList() {
+        mRecycler.setHasFixedSize(true);
         mLoveList = orderList(LitePal.findAll(Love.class));
         mAdapter = new LoveSongAdapter(getActivity(), mLoveList);
         mManager = new LinearLayoutManager(getActivity());

@@ -12,6 +12,7 @@ import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.TextView;
 
+import com.andexert.library.RippleView;
 import com.example.musicplayer.R;
 import com.example.musicplayer.entiy.SearchHistory;
 import com.example.musicplayer.util.CommonUtil;
@@ -27,8 +28,8 @@ import java.util.List;
 public class SearchFragment extends Fragment {
     private static final String TAG = "SearchFragment";
     private EditText mSeekEdit;
-    private TextView mSeekTv;
-    private ImageView mBackIv;
+    private RippleView mSeekTv;
+    private RippleView mBackIv;
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,

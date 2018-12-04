@@ -9,6 +9,7 @@ import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.TextView;
 
+import com.andexert.library.RippleView;
 import com.example.musicplayer.constant.Constant;
 import com.example.musicplayer.constant.MyApplication;
 import com.example.musicplayer.entiy.Song;
@@ -45,11 +46,11 @@ public class SongAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
         TextView songNameTv;
         TextView artistTv;
         ImageView playingIv;
-        View songView;
+        RippleView songView;
 
         public ViewHolder(View itemView) {
             super(itemView);
-            songView = itemView;
+            songView = itemView.findViewById(R.id.ripple);
             songNameTv = itemView.findViewById(R.id.tv_song_name);
             artistTv = itemView.findViewById(R.id.tv_artist);
             playingIv = itemView.findViewById(R.id.iv_playing);
@@ -106,23 +107,10 @@ public class SongAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
                         getResources().getColor(R.color.white));
                 holder.playingIv.setVisibility(View.GONE);
             }
-            holder.songView.setOnClickListener(new View.OnClickListener() {
+            holder.songView.setOnRippleCompleteListener(new RippleView.OnRippleCompleteListener() {
                 @Override
-                public void onClick(View v) {
-
-                    //将点击的序列化到本地
-                    Song song = new Song();
-                    song.setSongName(mp3Info.getName());
-                    song.setSinger(mp3Info.getSinger());
-                    song.setUrl(mp3Info.getUrl());
-                    song.setDuration(mp3Info.getDuration());
-                    song.setCurrent(position);
-                    song.setOnline(false);
-                    song.setOnlineId(mp3Info.getSongId());
-                    song.setListType(Constant.LIST_TYPE_LOCAL);
-                    FileHelper.saveSong(song);
-
-                    onItemClickListener.onSongClick();
+                public void onComplete(RippleView rippleView) {
+                    onItemClickListener.onSongClick(position);
                     equalPosition(position);
                 }
             });
@@ -154,7 +142,7 @@ public class SongAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
 
 
     public interface OnItemClickListener {
-        void onSongClick();
+        void onSongClick(int position);
     }
 
 }

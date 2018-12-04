@@ -1,8 +1,15 @@
 <?xml version="1.0" encoding="utf-8"?>
-<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<com.andexert.library.RippleView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:ripple="http://schemas.android.com/apk/res-auto"
+    android:id="@+id/ripple"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    >
+    ripple:rv_type="rectangle">
+
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content">
+
 
     <ImageView
         android:id="@+id/iv_history"
@@ -41,5 +48,5 @@
         android:background="@color/gray"
         android:layout_alignParentBottom="true"
         />
-
-</RelativeLayout>
+    </RelativeLayout>
+</com.andexert.library.RippleView>

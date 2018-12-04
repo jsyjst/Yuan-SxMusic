@@ -8,7 +8,9 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
 
+import com.andexert.library.RippleView;
 import com.example.musicplayer.R;
+import com.example.musicplayer.constant.Constant;
 import com.example.musicplayer.entiy.HistorySong;
 import com.example.musicplayer.util.FileHelper;
 
@@ -41,7 +43,7 @@ public class HistoryAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder
     class ViewHolder extends RecyclerView.ViewHolder {
         TextView songNameTv;
         TextView singerTv;
-        View mItemView;
+        RippleView mItemView;
         View playLine;
 
         public ViewHolder(View itemView) {
@@ -49,7 +51,7 @@ public class HistoryAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder
             songNameTv = itemView.findViewById(R.id.tv_title);
             singerTv = itemView.findViewById(R.id.tv_artist);
             playLine = itemView.findViewById(R.id.line_play);
-            mItemView = itemView;
+            mItemView = itemView.findViewById(R.id.ripple);
         }
     }
 
@@ -104,16 +106,16 @@ public class HistoryAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder
                 holder.singerTv.setTextColor(mContext.getResources()
                         .getColor(R.color.white_blue));
             }
-            holder.mItemView.setOnClickListener(new View.OnClickListener() {
+            holder.mItemView.setOnRippleCompleteListener(new RippleView.OnRippleCompleteListener() {
                 @Override
-                public void onClick(View v) {
+                public void onComplete(RippleView rippleView) {
                     onItemClickListener.onSongClick(position);
                     equalPosition(position);
                 }
             });
         } else {
             FooterHolder footerHolder = (FooterHolder) viewHolder;
-            footerHolder.numTv.setText("这里会记录你最近播放的100首歌");
+            footerHolder.numTv.setText("这里会记录你最近播放的"+ Constant.HISTORY_MAX_SIZE+"首歌");
         }
     }
 

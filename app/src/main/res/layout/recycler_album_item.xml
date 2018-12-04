@@ -1,9 +1,16 @@
 <?xml version="1.0" encoding="utf-8"?>
-<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<com.andexert.library.RippleView xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/ripple"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     xmlns:app="http://schemas.android.com/apk/res-auto"
->
+    xmlns:ripple="http://schemas.android.com/tools"
+    ripple:rv_type="rectangle">
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content">
+
+
 
     <android.support.v7.widget.CardView
         android:id="@+id/iv_album_pic"
@@ -74,6 +81,6 @@
         android:layout_width="match_parent"
         android:layout_height="0.1dip"
         android:background="@color/gray" />
+    </RelativeLayout>
 
-
-</RelativeLayout>
+</com.andexert.library.RippleView>

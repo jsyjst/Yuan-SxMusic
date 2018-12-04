@@ -25,6 +25,7 @@ import com.example.musicplayer.constant.BroadcastName;
 import com.example.musicplayer.constant.Constant;
 import com.example.musicplayer.contract.ILocalMusicContract;
 import com.example.musicplayer.entiy.LocalSong;
+import com.example.musicplayer.entiy.Song;
 import com.example.musicplayer.presenter.LocalMusicPresenter;
 import com.example.musicplayer.service.PlayerService;
 import com.example.musicplayer.util.CommonUtil;
@@ -135,7 +136,19 @@ public class LocalMusicFragment extends Fragment implements ILocalMusicContract.
 
         songAdapter.setOnItemClickListener(new SongAdapter.OnItemClickListener() {
             @Override
-            public void onSongClick() {
+            public void onSongClick(int position) {
+                //将点击的序列化到本地
+                LocalSong mp3Info = mLocalSongsList.get(position);
+                Song song = new Song();
+                song.setSongName(mp3Info.getName());
+                song.setSinger(mp3Info.getSinger());
+                song.setUrl(mp3Info.getUrl());
+                song.setDuration(mp3Info.getDuration());
+                song.setCurrent(position);
+                song.setOnline(false);
+                song.setOnlineId(mp3Info.getSongId());
+                song.setListType(Constant.LIST_TYPE_LOCAL);
+                FileHelper.saveSong(song);
                 mPlayStatusBinder.play(Constant.LIST_TYPE_LOCAL);
             }
         });

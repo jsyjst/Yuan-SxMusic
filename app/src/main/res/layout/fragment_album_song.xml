@@ -52,6 +52,9 @@
                     android:layout_height="wrap_content"
                     android:layout_weight="3"
                     android:text="我很忙"
+                    android:singleLine="true"
+                    android:ellipsize="end"
+                    android:paddingEnd="20dp"
                     android:textColor="@color/white_blue"
                     android:textSize="16sp" />
 
@@ -83,6 +86,9 @@
                     android:layout_height="wrap_content"
                     android:layout_weight="3"
                     android:text="周杰伦"
+                    android:singleLine="true"
+                    android:ellipsize="end"
+                    android:paddingEnd="20dp"
                     android:textColor="@color/white_blue"
                     android:textSize="16sp" />
 

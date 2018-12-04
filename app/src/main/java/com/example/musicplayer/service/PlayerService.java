@@ -449,7 +449,7 @@ public class PlayerService extends Service {
                             public void onFinish(boolean success) {
                                 if (success) {
                                     if(LitePal.findAll(HistorySong.class).size()>Constant.HISTORY_MAX_SIZE){
-                                        LitePal.delete(HistorySong.class,LitePal.findAll(HistorySong.class).get(0).getId());
+                                        LitePal.delete(HistorySong.class,LitePal.findFirst(HistorySong.class).getId());
                                     }
                                 }
                             }

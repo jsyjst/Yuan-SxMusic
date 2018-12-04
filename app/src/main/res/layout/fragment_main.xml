@@ -26,4 +26,9 @@
         </RelativeLayout>
 
     </ScrollView>
+    <View
+        android:layout_width="match_parent"
+        android:layout_height="65dp"
+        android:background="@color/transparent"
+        android:layout_alignParentBottom="true"/>
 </RelativeLayout>

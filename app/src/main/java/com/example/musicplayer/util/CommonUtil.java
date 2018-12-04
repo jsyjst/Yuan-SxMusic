@@ -14,6 +14,7 @@ import android.view.View;
 import android.view.WindowManager;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.EditText;
+import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -167,6 +168,13 @@ public class CommonUtil {
                 .apply(RequestOptions.errorOf(R.drawable.welcome))
                 .into(target);
         return null;
+    }
+    public static void setImgWithGlide(Context context,String imgUrl,ImageView view){
+        Glide.with(context)
+                .load(imgUrl)
+                .apply(RequestOptions.placeholderOf(R.drawable.welcome))
+                .apply(RequestOptions.errorOf(R.drawable.love))
+                .into(view);
     }
 
 }

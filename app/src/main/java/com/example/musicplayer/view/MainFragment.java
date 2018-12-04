@@ -15,6 +15,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.ExpandableListAdapter;
+import android.widget.ExpandableListView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
@@ -22,6 +23,8 @@ import com.example.musicplayer.R;
 import com.example.musicplayer.adapter.ExpandableListViewAdapter;
 import com.example.musicplayer.adapter.HistoryAdapter;
 import com.example.musicplayer.constant.BroadcastName;
+import com.example.musicplayer.entiy.Album;
+import com.example.musicplayer.entiy.AlbumCollection;
 import com.example.musicplayer.entiy.HistorySong;
 import com.example.musicplayer.entiy.LocalSong;
 import com.example.musicplayer.entiy.Love;
@@ -29,6 +32,9 @@ import com.example.musicplayer.util.CommonUtil;
 import com.example.musicplayer.widget.MyListView;
 
 import org.litepal.LitePal;
+
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * A simple {@link Fragment} subclass.
@@ -38,16 +44,20 @@ public class MainFragment extends Fragment {
     private LinearLayout mFunctionLinear;
 
     private MyListView myListView;
-    private ExpandableListAdapter mAdapter;
-    private LinearLayout mLocalMusicLinear,mCollectionLinear,mHistoryMusicLinear;
+    private ExpandableListViewAdapter mAdapter;
+    private LinearLayout mLocalMusicLinear, mCollectionLinear, mHistoryMusicLinear;
     private Button playerBtn;
-    private TextView mLocalMusicNum,mLoveMusicNum,mHistoryMusicNum;
+    private TextView mLocalMusicNum, mLoveMusicNum, mHistoryMusicNum;
 
     private TextView mSeekBtn;
+    private List<List<AlbumCollection>> mAlbumCollectionList;
+    private List<AlbumCollection> mLoveAlbumList;
+    private boolean oneExpand;
+    private boolean twoExpand;
     private String[] mGroupStrings = {"自建歌单", "收藏歌单"};
     private String[][] mSongStrings = {
-            {"我喜欢", "默认收藏", "哎呀不错哦", "残渊"},
-            {"啦啦", "哈哈"}
+            {"我喜欢"},
+            {"Jay", "魔杰座"}
     };
     //注册广播
     private IntentFilter intentFilter;
@@ -76,22 +86,34 @@ public class MainFragment extends Fragment {
     @Override
     public void onActivityCreated(Bundle savedInstanceState) {
         super.onActivityCreated(savedInstanceState);
-        mAdapter = new ExpandableListViewAdapter(getActivity(), mGroupStrings, mSongStrings);
+
+        mLoveAlbumList = new ArrayList<>();
+        mAlbumCollectionList = new ArrayList<>();
+        AlbumCollection albumCollection = new AlbumCollection();
+        albumCollection.setAlbumName("我喜欢");
+        albumCollection.setSingerName("袁健策");
+        mLoveAlbumList.add(albumCollection);
+        mAlbumCollectionList.add(mLoveAlbumList);
+        mAlbumCollectionList.add(orderCollection(LitePal.findAll(AlbumCollection.class)));
+        mAdapter = new ExpandableListViewAdapter(getActivity(), mGroupStrings, mAlbumCollectionList);
         myListView.setAdapter(mAdapter);
         //注册广播
         intentFilter = new IntentFilter();
         intentFilter.addAction(BroadcastName.SONG_CHANGE);
+        intentFilter.addAction(BroadcastName.COLLECTION_ALBUM_CHANGE);
         songChangeReceiver = new SongChangeReceiver();
         getActivity().registerReceiver(songChangeReceiver, intentFilter);
         onClick();
     }
+
     @Override
-    public void onDestroy(){
+    public void onDestroy() {
         super.onDestroy();
         getActivity().unregisterReceiver(songChangeReceiver);
     }
+
     @Override
-    public void onResume(){
+    public void onResume() {
         super.onResume();
         showMusicNum();
         Log.d(TAG, "onResume: true");
@@ -125,6 +147,50 @@ public class MainFragment extends Fragment {
                 replaceFragment(new HistoryFragment());
             }
         });
+        myListView.setOnGroupExpandListener(new ExpandableListView.OnGroupExpandListener() {
+            @Override
+            public void onGroupExpand(int groupPosition) {
+                if (groupPosition == 0) {
+                    oneExpand = true;
+                } else if (groupPosition == 1) {
+                    twoExpand = true;
+                }
+            }
+        });
+        myListView.setOnGroupCollapseListener(new ExpandableListView.OnGroupCollapseListener() {
+            @Override
+            public void onGroupCollapse(int groupPosition) {
+                if (groupPosition == 0) {
+                    oneExpand = false;
+                } else if (groupPosition == 1) {
+                    twoExpand = false;
+                }
+            }
+        });
+        myListView.setOnGroupClickListener(new ExpandableListView.OnGroupClickListener() {
+            @Override
+            public boolean onGroupClick(ExpandableListView parent, View v, int groupPosition, long id) {
+                return false;
+            }
+        });
+
+        mAdapter.setOnChildItemClickListener(new ExpandableListViewAdapter.OnChildItemClickListener() {
+            @Override
+            public void onClick(int groupPosition, int childPosition) {
+                if (groupPosition == 0 && childPosition == 0) {
+                    replaceFragment(new CollectionFragment());
+                } else if (groupPosition == 1) {
+                    AlbumCollection albumCollection = mAlbumCollectionList.get(groupPosition).get(childPosition);
+                    replaceFragment(AlbumContentFragment.newInstance(
+                            albumCollection.getAlbumId(),
+                            albumCollection.getAlbumName(),
+                            albumCollection.getAlbumPic(),
+                            albumCollection.getSingerName(),
+                            albumCollection.getPublicTime()
+                    ));
+                }
+            }
+        });
     }
 
 
@@ -140,16 +206,41 @@ public class MainFragment extends Fragment {
         transaction.addToBackStack(null);
         transaction.commit();
     }
-    private void showMusicNum(){
-        mLoveMusicNum.setText(""+LitePal.findAll(LocalSong.class).size());
-        mLoveMusicNum.setText(""+LitePal.findAll(Love.class).size());
-        mHistoryMusicNum.setText(""+LitePal.findAll(HistorySong.class).size());
+
+    private void showMusicNum() {
+        mLoveMusicNum.setText("" + LitePal.findAll(LocalSong.class).size());
+        mLoveMusicNum.setText("" + LitePal.findAll(Love.class).size());
+        mHistoryMusicNum.setText("" + LitePal.findAll(HistorySong.class).size());
 
     }
+
+    private List<AlbumCollection> orderCollection(List<AlbumCollection> tempList) {
+        List<AlbumCollection> mAlbumCollectionList = new ArrayList<>();
+        for (int i = tempList.size() - 1; i >= 0; i--) {
+            mAlbumCollectionList.add(tempList.get(i));
+        }
+        return mAlbumCollectionList;
+    }
+
     private class SongChangeReceiver extends BroadcastReceiver {
         @Override
         public void onReceive(Context context, Intent intent) {
-            mHistoryMusicNum.setText(""+LitePal.findAll(HistorySong.class).size());
+            String action = intent.getAction();
+            if (action.equals(BroadcastName.SONG_CHANGE)) {
+                mHistoryMusicNum.setText("" + LitePal.findAll(HistorySong.class).size());
+            } else if (action.equals(BroadcastName.COLLECTION_ALBUM_CHANGE)) {
+                mAlbumCollectionList.clear();
+                mAlbumCollectionList.add(mLoveAlbumList);
+                mAlbumCollectionList.add(orderCollection(LitePal.findAll(AlbumCollection.class)));
+                if (twoExpand) {
+                    myListView.collapseGroup(1);
+                    myListView.expandGroup(1);
+                } else {
+                    myListView.expandGroup(1);
+                    myListView.collapseGroup(1);
+                }
+            }
+
         }
     }
 

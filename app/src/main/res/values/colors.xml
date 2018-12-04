@@ -23,4 +23,5 @@
     <color name="white_blue">#caeefc</color>
     <color name="line">#50aebcbf</color>
     <color name="blue">#555</color>
+    <color name="line_default">#1E000000</color>
 </resources>

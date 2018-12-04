@@ -4,23 +4,20 @@
     android:layout_height="match_parent"
     android:layout_below="@+id/linear_function"
     android:layout_marginTop="20dp"
-    android:background="@color/translucent"
     android:orientation="vertical">
 
     <com.example.musicplayer.widget.MyListView
         android:id="@+id/expand_lv_song_list"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:divider="@color/seekColor"
-        android:dividerHeight="1dip">
+        android:divider="@color/line_default"
+        android:childDivider="@color/line_default"
+        android:groupIndicator="@null"
+        android:dividerHeight="1dip"
+        android:layout_marginBottom="70dp">
 
     </com.example.musicplayer.widget.MyListView>
 
-    <View
-        android:layout_width="match_parent"
-        android:layout_height="1dp"
-        android:layout_below="@+id/expand_lv_song_list"
-        android:background="@color/seekColor" />
 
 
 

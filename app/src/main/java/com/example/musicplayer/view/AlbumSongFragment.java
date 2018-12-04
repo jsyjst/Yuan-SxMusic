@@ -132,7 +132,6 @@ public class AlbumSongFragment extends Fragment implements IAlbumSongContract.Vi
     @Override
     public void onDestroy(){
         super.onDestroy();
-        getActivity().unbindService(connection);
         getActivity().unregisterReceiver(albumSongChangeReceiver);
     }
 

@@ -259,7 +259,7 @@ public class MainActivity extends AppCompatActivity {
     public void onDestroy() {
         unbindService(connection);
         unregisterReceiver(songChangeReceiver);
-        mSeekBarThread.interrupt();
+        if(mSeekBarThread!=null) mSeekBarThread.interrupt();
         Song song = FileHelper.getSong();
         song.setCurrentTime(mPlayStatusBinder.getCurrentTime());
         Log.d(TAG, "onServiceDisconnected: " + song.getCurrentTime());

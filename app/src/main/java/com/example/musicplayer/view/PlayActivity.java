@@ -365,7 +365,7 @@ public class PlayActivity extends BaseActivity implements IPlayContract.View {
                     mLoveBtn.setSelected(true);
                     mPresenter.saveToLove(FileHelper.getSong());
                 }
-
+                isLove = !isLove;
             }
         });
     }
@@ -443,7 +443,6 @@ public class PlayActivity extends BaseActivity implements IPlayContract.View {
 
     @Override
     public void showLoveAnim() {
-        mLoveBtn.setSelected(true);
         AnimatorSet animatorSet = (AnimatorSet) AnimatorInflater.loadAnimator(PlayActivity.this, R.animator.favorites_anim);
         animatorSet.setTarget(mLoveBtn);
         animatorSet.start();

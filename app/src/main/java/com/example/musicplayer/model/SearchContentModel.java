@@ -2,11 +2,14 @@ package com.example.musicplayer.model;
 
 import android.util.Log;
 
+import com.example.musicplayer.constant.Constant;
 import com.example.musicplayer.contract.ISearchContentContract;
 import com.example.musicplayer.entiy.Album;
 import com.example.musicplayer.entiy.SeachSong;
 import com.example.musicplayer.https.NetWork;
+import com.example.musicplayer.util.RxApiManager;
 
+import java.net.UnknownHostException;
 import java.util.ArrayList;
 
 import io.reactivex.Observer;
@@ -28,12 +31,12 @@ public class SearchContentModel implements ISearchContentContract.Model {
 
     @Override
     public void search(String seek, int offset) {
-        NetWork.getSearchApi().search(seek,offset)
+        NetWork.getSearchApi().search(seek, offset)
                 .subscribeOn(Schedulers.io()).observeOn(AndroidSchedulers.mainThread())
                 .subscribe(new Observer<SeachSong>() {
                     @Override
                     public void onSubscribe(Disposable d) {
-
+                        RxApiManager.get().add(Constant.SEARCH_SONG, d);
                     }
 
                     @Override
@@ -43,7 +46,9 @@ public class SearchContentModel implements ISearchContentContract.Model {
 
                     @Override
                     public void onError(Throwable e) {
-                        mPresenter.searchError();
+                        if (e instanceof UnknownHostException) {
+                            mPresenter.networkError();
+                        }
                         Log.d(TAG, "onError: " + e.toString());
                     }
 
@@ -56,13 +61,13 @@ public class SearchContentModel implements ISearchContentContract.Model {
     }
 
     @Override
-    public void searchMore(String seek,int offset) {
+    public void searchMore(String seek, int offset) {
         NetWork.getSearchApi().search(seek, offset)
                 .subscribeOn(Schedulers.io()).observeOn(AndroidSchedulers.mainThread())
                 .subscribe(new Observer<SeachSong>() {
                     @Override
                     public void onSubscribe(Disposable d) {
-
+                        RxApiManager.get().add(Constant.SEARCH_SONG_MORE, d);
                     }
 
                     @Override
@@ -94,26 +99,30 @@ public class SearchContentModel implements ISearchContentContract.Model {
 
     @Override
     public void searchAlbum(String seek, int offset) {
-        NetWork.getSearchApi().searchAlbum(seek,offset)
+        NetWork.getSearchApi().searchAlbum(seek, offset)
                 .subscribeOn(Schedulers.io()).observeOn(AndroidSchedulers.mainThread())
                 .subscribe(new Observer<Album>() {
                     @Override
                     public void onSubscribe(Disposable d) {
-
+                        RxApiManager.get().add(Constant.SEARCH_ALBUM, d);
                     }
 
                     @Override
                     public void onNext(Album value) {
-                        if(value.getResult().equals("SUCCESS")){
+                        if (value.getResult().equals("SUCCESS")) {
                             mPresenter.searchAlbumSuccess(value.getData());
-                        }else{
+                        } else {
                             mPresenter.searchAlbumError();
                         }
                     }
 
                     @Override
                     public void onError(Throwable e) {
-                        mPresenter.searchAlbumError();
+                        if (e instanceof UnknownHostException) {
+                            mPresenter.networkError();
+                        } else {
+                            mPresenter.searchAlbumError();
+                        }
                         Log.d(TAG, "onError: searchAlbumError" + e.toString());
                     }
 
@@ -132,7 +141,7 @@ public class SearchContentModel implements ISearchContentContract.Model {
                 .subscribe(new Observer<Album>() {
                     @Override
                     public void onSubscribe(Disposable d) {
-
+                        RxApiManager.get().add(Constant.SEARCH_ALBUM_MORE, d);
                     }
 
                     @Override

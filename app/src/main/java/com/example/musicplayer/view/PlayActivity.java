@@ -18,6 +18,7 @@ import android.media.MediaPlayer;
 import android.os.Handler;
 import android.os.IBinder;
 import android.os.Message;
+import android.provider.ContactsContract;
 import android.support.annotation.Nullable;
 import android.transition.Slide;
 import android.util.Log;
@@ -52,14 +53,13 @@ import com.example.musicplayer.util.DisplayUtil;
 import com.example.musicplayer.util.FastBlurUtil;
 import com.example.musicplayer.util.FileHelper;
 import com.example.musicplayer.util.MediaUtil;
+import com.example.musicplayer.util.RxApiManager;
 import com.example.musicplayer.widget.BackgroundAnimationRelativeLayout;
 import com.example.musicplayer.widget.DiscView;
 
 import org.litepal.LitePal;
 
 import java.util.List;
-
-import static com.example.musicplayer.view.AlbumSongFragment.IS_ONLINE_ALBUM;
 
 /**
  * 播放界面
@@ -80,6 +80,7 @@ public class PlayActivity extends BaseActivity implements IPlayContract.View {
     private MediaPlayer mMediaPlayer;
 
     private TextView mSongTv; //
+    private ImageView mBackIv;
     private TextView mSingerTv;
     private Button mPlayBtn;
     private Button mLastBtn;
@@ -111,6 +112,13 @@ public class PlayActivity extends BaseActivity implements IPlayContract.View {
         @Override
         public void onServiceConnected(ComponentName name, IBinder service) {
             mPlayStatusBinder = (PlayerService.PlayStatusBinder) service;
+            //缓存进度条
+            mPlayStatusBinder.getMediaPlayer().setOnBufferingUpdateListener(new MediaPlayer.OnBufferingUpdateListener() {
+                @Override
+                public void onBufferingUpdate(MediaPlayer mp, int percent) {
+                    mSeekBar.setSecondaryProgress(percent*mSeekBar.getProgress());
+                }
+            });
             isOnline = FileHelper.getSong().isOnline();
             if (isOnline) {
                 mGetImgAndLrcBtn.setVisibility(View.GONE);
@@ -138,7 +146,6 @@ public class PlayActivity extends BaseActivity implements IPlayContract.View {
         public void handleMessage(Message msg) {
             super.handleMessage(msg);
             if (!isChange) {
-                Log.d(TAG, "handleMessage: send");
                 mSeekBar.setProgress((int) mPlayStatusBinder.getCurrentTime());
                 mCurrentTimeTv.setText(MediaUtil.formatTime(mSeekBar.getProgress()));
                 startUpdateSeekBarProgress();
@@ -182,7 +189,7 @@ public class PlayActivity extends BaseActivity implements IPlayContract.View {
         mLastBtn = findViewById(R.id.btn_last);
         mNextBtn = findViewById(R.id.next);
         mGetImgAndLrcBtn = findViewById(R.id.btn_get_img_lrc);
-
+        mBackIv = findViewById(R.id.iv_back);
         mSeekBar = findViewById(R.id.seek);
         mDurationTimeTv = findViewById(R.id.tv_duration_time);
         mCurrentTimeTv = findViewById(R.id.tv_current_time);
@@ -202,6 +209,7 @@ public class PlayActivity extends BaseActivity implements IPlayContract.View {
         mCurrentTimeTv.setText(MediaUtil.formatTime(mSong.getCurrentTime()));
         mSeekBar.setMax((int) mSong.getDuration());
         mSeekBar.setProgress((int) mSong.getCurrentTime());
+
         mPresenter.queryLove(mSong.getOnlineId()); //查找歌曲是否为我喜欢的歌曲
 
         if (mPlayStatus == PlayerStatus.PLAY) {
@@ -258,7 +266,12 @@ public class PlayActivity extends BaseActivity implements IPlayContract.View {
 
     @Override
     protected void onClick() {
-
+        mBackIv.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                finish();
+            }
+        });
         mGetImgAndLrcBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -482,6 +495,15 @@ public class PlayActivity extends BaseActivity implements IPlayContract.View {
             mPlayBtn.setSelected(true);
             mSeekBar.setMax((int) mSong.getDuration());
             startUpdateSeekBarProgress();
+            //缓存进度条
+            mPlayStatusBinder.getMediaPlayer().setOnBufferingUpdateListener(new MediaPlayer.OnBufferingUpdateListener() {
+                @Override
+                public void onBufferingUpdate(MediaPlayer mp, int percent) {
+                    Log.d(TAG, "onBufferingUpdate: "+percent);
+                    mSeekBar.setSecondaryProgress(percent*mSeekBar.getProgress());
+                }
+            });
+            mPresenter.queryLove(mSong.getOnlineId()); //查找歌曲是否为我喜欢的歌曲
             if (mSong.isOnline()) {
                 setSingerImg(mSong.getImgUrl());
             } else {
@@ -541,7 +563,7 @@ public class PlayActivity extends BaseActivity implements IPlayContract.View {
         unbindService(connection);
         unregisterReceiver(songChangeReceiver);
         stopUpdateSeekBarProgress();
-
+        RxApiManager.get().cancel(Constant.LOCAL_IMG);
     }
 
 }

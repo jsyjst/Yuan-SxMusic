@@ -52,6 +52,9 @@ public class SearchFragment extends Fragment {
             public void onClick(View v) {
                 CommonUtil.closeKeybord(mSeekEdit, getActivity());
                 mSeekEdit.setCursorVisible(false);//隐藏光标
+                if(mSeekEdit.getText().toString().trim().length()==0){
+                    mSeekEdit.setText(mSeekEdit.getHint().toString().trim());
+                }
                 saveDatabase(mSeekEdit.getText().toString());
                 replaceFragment(ContentFragment.newInstance(mSeekEdit.getText().toString()));
             }

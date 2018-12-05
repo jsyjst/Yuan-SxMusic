@@ -19,7 +19,9 @@ public interface IAlbumSongContract {
         void setAlbumSongList(List<AlbumSong.DataBean.SongsBean> songList); //成功获取专辑歌曲后填充列表
         void showAlbumSongError();//获取专辑失败
         void showAlbumMessage(String name,String singer,String company,String desc); //展示专辑详细
-        void showNetError(); //网络错误
+        void showLoading();  //显示进度
+        void hideLoading(); //隐藏进度
+        void showNetError(); //显示网络错误
     }
     interface Presenter{
         void getAlbumDetail(String id,int type); //获取专辑的更多信息
@@ -29,5 +31,7 @@ public interface IAlbumSongContract {
         void getAlbumError(); //接口出现问题
 
         void insertAllAlbumSong(ArrayList<AlbumSong.DataBean.SongsBean> songList); //将专辑歌曲添加到数据库
+
+        void showNetError(); //显示网络错误
     }
 }

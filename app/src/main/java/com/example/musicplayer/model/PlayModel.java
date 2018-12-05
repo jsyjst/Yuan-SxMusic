@@ -3,18 +3,19 @@ package com.example.musicplayer.model;
 import android.support.annotation.MainThread;
 import android.util.Log;
 
+import com.example.musicplayer.constant.Constant;
 import com.example.musicplayer.contract.IPlayContract;
 import com.example.musicplayer.entiy.Love;
 import com.example.musicplayer.entiy.SingerImg;
 import com.example.musicplayer.entiy.Song;
 import com.example.musicplayer.https.NetWork;
+import com.example.musicplayer.util.RxApiManager;
 
 import org.litepal.LitePal;
 import org.litepal.crud.callback.FindMultiCallback;
 import org.litepal.crud.callback.SaveCallback;
 import org.litepal.crud.callback.UpdateOrDeleteCallback;
 
-import java.io.IOException;
 import java.util.List;
 
 import io.reactivex.Observer;
@@ -45,7 +46,7 @@ public class PlayModel implements IPlayContract.Model {
                 .subscribe(new Observer<SingerImg>() {
                     @Override
                     public void onSubscribe(Disposable d) {
-
+                        RxApiManager.get().add(Constant.LOCAL_IMG,d);
                     }
 
                     @Override

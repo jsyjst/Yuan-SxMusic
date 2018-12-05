@@ -19,6 +19,7 @@ import android.view.LayoutInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ImageView;
 import android.widget.TextView;
 
 import com.example.musicplayer.R;
@@ -35,8 +36,10 @@ import com.example.musicplayer.presenter.AlbumSongPresenter;
 import com.example.musicplayer.service.PlayerService;
 import com.example.musicplayer.util.CommonUtil;
 import com.example.musicplayer.util.FileHelper;
+import com.example.musicplayer.util.RxApiManager;
 import com.github.florent37.materialviewpager.MaterialViewPagerHelper;
 import com.github.florent37.materialviewpager.header.MaterialViewPagerHeaderDecorator;
+import com.wang.avi.AVLoadingIndicatorView;
 
 import org.litepal.LitePal;
 
@@ -63,6 +66,12 @@ public class AlbumSongFragment extends Fragment implements IAlbumSongContract.Vi
     private int mType;
     private String mPublicTime;
     private String mDesc;
+
+    //用来判断网络问题及加载问题
+    private AVLoadingIndicatorView mLoading;
+    private TextView mLoadingTv;
+    private ImageView mNetworkErrorIv;
+
 
 
     private List<AlbumSong.DataBean.SongsBean> mSongsList;
@@ -94,6 +103,9 @@ public class AlbumSongFragment extends Fragment implements IAlbumSongContract.Vi
         if (mType == ALBUM_SONG) {
             view = inflater.inflate(R.layout.fragment_album_recycler, container, false);
             mRecycle = view.findViewById(R.id.recycler_song_list);
+            mLoading = view.findViewById(R.id.avi);
+            mLoadingTv = view.findViewById(R.id.tv_loading);
+            mNetworkErrorIv = view.findViewById(R.id.iv_network_error);
             LitePal.getDatabase();
         } else {
             view = inflater.inflate(R.layout.fragment_album_song, container, false);
@@ -130,9 +142,9 @@ public class AlbumSongFragment extends Fragment implements IAlbumSongContract.Vi
     }
 
     @Override
-    public void onDestroy(){
-        super.onDestroy();
-        getActivity().unregisterReceiver(albumSongChangeReceiver);
+    public void onDestroyView(){
+        RxApiManager.get().cancel(Constant.ALBUM);
+        super.onDestroyView();
     }
 
     private void getBundle(){
@@ -199,8 +211,23 @@ public class AlbumSongFragment extends Fragment implements IAlbumSongContract.Vi
     }
 
     @Override
+    public void showLoading() {
+        mLoading.show();
+    }
+
+    @Override
+    public void hideLoading() {
+        mLoading.hide();
+        mLoadingTv.setVisibility(View.GONE);
+        mRecycle.setVisibility(View.VISIBLE);
+        mNetworkErrorIv.setVisibility(View.GONE);
+    }
+
+    @Override
     public void showNetError() {
-        CommonUtil.showToast(getActivity(),"网络错误");
+        mLoadingTv.setVisibility(View.GONE);
+        mLoading.hide();
+        mNetworkErrorIv.setVisibility(View.VISIBLE);
     }
 
     class AlbumSongChangeReceiver extends BroadcastReceiver {

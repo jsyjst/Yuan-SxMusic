@@ -16,6 +16,8 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ImageView;
+import android.widget.TextView;
 
 import com.example.musicplayer.R;
 import com.example.musicplayer.adapter.SearchContentAdapter;
@@ -29,10 +31,12 @@ import com.example.musicplayer.presenter.SearchContentPresenter;
 import com.example.musicplayer.service.PlayerService;
 import com.example.musicplayer.util.CommonUtil;
 import com.example.musicplayer.util.FileHelper;
+import com.example.musicplayer.util.RxApiManager;
 import com.github.jdsjlzx.interfaces.OnLoadMoreListener;
 import com.github.jdsjlzx.interfaces.OnNetWorkErrorListener;
 import com.github.jdsjlzx.recyclerview.LRecyclerView;
 import com.github.jdsjlzx.recyclerview.LRecyclerViewAdapter;
+import com.wang.avi.AVLoadingIndicatorView;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -48,8 +52,8 @@ public class SearchContentFragment extends Fragment implements ISearchContentCon
     public static final String IS_ONLINE = "online";
     private int mOffset = 1; //用于翻页搜索
 
-    private String mAlbumName,mSingerName,mAlbumPic,mPublicTime;
-
+    private String mAlbumName, mSingerName, mAlbumPic, mPublicTime;
+    private SongFinishReceiver songFinishReceiver;
     private SearchContentPresenter mPresenter;
     private LRecyclerView mRecycler;
     private LinearLayoutManager manager;
@@ -59,6 +63,10 @@ public class SearchContentFragment extends Fragment implements ISearchContentCon
     private IntentFilter intentFilter;
 
     private LRecyclerViewAdapter mLRecyclerViewAdapter;//下拉刷新
+    private AVLoadingIndicatorView mLoading;
+    private TextView mLoadingTv;
+    private ImageView mBackgroundIv;
+    private ImageView mNetworkErrorIv;
 
     private Bundle mBundle;
     private String mSeek;
@@ -89,6 +97,10 @@ public class SearchContentFragment extends Fragment implements ISearchContentCon
         }
 
         mRecycler = view.findViewById(R.id.recycler_song_list);
+        mLoading = view.findViewById(R.id.avi);
+        mLoadingTv = view.findViewById(R.id.tv_loading);
+        mBackgroundIv = view.findViewById(R.id.iv_background);
+        mNetworkErrorIv = view.findViewById(R.id.iv_network_error);
         mPresenter = new SearchContentPresenter();
         mPresenter.attachView(this);
         if (mType.equals("song")) {
@@ -110,7 +122,8 @@ public class SearchContentFragment extends Fragment implements ISearchContentCon
         intentFilter = new IntentFilter();
         intentFilter.addAction(BroadcastName.ONLINE_SONG_FINISH);
         intentFilter.addAction(BroadcastName.ONLINE_ALBUM_SONG_Change);
-        SongFinishReceiver songFinishReceiver = new SongFinishReceiver();
+        intentFilter.addAction(BroadcastName.ONLINE_SONG_ERROR);
+        songFinishReceiver = new SongFinishReceiver();
         getActivity().registerReceiver(songFinishReceiver, intentFilter);
 
         //启动服务
@@ -119,10 +132,21 @@ public class SearchContentFragment extends Fragment implements ISearchContentCon
 
 
     }
+
     @Override
-    public void onDestroy(){
+    public void onDestroy() {
         super.onDestroy();
         getActivity().unbindService(connection);
+        getActivity().unregisterReceiver(songFinishReceiver);
+    }
+    @Override
+    public void onDestroyView(){
+        Log.d(TAG, "onDestroyView: true");
+        RxApiManager.get().cancel(Constant.SEARCH_SONG);
+        RxApiManager.get().cancel(Constant.SEARCH_ALBUM);
+        RxApiManager.get().cancel(Constant.SEARCH_ALBUM_MORE);
+        RxApiManager.get().cancel(Constant.SEARCH_SONG_MORE);
+        super.onDestroyView();
     }
 
 
@@ -178,8 +202,8 @@ public class SearchContentFragment extends Fragment implements ISearchContentCon
                 Log.d(TAG, "onLoadMore: mOffset=" + mOffset);
                 if (mType.equals("song")) {
                     mPresenter.searchMore(mSeek, mOffset);
-                }else{
-                    mPresenter.searchAlbumMore(mSeek,mOffset);
+                } else {
+                    mPresenter.searchAlbumMore(mSeek, mOffset);
                 }
             }
         });
@@ -201,7 +225,7 @@ public class SearchContentFragment extends Fragment implements ISearchContentCon
             @Override
             public void reload() {
                 mOffset += 1;
-                mPresenter.searchMore(mSeek,  mOffset);
+                mPresenter.searchMore(mSeek, mOffset);
             }
         });
     }
@@ -235,6 +259,28 @@ public class SearchContentFragment extends Fragment implements ISearchContentCon
         CommonUtil.showToast(getActivity(), "获取专辑信息失败");
     }
 
+    @Override
+    public void showLoading() {
+        mLoading.show();
+    }
+
+    @Override
+    public void hideLoading() {
+        mRecycler.setVisibility(View.VISIBLE);
+        mLoading.hide();
+        mLoadingTv.setVisibility(View.GONE);
+        mBackgroundIv.setVisibility(View.GONE);
+        mNetworkErrorIv.setVisibility(View.GONE);
+    }
+
+    @Override
+    public void showNetError() {
+        mRecycler.setVisibility(View.GONE);
+        mLoading.setVisibility(View.GONE);
+        mLoadingTv.setVisibility(View.GONE);
+        mNetworkErrorIv.setVisibility(View.VISIBLE);
+    }
+
     /**
      * 构造带参数的fragment
      *
@@ -253,17 +299,22 @@ public class SearchContentFragment extends Fragment implements ISearchContentCon
 
         @Override
         public void onReceive(Context context, Intent intent) {
-            Log.d(TAG, "onReceive: "+intent.getAction());
-            mAdapter.notifyDataSetChanged();
+            Log.d(TAG, "onReceive: " + intent.getAction());
+            String action = intent.getAction();
+            if (action.equals(BroadcastName.ONLINE_SONG_ERROR)) {
+                CommonUtil.showToast(getActivity(), "抱歉该歌曲暂没有版权，搜搜其他歌曲吧");
+            } else {
+                mAdapter.notifyDataSetChanged();
+            }
         }
     }
 
-    public void toAlbumContentFragment(Album.DataBean album){
+    public void toAlbumContentFragment(Album.DataBean album) {
         FragmentManager manager = getActivity().getSupportFragmentManager();
         FragmentTransaction transaction = manager.beginTransaction();
         transaction.setCustomAnimations(R.anim.fragment_in, R.anim.fragment_out, R.anim.slide_in_right, R.anim.slide_out_right);
-        transaction.add(R.id.fragment_container,AlbumContentFragment.
-                newInstance(album.getAlbumMID(),album.getAlbumName(),album.getAlbumPic(),album.getSingerName(),album.getPublicTime()));
+        transaction.add(R.id.fragment_container, AlbumContentFragment.
+                newInstance(album.getAlbumMID(), album.getAlbumName(), album.getAlbumPic(), album.getSingerName(), album.getPublicTime()));
         transaction.hide(this);
         //将事务提交到返回栈
         transaction.addToBackStack(null);

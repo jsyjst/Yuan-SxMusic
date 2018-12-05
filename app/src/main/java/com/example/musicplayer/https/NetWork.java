@@ -6,6 +6,8 @@ import com.example.musicplayer.https.api.AlbumApi;
 import com.example.musicplayer.https.api.SearchApi;
 import com.example.musicplayer.https.api.SingerImgApi;
 
+import org.reactivestreams.Subscription;
+
 import java.util.concurrent.TimeUnit;
 
 import okhttp3.OkHttpClient;
@@ -24,7 +26,7 @@ import static com.example.musicplayer.constant.BaseUri.SINGER_URL;
  */
 
 public class NetWork {
-    private static okhttp3.OkHttpClient.Builder builder = new OkHttpClient.Builder().connectTimeout(20, TimeUnit.SECONDS);
+    private static okhttp3.OkHttpClient.Builder builder = new OkHttpClient.Builder().connectTimeout(10, TimeUnit.SECONDS);
     private static Converter.Factory gsonConverterFactory = GsonConverterFactory.create();
     private static CallAdapter.Factory rxJavaCallAdapterFactory = RxJava2CallAdapterFactory.create();
     private static  SingerImgApi singerImgApi;

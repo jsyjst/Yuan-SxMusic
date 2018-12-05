@@ -48,7 +48,7 @@
                 android:ellipsize="end"
                 android:singleLine="true"
                 android:paddingEnd="20dp"
-                android:textColor="@color/white_easy" />
+                android:textColor="@color/white_blue" />
         </LinearLayout>
     </RelativeLayout>
 

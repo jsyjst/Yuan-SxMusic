@@ -16,16 +16,16 @@ import com.example.musicplayer.util.CommonUtil;
 import java.util.List;
 
 /**
+ * 自建歌单和收藏歌单的二级适配类
  * Created by 残渊 on 2018/9/23.
  */
-
 public class ExpandableListViewAdapter extends BaseExpandableListAdapter {
     private static final String TAG = "ExpandableListViewAdapter";
 
-    private String[] mGroupStrings;
-    private List<List<AlbumCollection>> mAlbumCollectionList;
+    private String[] mGroupStrings;  //一级标题
+    private List<List<AlbumCollection>> mAlbumCollectionList; //二级收藏歌单列表
     private Context mContext;
-    private OnChildItemClickListener mChildClickListener;
+    private OnChildItemClickListener mChildClickListener; //二级item的点击监听
 
 
     public ExpandableListViewAdapter(Context context, String[] groupStrings, List<List<AlbumCollection>> albumCollectionList) {
@@ -33,6 +33,7 @@ public class ExpandableListViewAdapter extends BaseExpandableListAdapter {
         mGroupStrings = groupStrings;
         mContext = context;
     }
+    //提供给外部使用
     public  void setOnChildItemClickListener(OnChildItemClickListener onChildItemClickListener){
         mChildClickListener=onChildItemClickListener;
     }
@@ -72,6 +73,7 @@ public class ExpandableListViewAdapter extends BaseExpandableListAdapter {
         return true;
     }
 
+    //绘制一级列表
     @Override
     public View getGroupView(int groupPosition, boolean isExpanded, View convertView, ViewGroup parent) {
         View view;
@@ -81,13 +83,13 @@ public class ExpandableListViewAdapter extends BaseExpandableListAdapter {
             groupViewHolder = new GroupViewHolder();
             groupViewHolder.groupTextView = view.findViewById(R.id.tv_new_song);
             groupViewHolder.pointIv = view.findViewById(R.id.iv_point);
-            groupViewHolder.addIv = view.findViewById(R.id.iv_add);
             view.setTag(groupViewHolder);
         } else {
             view = convertView;
             groupViewHolder = (GroupViewHolder) view.getTag();
         }
         groupViewHolder.groupTextView.setText(mGroupStrings[groupPosition]);
+        //根据展开的状态来改变箭头方向
         if (isExpanded) {
             groupViewHolder.pointIv.setImageResource(R.drawable.up);
         } else {
@@ -97,6 +99,7 @@ public class ExpandableListViewAdapter extends BaseExpandableListAdapter {
     }
 
 
+    //绘制二级列表
     @Override
     public View getChildView(final int groupPosition, final int childPosition, boolean isLastChild, View convertView, ViewGroup parent) {
         View view;
@@ -118,6 +121,7 @@ public class ExpandableListViewAdapter extends BaseExpandableListAdapter {
         childViewHolder.authorTv.setText(mAlbumCollectionList.get(groupPosition).get(childPosition).getSingerName());
         CommonUtil.setImgWithGlide(mContext,
                 mAlbumCollectionList.get(groupPosition).get(childPosition).getAlbumPic(), childViewHolder.faceIv);
+        //点击水波纹效果，结束后开始点击效果
         childViewHolder.childView.setOnRippleCompleteListener(new RippleView.OnRippleCompleteListener() {
             @Override
             public void onComplete(RippleView rippleView) {
@@ -136,7 +140,6 @@ public class ExpandableListViewAdapter extends BaseExpandableListAdapter {
     class GroupViewHolder {
         private TextView groupTextView;
         private ImageView pointIv;
-        private ImageView addIv;
     }
 
     class ChildViewHolder {

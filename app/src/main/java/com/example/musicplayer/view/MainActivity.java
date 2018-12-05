@@ -37,6 +37,7 @@ import com.example.musicplayer.service.PlayerService;
 import com.example.musicplayer.util.CommonUtil;
 import com.example.musicplayer.util.FileHelper;
 import com.example.musicplayer.util.MediaUtil;
+import com.example.musicplayer.util.RxApiManager;
 
 import org.litepal.LitePal;
 
@@ -92,21 +93,22 @@ public class MainActivity extends AppCompatActivity {
         songChangeReceiver = new SongChangeReceiver();
         registerReceiver(songChangeReceiver, intentFilter);
         LitePal.getDatabase();
-
+        //启动服务
+        Intent playIntent = new Intent(MainActivity.this, PlayerService.class);
+        bindService(playIntent, connection, Context.BIND_AUTO_CREATE);
         initView();
-        onClick();
     }
 
 
     private void initView() {
         mSong = FileHelper.getSong();
-        Log.d(TAG, "jsyjst: " + mSong.toString());
         mSongNameTv = findViewById(R.id.tv_song_name);
         mSingerTv = findViewById(R.id.tv_singer);
         mLinear = findViewById(R.id.linear_player);
         mSeekBar = findViewById(R.id.sb_progress);
         mNextIv = findViewById(R.id.song_next);
         mCoverIv = findViewById(R.id.circle_img);
+        mPlayerBtn = findViewById(R.id.btn_player);
         //设置属性动画
         mCircleAnimator = ObjectAnimator.ofFloat(mCoverIv, "rotation", 0.0f, 360.0f);
         mCircleAnimator.setDuration(30000);
@@ -116,11 +118,6 @@ public class MainActivity extends AppCompatActivity {
 
 
         if (mSong.getSongName() != null) {
-            //启动服务
-            Intent playIntent = new Intent(MainActivity.this, PlayerService.class);
-            bindService(playIntent, connection, Context.BIND_AUTO_CREATE);
-            Log.d(TAG, "------initView:bindService ");
-
             mLinear.setVisibility(View.VISIBLE);
             mSongNameTv.setText(mSong.getSongName());
             mSingerTv.setText(mSong.getSinger());
@@ -135,12 +132,20 @@ public class MainActivity extends AppCompatActivity {
                         .apply(RequestOptions.errorOf(R.drawable.welcome))
                         .into(mCoverIv);
             }
-
+            onClick();
 
         } else {
-            mLinear.setVisibility(View.GONE);
+            mSongNameTv.setText("心渊音乐");
+            mSingerTv.setText("袁健策 3117004905");
+            mCoverIv.setImageResource(R.drawable.jay);
+            mLinear.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    CommonUtil.showToast(MainActivity.this, "开启你的音乐之旅吧");
+                }
+            });
         }
-        mPlayerBtn = findViewById(R.id.btn_player);
+
 
         addMainFragment();
     }
@@ -181,8 +186,6 @@ public class MainActivity extends AppCompatActivity {
                     time = mMediaPlayer.getCurrentPosition();
                     mPlayStatusBinder.pause();
                     flag = true;
-                    mPlayerBtn.setSelected(false);
-                    mCircleAnimator.pause();
                 } else if (flag) {
                     mPlayStatusBinder.resume();
                     flag = false;
@@ -191,10 +194,6 @@ public class MainActivity extends AppCompatActivity {
                     } else {
                         isSeek = false;
                     }
-                    mCircleAnimator.resume();
-                    mPlayerBtn.setSelected(true);
-                    mSeekBarThread = new Thread(new SeekBarThread());
-                    mSeekBarThread.start();
                 } else {
                     if (FileHelper.getSong().isOnline()) {
                         mPlayStatusBinder.playOnline();
@@ -202,9 +201,6 @@ public class MainActivity extends AppCompatActivity {
                         mPlayStatusBinder.play(FileHelper.getSong().getListType());
                     }
                     mMediaPlayer.seekTo((int) mSong.getCurrentTime());
-                    mCircleAnimator.start();
-                    mPlayerBtn.setSelected(true);
-                    seekBarStart();
                 }
             }
         });
@@ -259,13 +255,12 @@ public class MainActivity extends AppCompatActivity {
     public void onDestroy() {
         unbindService(connection);
         unregisterReceiver(songChangeReceiver);
-        if(mSeekBarThread!=null) mSeekBarThread.interrupt();
+        if (mSeekBarThread != null) mSeekBarThread.interrupt();
         Song song = FileHelper.getSong();
         song.setCurrentTime(mPlayStatusBinder.getCurrentTime());
-        Log.d(TAG, "onServiceDisconnected: " + song.getCurrentTime());
         FileHelper.saveSong(song);
+        RxApiManager.get().cancelAll();
         super.onDestroy();
-
 
     }
 
@@ -277,7 +272,7 @@ public class MainActivity extends AppCompatActivity {
     class SeekBarThread implements Runnable {
         @Override
         public void run() {
-            if (mPlayStatusBinder!=null) {
+            if (mPlayStatusBinder != null) {
                 while (!isChange && mPlayStatusBinder.isPlaying()) {
                     mSeekBar.setProgress((int) mPlayStatusBinder.getCurrentTime());
                     try {
@@ -297,10 +292,26 @@ public class MainActivity extends AppCompatActivity {
             String action = intent.getAction();
 
             mSong = FileHelper.getSong();
-            mSongNameTv.setText(mSong.getSongName());
-            mSingerTv.setText(mSong.getSinger());
-            mSeekBar.setMax((int) mSong.getDuration());
-
+            onClick();
+            if (action.equals(BroadcastName.ONLINE_SONG_ERROR)) {
+                CommonUtil.showToast(MainActivity.this, "抱歉，该歌曲暂无版权，搜搜其他歌曲吧");
+            } else if (action.equals(BroadcastName.SONG_PAUSE)) {
+                mPlayerBtn.setSelected(false);
+                mCircleAnimator.pause();
+            } else if (action.equals(BroadcastName.SONG_RESUME)) {
+                mPlayerBtn.setSelected(true);
+                mCircleAnimator.resume();
+                seekBarStart();
+            } else if (action.equals(BroadcastName.SONG_CHANGE)) {
+                mSong = FileHelper.getSong();
+                mSongNameTv.setText(mSong.getSongName());
+                mSingerTv.setText(mSong.getSinger());
+                Log.d(TAG, "onReceive: " + mSong.getDuration());
+                mSeekBar.setMax((int) mSong.getDuration());
+                mPlayerBtn.setSelected(true);
+                mCircleAnimator.start();
+                seekBarStart();
+            }
             if (!mSong.isOnline()) {
                 FileHelper.setSingerImg(MainActivity.this, mSong.getSinger(), mCoverIv);
             } else {
@@ -309,19 +320,6 @@ public class MainActivity extends AppCompatActivity {
                         .apply(RequestOptions.placeholderOf(R.drawable.welcome))
                         .apply(RequestOptions.errorOf(R.drawable.welcome))
                         .into(mCoverIv);
-            }
-            if (action.equals(BroadcastName.SONG_PAUSE)) {
-                mPlayerBtn.setSelected(false);
-                mCircleAnimator.pause();
-            } else if (action.equals(BroadcastName.SONG_RESUME)) {
-                mPlayerBtn.setSelected(true);
-                mCircleAnimator.resume();
-                seekBarStart();
-
-            } else {
-                mPlayerBtn.setSelected(true);
-                mCircleAnimator.start();
-                seekBarStart();
             }
         }
     }

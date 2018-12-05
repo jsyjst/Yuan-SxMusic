@@ -1,23 +1,23 @@
 <?xml version="1.0" encoding="utf-8"?>
-<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     >
+
     <ImageView
         android:id="@+id/iv_empty_song"
         android:layout_centerInParent="true"
-        android:layout_width="100dp"
-        android:layout_height="100dp"
-        android:src="@drawable/song_empty"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:src="@drawable/empty_song"
         android:scaleType="centerCrop"/>
 
     <TextView
         android:layout_marginTop="20dp"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_below="@+id/iv_empty_song"
-        android:layout_centerHorizontal="true"
+        android:layout_gravity="center"
         android:text="本地音乐为空，试试点击右上角导入本地歌曲"
-        android:textColor="@color/white_blue"/>
+        android:textColor="@color/player"/>
 
-</RelativeLayout>
+</FrameLayout>

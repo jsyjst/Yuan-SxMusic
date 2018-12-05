@@ -16,7 +16,9 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.ViewStub;
+import android.widget.FrameLayout;
 import android.widget.ImageView;
+import android.widget.LinearLayout;
 import android.widget.Toast;
 
 import com.example.musicplayer.R;
@@ -54,7 +56,7 @@ public class LocalMusicFragment extends Fragment implements ILocalMusicContract.
 
     private ImageView mFindLocalMusicIv;
     private ImageView mBackIv;
-    private ViewStub mEmptyViewStub;
+    private FrameLayout mEmptyViewLinear;
 
     private ServiceConnection connection = new ServiceConnection() {
         @Override
@@ -76,22 +78,23 @@ public class LocalMusicFragment extends Fragment implements ILocalMusicContract.
         mRecycler = mView.findViewById(R.id.recycler_song_list);
         mFindLocalMusicIv = mView.findViewById(R.id.iv_find_local_song);
         mBackIv = mView.findViewById(R.id.iv_back);
-        mEmptyViewStub = mView.findViewById(R.id.stub_empty);
+        mEmptyViewLinear = mView.findViewById(R.id.linear_empty);
         return mView;
     }
 
     @Override
     public void onActivityCreated(Bundle savedInstanceState) {
         super.onActivityCreated(savedInstanceState);
-        intentFilter=new IntentFilter();
+        intentFilter = new IntentFilter();
         intentFilter.addAction(BroadcastName.LOCAL_SONG_CHANGE_LIST);
-        songChangeReceiver=new SongChangeLocalMusicReceiver();
-        getActivity().registerReceiver(songChangeReceiver,intentFilter);
+        songChangeReceiver = new SongChangeLocalMusicReceiver();
+        getActivity().registerReceiver(songChangeReceiver, intentFilter);
         initView();
         setOnClickListener();
     }
+
     @Override
-    public void onDestroy(){
+    public void onDestroy() {
         super.onDestroy();
         getActivity().unbindService(connection);
         getActivity().unregisterReceiver(songChangeReceiver);
@@ -101,7 +104,7 @@ public class LocalMusicFragment extends Fragment implements ILocalMusicContract.
         LitePal.getDatabase(); //创建数据库
         mLocalSongsList = new ArrayList<>();
         layoutManager = new LinearLayoutManager(mView.getContext());
-        songAdapter = new SongAdapter(mView.getContext(),mLocalSongsList);
+        songAdapter = new SongAdapter(mView.getContext(), mLocalSongsList);
         mPresenter = new LocalMusicPresenter();
         mPresenter.attachView(this); //与Presenter建立关系
         //启动服务
@@ -109,22 +112,21 @@ public class LocalMusicFragment extends Fragment implements ILocalMusicContract.
         getActivity().bindService(playIntent, connection, Context.BIND_AUTO_CREATE);
 
         mLocalSongsList = LitePal.findAll(LocalSong.class);
-        Log.d(TAG, "initView: "+mLocalSongsList.size());
-        if(mLocalSongsList.size()==0){
+        if (mLocalSongsList.size() == 0) {
             mRecycler.setVisibility(View.GONE);
-            mEmptyViewStub.setVisibility(View.VISIBLE);
-        }else{
+            mEmptyViewLinear.setVisibility(View.VISIBLE);
+        } else {
             mRecycler.setVisibility(View.VISIBLE);
-            mEmptyViewStub.setVisibility(View.GONE);
+            mEmptyViewLinear.setVisibility(View.GONE);
 
             mRecycler.setLayoutManager(layoutManager);
 
 
             //令recyclerView定位到当前播放的位置
-            songAdapter = new SongAdapter(mView.getContext(),mLocalSongsList);
+            songAdapter = new SongAdapter(mView.getContext(), mLocalSongsList);
             mRecycler.setAdapter(songAdapter);
-            if(FileHelper.getSong()!=null) {
-                layoutManager.scrollToPositionWithOffset(FileHelper.getSong().getCurrent()-4, mRecycler.getHeight());
+            if (FileHelper.getSong() != null) {
+                layoutManager.scrollToPositionWithOffset(FileHelper.getSong().getCurrent() - 4, mRecycler.getHeight());
             }
 
         }
@@ -172,15 +174,24 @@ public class LocalMusicFragment extends Fragment implements ILocalMusicContract.
         getActivity().runOnUiThread(new Runnable() {
             @Override
             public void run() {
+                mLocalSongsList.clear();
                 mLocalSongsList.addAll(mp3InfoList);
-                mRecycler.setLayoutManager(layoutManager);
-                //令recyclerView定位到当前播放的位置
-                songAdapter = new SongAdapter(mView.getContext(),mLocalSongsList);
-                mRecycler.setAdapter(songAdapter);
-                CommonUtil.showToast(getActivity(),"成功导入本地音乐");
-                mPresenter.saveSong(mp3InfoList);//保存到数据库中
-                if(FileHelper.getSong()!=null) {
-                    layoutManager.scrollToPositionWithOffset(FileHelper.getSong().getCurrent()-4, mRecycler.getHeight());
+                if (mLocalSongsList.size() == 0) {
+                    mRecycler.setVisibility(View.GONE);
+                    mEmptyViewLinear.setVisibility(View.VISIBLE);
+                } else {
+                    mRecycler.setVisibility(View.VISIBLE);
+                    mEmptyViewLinear.setVisibility(View.GONE);
+                    mRecycler.setLayoutManager(layoutManager);
+                    //令recyclerView定位到当前播放的位置
+                    songAdapter = new SongAdapter(mView.getContext(), mLocalSongsList);
+                    mRecycler.setAdapter(songAdapter);
+                    setOnClickListener();
+                    CommonUtil.showToast(getActivity(), "成功导入本地音乐");
+                    mPresenter.saveSong(mp3InfoList);//保存到数据库中
+                    if (FileHelper.getSong() != null) {
+                        layoutManager.scrollToPositionWithOffset(FileHelper.getSong().getCurrent() - 4, mRecycler.getHeight());
+                    }
                 }
             }
         });
@@ -192,8 +203,8 @@ public class LocalMusicFragment extends Fragment implements ILocalMusicContract.
         @Override
         public void onReceive(Context context, Intent intent) {
             songAdapter.notifyDataSetChanged();
-            if(FileHelper.getSong()!=null) {
-                layoutManager.scrollToPositionWithOffset(FileHelper.getSong().getCurrent()+4, mRecycler.getHeight());
+            if (FileHelper.getSong() != null) {
+                layoutManager.scrollToPositionWithOffset(FileHelper.getSong().getCurrent() + 4, mRecycler.getHeight());
             }
         }
     }

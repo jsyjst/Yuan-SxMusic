@@ -13,22 +13,17 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.Button;
-import android.widget.ExpandableListAdapter;
 import android.widget.ExpandableListView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
 import com.example.musicplayer.R;
 import com.example.musicplayer.adapter.ExpandableListViewAdapter;
-import com.example.musicplayer.adapter.HistoryAdapter;
 import com.example.musicplayer.constant.BroadcastName;
-import com.example.musicplayer.entiy.Album;
 import com.example.musicplayer.entiy.AlbumCollection;
 import com.example.musicplayer.entiy.HistorySong;
 import com.example.musicplayer.entiy.LocalSong;
 import com.example.musicplayer.entiy.Love;
-import com.example.musicplayer.util.CommonUtil;
 import com.example.musicplayer.widget.MyListView;
 
 import org.litepal.LitePal;
@@ -46,19 +41,13 @@ public class MainFragment extends Fragment {
     private MyListView myListView;
     private ExpandableListViewAdapter mAdapter;
     private LinearLayout mLocalMusicLinear, mCollectionLinear, mHistoryMusicLinear;
-    private Button playerBtn;
     private TextView mLocalMusicNum, mLoveMusicNum, mHistoryMusicNum;
 
     private TextView mSeekBtn;
     private List<List<AlbumCollection>> mAlbumCollectionList;
     private List<AlbumCollection> mLoveAlbumList;
-    private boolean oneExpand;
     private boolean twoExpand;
     private String[] mGroupStrings = {"自建歌单", "收藏歌单"};
-    private String[][] mSongStrings = {
-            {"我喜欢"},
-            {"Jay", "魔杰座"}
-    };
     //注册广播
     private IntentFilter intentFilter;
     private SongChangeReceiver songChangeReceiver;
@@ -70,7 +59,6 @@ public class MainFragment extends Fragment {
         View view = inflater.inflate(R.layout.fragment_main, container, false);
         mLocalMusicLinear = view.findViewById(R.id.linear_local_music);
         mCollectionLinear = view.findViewById(R.id.linear_collection);
-        playerBtn = view.findViewById(R.id.btn_player);
         mFunctionLinear = view.findViewById(R.id.linear_function);
         mHistoryMusicLinear = view.findViewById(R.id.linear_history);
         //获取焦点
@@ -87,6 +75,17 @@ public class MainFragment extends Fragment {
     public void onActivityCreated(Bundle savedInstanceState) {
         super.onActivityCreated(savedInstanceState);
 
+        //注册广播
+        intentFilter = new IntentFilter();
+        intentFilter.addAction(BroadcastName.SONG_CHANGE);
+        intentFilter.addAction(BroadcastName.COLLECTION_ALBUM_CHANGE);
+        songChangeReceiver = new SongChangeReceiver();
+        getActivity().registerReceiver(songChangeReceiver, intentFilter);
+
+        showAlbumList();
+        onClick();
+    }
+    private void showAlbumList(){
         mLoveAlbumList = new ArrayList<>();
         mAlbumCollectionList = new ArrayList<>();
         AlbumCollection albumCollection = new AlbumCollection();
@@ -97,13 +96,6 @@ public class MainFragment extends Fragment {
         mAlbumCollectionList.add(orderCollection(LitePal.findAll(AlbumCollection.class)));
         mAdapter = new ExpandableListViewAdapter(getActivity(), mGroupStrings, mAlbumCollectionList);
         myListView.setAdapter(mAdapter);
-        //注册广播
-        intentFilter = new IntentFilter();
-        intentFilter.addAction(BroadcastName.SONG_CHANGE);
-        intentFilter.addAction(BroadcastName.COLLECTION_ALBUM_CHANGE);
-        songChangeReceiver = new SongChangeReceiver();
-        getActivity().registerReceiver(songChangeReceiver, intentFilter);
-        onClick();
     }
 
     @Override
@@ -116,7 +108,6 @@ public class MainFragment extends Fragment {
     public void onResume() {
         super.onResume();
         showMusicNum();
-        Log.d(TAG, "onResume: true");
     }
 
     private void onClick() {
@@ -150,9 +141,7 @@ public class MainFragment extends Fragment {
         myListView.setOnGroupExpandListener(new ExpandableListView.OnGroupExpandListener() {
             @Override
             public void onGroupExpand(int groupPosition) {
-                if (groupPosition == 0) {
-                    oneExpand = true;
-                } else if (groupPosition == 1) {
+                if (groupPosition == 1) {
                     twoExpand = true;
                 }
             }
@@ -160,9 +149,7 @@ public class MainFragment extends Fragment {
         myListView.setOnGroupCollapseListener(new ExpandableListView.OnGroupCollapseListener() {
             @Override
             public void onGroupCollapse(int groupPosition) {
-                if (groupPosition == 0) {
-                    oneExpand = false;
-                } else if (groupPosition == 1) {
+                if (groupPosition == 1) {
                     twoExpand = false;
                 }
             }
@@ -173,13 +160,15 @@ public class MainFragment extends Fragment {
                 return false;
             }
         });
-
+        //二级列表的item点击效果
         mAdapter.setOnChildItemClickListener(new ExpandableListViewAdapter.OnChildItemClickListener() {
             @Override
             public void onClick(int groupPosition, int childPosition) {
+                //一级列表的第一个默认为我喜欢的歌单，故点击后跳转到我的收藏界面
                 if (groupPosition == 0 && childPosition == 0) {
                     replaceFragment(new CollectionFragment());
                 } else if (groupPosition == 1) {
+                    //其他的列表都是我的收藏的列表，故跳转到专辑详细fragment
                     AlbumCollection albumCollection = mAlbumCollectionList.get(groupPosition).get(childPosition);
                     replaceFragment(AlbumContentFragment.newInstance(
                             albumCollection.getAlbumId(),
@@ -207,13 +196,14 @@ public class MainFragment extends Fragment {
         transaction.commit();
     }
 
+    //显示数目
     private void showMusicNum() {
-        mLoveMusicNum.setText("" + LitePal.findAll(LocalSong.class).size());
+        mLocalMusicNum.setText("" + LitePal.findAll(LocalSong.class).size());
         mLoveMusicNum.setText("" + LitePal.findAll(Love.class).size());
         mHistoryMusicNum.setText("" + LitePal.findAll(HistorySong.class).size());
-
     }
 
+    //使数据库中的列表逆序排列
     private List<AlbumCollection> orderCollection(List<AlbumCollection> tempList) {
         List<AlbumCollection> mAlbumCollectionList = new ArrayList<>();
         for (int i = tempList.size() - 1; i >= 0; i--) {
@@ -222,6 +212,7 @@ public class MainFragment extends Fragment {
         return mAlbumCollectionList;
     }
 
+    //收藏和最近播放变化的广播接收器
     private class SongChangeReceiver extends BroadcastReceiver {
         @Override
         public void onReceive(Context context, Intent intent) {
@@ -232,6 +223,7 @@ public class MainFragment extends Fragment {
                 mAlbumCollectionList.clear();
                 mAlbumCollectionList.add(mLoveAlbumList);
                 mAlbumCollectionList.add(orderCollection(LitePal.findAll(AlbumCollection.class)));
+                //根据之前的状态，进行展开和收缩，从而达到更新列表的功能
                 if (twoExpand) {
                     myListView.collapseGroup(1);
                     myListView.expandGroup(1);

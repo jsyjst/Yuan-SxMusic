@@ -55,7 +55,7 @@ public class FileHelper {
             //写对象流的对象
             File userFile = new File(file, "song.txt");
             ObjectOutputStream oos = new ObjectOutputStream(new FileOutputStream(userFile));
-            oos.writeObject(song);                 //将Person对象p写入到oos中
+            oos.writeObject(song);//将Person对象p写入到oos中
             oos.close();                        //关闭文件流
         } catch (FileNotFoundException e) {
             // TODO Auto-generated catch block

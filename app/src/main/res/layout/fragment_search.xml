@@ -38,6 +38,7 @@
             android:focusable="true"
             android:focusableInTouchMode="true"
             android:paddingStart="15dp"
+            android:hint="周杰伦"
             android:textColor="@color/white"
             android:textSize="16sp" />
 

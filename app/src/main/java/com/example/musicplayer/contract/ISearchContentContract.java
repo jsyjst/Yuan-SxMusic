@@ -31,6 +31,9 @@ public interface ISearchContentContract {
         void searchAlbumSuccess(List<Album.DataBean> albumList); //获取专辑成功
         void searchAlbumMoreSuccess(List<Album.DataBean> songListBeans); //搜索更多内容成功
         void searchAlbumError(); //获取专辑失败
+        void showLoading();  //显示进度
+        void hideLoading(); //隐藏进度
+        void showNetError(); //显示网络错误
     }
     interface Presenter{
         void search(String seek,int  offset); //搜索
@@ -47,5 +50,9 @@ public interface ISearchContentContract {
 
         void searchAlbumMore(String seek,int offset);//搜索更多专辑
         void searchAlbumMoreSuccess(List<Album.DataBean> songListBeans); //搜索更多内容成功
+
+        void networkError();//网络错误
+
+
     }
 }

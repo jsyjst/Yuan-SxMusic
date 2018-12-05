@@ -42,12 +42,11 @@
 
     </RelativeLayout>
 
-    <LinearLayout
+    <View
         android:layout_width="match_parent"
         android:layout_height="20dp"
         android:background="@color/seekColor">
-
-    </LinearLayout>
+    </View>
 
     <RelativeLayout
         android:layout_width="match_parent"
@@ -63,14 +62,9 @@
 
 
         </android.support.v7.widget.RecyclerView>
-        <ViewStub
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:id="@+id/stub_empty"
-            android:layout="@layout/empty_song"
-            />
 
-
+        <include layout="@layout/empty_song"
+            android:id="@+id/linear_empty"/>
     </RelativeLayout>
 
 </LinearLayout>

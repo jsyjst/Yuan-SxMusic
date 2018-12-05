@@ -1,17 +1,59 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
-    android:layout_height="match_parent"
-    android:orientation="vertical">
+    android:layout_height="match_parent">
 
-    <com.github.jdsjlzx.recyclerview.LRecyclerView
-        android:id="@+id/recycler_song_list"
+    <RelativeLayout
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:layout_marginBottom="65dp">
+        android:layout_height="match_parent">
+        <ImageView
+            android:id="@+id/iv_background"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:layout_marginBottom="65dp"
+            android:src="@color/translucent"/>
+
+        <com.github.jdsjlzx.recyclerview.LRecyclerView
+            android:id="@+id/recycler_song_list"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:layout_marginBottom="65dp"
+            android:visibility="gone">
 
 
-    </com.github.jdsjlzx.recyclerview.LRecyclerView>
+        </com.github.jdsjlzx.recyclerview.LRecyclerView>
 
+        <com.wang.avi.AVLoadingIndicatorView
+            android:id="@+id/avi"
+            style="@style/AVLoadingIndicatorView.Small"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_centerInParent="true"
+            android:visibility="visible"
+            app:indicatorColor="@color/musicStyle"
+            app:indicatorName="LineScaleIndicator" />
+        <TextView
+            android:id="@+id/tv_loading"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_below="@+id/avi"
+            android:layout_centerHorizontal="true"
+            android:text="加载中，请稍侯"
+            android:textColor="@color/white_blue"
+            android:textSize="16sp"/>
 
-</LinearLayout>
+        <de.hdodenhof.circleimageview.CircleImageView
+            android:id="@+id/iv_network_error"
+            android:layout_width="150dp"
+            android:layout_height="150dp"
+            android:layout_marginTop="130dp"
+            android:visibility="gone"
+            android:layout_centerHorizontal="true"
+            android:src="@drawable/network_error"
+            android:scaleType="centerCrop"
+            />
+
+    </RelativeLayout>
+
+</FrameLayout>

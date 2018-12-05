@@ -12,12 +12,13 @@
 
     <color name="seekColor">#80FFFFFF</color>
     <color name="translucent">#80010738</color>
-    <color name="click">#99010738</color>
+    <color name="click">#80010733</color>
     <color name="tab">#2e3259</color>
     <color name="actionBarColor">#0f1934</color>
     <color name="transparent">#00000000</color>
     <color name="musicStyle_low">#2ad3df</color>
     <color name="player">#161e31</color>
+    <color name="black">#000</color>
     <color name="white_easy">#bcb9b9</color>
     <color name="yellow">#FFC66D</color>
     <color name="white_blue">#caeefc</color>

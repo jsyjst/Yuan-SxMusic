@@ -1,34 +1,64 @@
 <?xml version="1.0" encoding="utf-8"?>
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    android:background="@drawable/welcome"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:orientation="horizontal"
-    >
+    android:background="@drawable/welcome"
+    android:orientation="horizontal">
+
+    <TextView
+        android:id="@+id/music"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_centerVertical="true"
+        android:layout_marginStart="50dp"
+        android:ems="1"
+        android:text="@string/welcome"
+        android:textColor="@color/musicStyle"
+        android:textSize="30sp"
+        android:textStyle="bold"
+        android:typeface="serif" />
 
 
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_alignParentBottom="true"
+        android:background="@color/tab"
+        android:orientation="vertical">
 
+        <RelativeLayout
+            android:layout_marginTop="10dp"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:gravity="center_horizontal">
+
+            <ImageView
+                android:id="@+id/iv_icon"
+                android:layout_width="35dp"
+                android:layout_height="35dp"
+                android:src="@mipmap/icon" />
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_centerHorizontal="true"
+                android:layout_marginTop="5dp"
+                android:layout_marginStart="10dp"
+                android:layout_toRightOf="@+id/iv_icon"
+                android:text="@string/app_name"
+                android:textColor="@color/white_blue"
+                android:textSize="22sp" />
+        </RelativeLayout>
         <TextView
-            android:id="@+id/music"
-            android:layout_centerVertical="true"
-            android:layout_marginStart="50dp"
+            android:layout_marginTop="10dp"
+            android:layout_marginBottom="10dp"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="@string/app_name"
-            android:ems="1"
-            android:textStyle="bold"
-            android:textSize="30sp"
-            android:typeface="serif"
-            android:textColor="@color/musicStyle"/>
-        <TextView
-            android:layout_marginTop="40dp"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_centerHorizontal="true"
-            android:text="@string/welcome"
-            android:textSize="25sp"
-            android:textColor="@color/musicStyle"
-            android:layout_below="@+id/music"/>
+            android:layout_gravity="center_horizontal"
+            android:layout_below="@+id/iv_icon"
+            android:textColor="@color/white"
+            android:textSize="16sp"
+            android:text="袁健策版权所有@2018"/>
 
-
+    </LinearLayout>
 </RelativeLayout>

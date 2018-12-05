@@ -26,6 +26,9 @@ public class SearchContentPresenter extends BasePresenter<ISearchContentContract
     @Override
     public void search(String seek,int offset) {
         mModel.search(seek,offset);
+        if(isAttachView()){
+            getMvpView().showLoading();
+        }
     }
 
     @Override
@@ -34,11 +37,17 @@ public class SearchContentPresenter extends BasePresenter<ISearchContentContract
     }
 
     @Override
-    public void searchSuccess(ArrayList<SeachSong.DataBean> songListBeans) {
+    public void searchSuccess(final ArrayList<SeachSong.DataBean> songListBeans) {
+        mHandler.postDelayed(new Runnable() {
+            @Override
+            public void run() {
+                if(isAttachView()){
+                    getMvpView().hideLoading();
+                    getMvpView().setSongsList(songListBeans);
+                }
+            }
+        },500);
 
-        if(isAttachView()){
-            getMvpView().setSongsList(songListBeans);
-        }
     }
 
     @Override
@@ -82,12 +91,16 @@ public class SearchContentPresenter extends BasePresenter<ISearchContentContract
     @Override
     public void searchAlbum(String seek, int offset) {
         mModel.searchAlbum(seek,offset);
+        if(isAttachView()){
+            getMvpView().showLoading();
+        }
     }
 
     @Override
     public void searchAlbumSuccess(List<Album.DataBean> albumList) {
         if(isAttachView()){
             getMvpView().searchAlbumSuccess(albumList);
+            getMvpView().hideLoading();
         }
     }
 
@@ -95,6 +108,7 @@ public class SearchContentPresenter extends BasePresenter<ISearchContentContract
     public void searchAlbumError() {
         if(isAttachView()){
             getMvpView().searchAlbumError();
+            getMvpView().hideLoading();
         }
     }
 
@@ -113,5 +127,12 @@ public class SearchContentPresenter extends BasePresenter<ISearchContentContract
                 }
             }
         },500);
+    }
+
+    @Override
+    public void networkError() {
+        if(isAttachView()){
+            getMvpView().showNetError();
+        }
     }
 }

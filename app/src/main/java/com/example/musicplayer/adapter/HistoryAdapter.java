@@ -10,7 +10,8 @@ import android.widget.TextView;
 
 import com.andexert.library.RippleView;
 import com.example.musicplayer.R;
-import com.example.musicplayer.constant.Constant;
+import com.example.musicplayer.callback.OnItemClickListener;
+import com.example.musicplayer.configure.Constant;
 import com.example.musicplayer.entiy.HistorySong;
 import com.example.musicplayer.util.FileHelper;
 
@@ -109,7 +110,7 @@ public class HistoryAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder
             holder.mItemView.setOnRippleCompleteListener(new RippleView.OnRippleCompleteListener() {
                 @Override
                 public void onComplete(RippleView rippleView) {
-                    onItemClickListener.onSongClick(position);
+                    onItemClickListener.onClick(position);
                     equalPosition(position);
                 }
             });
@@ -136,10 +137,5 @@ public class HistoryAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder
     @Override
     public int getItemViewType(int position) {
         return position + 1 == getItemCount() ? footerViewType : itemViewType;
-    }
-
-
-    public interface OnItemClickListener {
-        void onSongClick(int position);
     }
 }

@@ -22,8 +22,9 @@ import android.widget.TextView;
 import com.example.musicplayer.R;
 import com.example.musicplayer.adapter.HistoryAdapter;
 
-import com.example.musicplayer.constant.BroadcastName;
-import com.example.musicplayer.constant.Constant;
+import com.example.musicplayer.callback.OnItemClickListener;
+import com.example.musicplayer.configure.BroadcastName;
+import com.example.musicplayer.configure.Constant;
 import com.example.musicplayer.entiy.HistorySong;
 import com.example.musicplayer.entiy.Song;
 import com.example.musicplayer.service.PlayerService;
@@ -110,9 +111,9 @@ public class HistoryFragment extends Fragment {
     }
 
     private void onClick() {
-        mAdapter.setOnItemClickListener(new HistoryAdapter.OnItemClickListener() {
+        mAdapter.setOnItemClickListener(new OnItemClickListener() {
             @Override
-            public void onSongClick(int position) {
+            public void onClick(int position) {
                 HistorySong history = mHistoryList.get(position);
                 Song song = new Song();
                 song.setOnlineId(history.getSongId());

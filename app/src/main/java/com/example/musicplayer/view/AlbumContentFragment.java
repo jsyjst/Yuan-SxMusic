@@ -1,10 +1,7 @@
 package com.example.musicplayer.view;
 
-import android.animation.AnimatorInflater;
-import android.animation.AnimatorSet;
 import android.content.Intent;
 import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
 import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.Drawable;
 import android.os.Bundle;
@@ -14,14 +11,12 @@ import android.support.v4.app.FragmentStatePagerAdapter;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
@@ -32,8 +27,7 @@ import com.bumptech.glide.request.target.SimpleTarget;
 import com.bumptech.glide.request.target.Target;
 import com.bumptech.glide.request.transition.Transition;
 import com.example.musicplayer.R;
-import com.example.musicplayer.constant.BroadcastName;
-import com.example.musicplayer.entiy.Album;
+import com.example.musicplayer.configure.BroadcastName;
 import com.example.musicplayer.entiy.AlbumCollection;
 import com.example.musicplayer.util.CommonUtil;
 import com.github.florent37.materialviewpager.MaterialViewPager;
@@ -41,8 +35,6 @@ import com.github.florent37.materialviewpager.MaterialViewPager;
 import org.litepal.LitePal;
 import org.litepal.crud.callback.SaveCallback;
 import org.litepal.crud.callback.UpdateOrDeleteCallback;
-
-import javax.microedition.khronos.opengles.GL;
 
 /**
  * Created by 残渊 on 2018/11/25.

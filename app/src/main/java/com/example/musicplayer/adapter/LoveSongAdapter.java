@@ -11,6 +11,7 @@ import android.widget.TextView;
 
 import com.andexert.library.RippleView;
 import com.example.musicplayer.R;
+import com.example.musicplayer.callback.OnItemClickListener;
 import com.example.musicplayer.entiy.Love;
 import com.example.musicplayer.util.FileHelper;
 
@@ -110,7 +111,7 @@ public class LoveSongAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
                 @Override
                 public void onComplete(RippleView rippleView) {
                     if (onItemClickListener != null) {
-                        onItemClickListener.onSongClick(position);
+                        onItemClickListener.onClick(position);
                     }
                     equalPosition(position);
                 }
@@ -139,10 +140,4 @@ public class LoveSongAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
     public int getItemViewType(int position) {
         return position + 1 == getItemCount() ? footerViewType : itemViewType;
     }
-
-
-    public interface OnItemClickListener {
-        void onSongClick(int position);
-    }
-
 }

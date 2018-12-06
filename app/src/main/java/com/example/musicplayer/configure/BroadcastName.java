@@ -1,4 +1,4 @@
-package com.example.musicplayer.constant;
+package com.example.musicplayer.configure;
 
 /**
  * Created by 残渊 on 2018/11/24.
@@ -17,5 +17,6 @@ public class BroadcastName {
     public static final String LOVE_SONG_CANCEL="love_song_cancel";
     public static final String HISTORY_SONG_CHANGE="history_song_change";
     public static final String COLLECTION_ALBUM_CHANGE="collection_album_change";
+    public static final String LOCAL_SONG_NUM_CHANGE="local_song_num_change";
 
 }

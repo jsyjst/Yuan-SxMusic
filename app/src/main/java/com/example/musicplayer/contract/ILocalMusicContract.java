@@ -15,10 +15,12 @@ public interface ILocalMusicContract {
     }
     interface View{
         void showMusicList(List<LocalSong> mp3InfoList); //显示本地音乐
+        void saveLocalSuccess();//成功保存到数据库中
     }
     interface Presenter{
         void showMusicList(List<LocalSong> mp3InfoList); //显示本地音乐
         void getLocalMp3Info(); //得到本地音乐列表
         void saveSong(List<LocalSong> localSongs);//将本地音乐放到数据库中
+        void saveLocalSuccess();//成功保存到数据库中
     }
 }

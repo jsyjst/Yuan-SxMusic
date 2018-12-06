@@ -1,14 +1,11 @@
 package com.example.musicplayer.presenter;
 
 import android.os.Handler;
-import android.util.Log;
 
 import com.example.musicplayer.base.BasePresenter;
-import com.example.musicplayer.constant.Constant;
 import com.example.musicplayer.contract.IAlbumSongContract;
 import com.example.musicplayer.entiy.AlbumSong;
 import com.example.musicplayer.model.AlbumSongModel;
-import com.example.musicplayer.view.AlbumSongFragment;
 
 import java.util.ArrayList;
 import java.util.List;

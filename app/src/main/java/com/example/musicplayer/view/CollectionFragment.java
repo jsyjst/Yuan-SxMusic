@@ -1,7 +1,6 @@
 package com.example.musicplayer.view;
 
 
-import android.app.Notification;
 import android.content.BroadcastReceiver;
 import android.content.ComponentName;
 import android.content.Context;
@@ -13,7 +12,6 @@ import android.os.IBinder;
 import android.support.v4.app.Fragment;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -23,10 +21,9 @@ import android.widget.RelativeLayout;
 
 import com.example.musicplayer.R;
 import com.example.musicplayer.adapter.LoveSongAdapter;
-import com.example.musicplayer.adapter.SongAdapter;
-import com.example.musicplayer.constant.BroadcastName;
-import com.example.musicplayer.constant.Constant;
-import com.example.musicplayer.entiy.LocalSong;
+import com.example.musicplayer.callback.OnItemClickListener;
+import com.example.musicplayer.configure.BroadcastName;
+import com.example.musicplayer.configure.Constant;
 import com.example.musicplayer.entiy.Love;
 import com.example.musicplayer.entiy.Song;
 import com.example.musicplayer.service.PlayerService;
@@ -111,9 +108,9 @@ public class CollectionFragment extends Fragment {
     }
 
     private void onClick() {
-        mAdapter.setOnItemClickListener(new LoveSongAdapter.OnItemClickListener() {
+        mAdapter.setOnItemClickListener(new OnItemClickListener() {
             @Override
-            public void onSongClick(int position) {
+            public void onClick(int position) {
                 Love love = mLoveList.get(position);
                 Song song = new Song();
                 song.setOnlineId(love.getSongId());

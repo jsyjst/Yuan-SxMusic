@@ -21,8 +21,9 @@ import android.widget.TextView;
 
 import com.example.musicplayer.R;
 import com.example.musicplayer.adapter.SearchContentAdapter;
-import com.example.musicplayer.constant.BroadcastName;
-import com.example.musicplayer.constant.Constant;
+import com.example.musicplayer.callback.*;
+import com.example.musicplayer.configure.BroadcastName;
+import com.example.musicplayer.configure.Constant;
 import com.example.musicplayer.contract.ISearchContentContract;
 import com.example.musicplayer.entiy.Album;
 import com.example.musicplayer.entiy.SeachSong;
@@ -159,7 +160,7 @@ public class SearchContentFragment extends Fragment implements ISearchContentCon
         mRecycler.setAdapter(mLRecyclerViewAdapter);
 
 
-        mAdapter.setItemClick(new SearchContentAdapter.ItemClick() {
+        mAdapter.setItemClick(new OnItemClickListener() {
             @Override
             public void onClick(int position) {
                 SeachSong.DataBean dataBean = mSongList.get(position);
@@ -239,7 +240,7 @@ public class SearchContentFragment extends Fragment implements ISearchContentCon
         mRecycler.setLayoutManager(manager);
         mRecycler.setAdapter(mLRecyclerViewAdapter);
 
-        mAdapter.setAlbumClick(new SearchContentAdapter.AlbumClick() {
+        mAdapter.setAlbumClick(new OnAlbumItemClickListener() {
             @Override
             public void onClick(int position) {
                 toAlbumContentFragment(mAlbumList.get(position));

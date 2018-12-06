@@ -2,7 +2,7 @@ package com.example.musicplayer.model;
 
 import android.util.Log;
 
-import com.example.musicplayer.constant.Constant;
+import com.example.musicplayer.configure.Constant;
 import com.example.musicplayer.contract.ISearchContentContract;
 import com.example.musicplayer.entiy.Album;
 import com.example.musicplayer.entiy.SeachSong;

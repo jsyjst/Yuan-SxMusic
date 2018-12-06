@@ -10,6 +10,9 @@ import android.widget.TextView;
 
 import com.andexert.library.RippleView;
 import com.example.musicplayer.R;
+import com.example.musicplayer.callback.OnDeleteClickListener;
+import com.example.musicplayer.callback.OnFooterClickListener;
+import com.example.musicplayer.callback.OnItemClickListener;
 import com.example.musicplayer.entiy.SearchHistory;
 
 import java.util.List;
@@ -117,16 +120,4 @@ public class SearchHistoryAdapter extends RecyclerView.Adapter<RecyclerView.View
     public static void setFooterClickListener(OnFooterClickListener onFooterClickListener){
         mFooterClickListener =onFooterClickListener;
     }
-
-    public interface OnItemClickListener{
-        void onClick(int position);
-    }
-    public interface OnDeleteClickListener{
-        void onClick(int position);
-    }
-    public interface OnFooterClickListener{
-        void onClick();
-    }
-
-
 }

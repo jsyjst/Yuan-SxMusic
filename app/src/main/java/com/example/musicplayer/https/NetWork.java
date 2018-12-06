@@ -1,12 +1,8 @@
 package com.example.musicplayer.https;
 
-import com.example.musicplayer.constant.BaseUri;
-import com.example.musicplayer.entiy.Album;
 import com.example.musicplayer.https.api.AlbumApi;
 import com.example.musicplayer.https.api.SearchApi;
 import com.example.musicplayer.https.api.SingerImgApi;
-
-import org.reactivestreams.Subscription;
 
 import java.util.concurrent.TimeUnit;
 
@@ -17,9 +13,8 @@ import retrofit2.Retrofit;
 import retrofit2.adapter.rxjava2.RxJava2CallAdapterFactory;
 import retrofit2.converter.gson.GsonConverterFactory;
 
-import static com.example.musicplayer.constant.BaseUri.QQ_URL;
-import static com.example.musicplayer.constant.BaseUri.SEARCH_URL;
-import static com.example.musicplayer.constant.BaseUri.SINGER_URL;
+import static com.example.musicplayer.configure.BaseUri.QQ_URL;
+import static com.example.musicplayer.configure.BaseUri.SINGER_URL;
 
 /**
  * Created by 残渊 on 2018/10/26.

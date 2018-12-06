@@ -9,7 +9,6 @@ import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentTransaction;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -19,7 +18,8 @@ import android.widget.TextView;
 
 import com.example.musicplayer.R;
 import com.example.musicplayer.adapter.ExpandableListViewAdapter;
-import com.example.musicplayer.constant.BroadcastName;
+import com.example.musicplayer.callback.OnChildItemClickListener;
+import com.example.musicplayer.configure.BroadcastName;
 import com.example.musicplayer.entiy.AlbumCollection;
 import com.example.musicplayer.entiy.HistorySong;
 import com.example.musicplayer.entiy.LocalSong;
@@ -79,6 +79,7 @@ public class MainFragment extends Fragment {
         intentFilter = new IntentFilter();
         intentFilter.addAction(BroadcastName.SONG_CHANGE);
         intentFilter.addAction(BroadcastName.COLLECTION_ALBUM_CHANGE);
+        intentFilter.addAction(BroadcastName.LOCAL_SONG_NUM_CHANGE);
         songChangeReceiver = new SongChangeReceiver();
         getActivity().registerReceiver(songChangeReceiver, intentFilter);
 
@@ -98,6 +99,7 @@ public class MainFragment extends Fragment {
         myListView.setAdapter(mAdapter);
     }
 
+
     @Override
     public void onDestroy() {
         super.onDestroy();
@@ -105,8 +107,8 @@ public class MainFragment extends Fragment {
     }
 
     @Override
-    public void onResume() {
-        super.onResume();
+    public void onStart() {
+        super.onStart();
         showMusicNum();
     }
 
@@ -161,7 +163,7 @@ public class MainFragment extends Fragment {
             }
         });
         //二级列表的item点击效果
-        mAdapter.setOnChildItemClickListener(new ExpandableListViewAdapter.OnChildItemClickListener() {
+        mAdapter.setOnChildItemClickListener(new OnChildItemClickListener() {
             @Override
             public void onClick(int groupPosition, int childPosition) {
                 //一级列表的第一个默认为我喜欢的歌单，故点击后跳转到我的收藏界面
@@ -219,6 +221,8 @@ public class MainFragment extends Fragment {
             String action = intent.getAction();
             if (action.equals(BroadcastName.SONG_CHANGE)) {
                 mHistoryMusicNum.setText("" + LitePal.findAll(HistorySong.class).size());
+            }else if(action.equals(BroadcastName.LOCAL_SONG_NUM_CHANGE)){
+                mLocalMusicNum.setText(""+LitePal.findAll(LocalSong.class).size());
             } else if (action.equals(BroadcastName.COLLECTION_ALBUM_CHANGE)) {
                 mAlbumCollectionList.clear();
                 mAlbumCollectionList.add(mLoveAlbumList);

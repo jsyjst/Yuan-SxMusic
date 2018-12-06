@@ -10,9 +10,8 @@ import android.widget.ImageView;
 import android.widget.TextView;
 
 import com.andexert.library.RippleView;
-import com.example.musicplayer.constant.Constant;
-import com.example.musicplayer.constant.MyApplication;
-import com.example.musicplayer.entiy.Song;
+import com.example.musicplayer.callback.OnItemClickListener;
+import com.example.musicplayer.configure.MyApplication;
 import com.example.musicplayer.R;
 import com.example.musicplayer.entiy.LocalSong;
 import com.example.musicplayer.util.FileHelper;
@@ -100,6 +99,7 @@ public class SongAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
                 holder.artistTv.setTextColor(MyApplication.getContext().
                         getResources().getColor(R.color.musicStyle_low));
                 holder.playingIv.setVisibility(View.VISIBLE);
+                mLastPosition = position;
             }else {
                 holder.songNameTv.setTextColor(MyApplication.getContext().
                         getResources().getColor(R.color.white));
@@ -110,14 +110,13 @@ public class SongAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
             holder.songView.setOnRippleCompleteListener(new RippleView.OnRippleCompleteListener() {
                 @Override
                 public void onComplete(RippleView rippleView) {
-                    onItemClickListener.onSongClick(position);
+                    onItemClickListener.onClick(position);
                     equalPosition(position);
                 }
             });
         } else {
             FooterHolder footerHolder = (FooterHolder) viewHolder;
-            int num=mMp3InfoList.size()-1;
-            footerHolder.numTv.setText("共" + num + "首音乐");
+            footerHolder.numTv.setText("共" +mMp3InfoList.size()+ "首音乐");
         }
     }
 
@@ -141,8 +140,6 @@ public class SongAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
     }
 
 
-    public interface OnItemClickListener {
-        void onSongClick(int position);
-    }
+
 
 }

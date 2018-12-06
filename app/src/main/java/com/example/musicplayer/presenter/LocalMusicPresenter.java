@@ -35,4 +35,11 @@ public class LocalMusicPresenter extends BasePresenter<ILocalMusicContract.View>
     public void saveSong(List<LocalSong> localSongs) {
         mModel.saveSong(localSongs);
     }
+
+    @Override
+    public void saveLocalSuccess() {
+        if(isAttachView()){
+            getMvpView().saveLocalSuccess();
+        }
+    }
 }

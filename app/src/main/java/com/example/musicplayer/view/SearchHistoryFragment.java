@@ -10,6 +10,7 @@ import android.view.ViewGroup;
 
 import com.example.musicplayer.R;
 import com.example.musicplayer.adapter.SearchHistoryAdapter;
+import com.example.musicplayer.callback.*;
 import com.example.musicplayer.entiy.SearchHistory;
 import com.example.musicplayer.widget.DeleteDialog;
 
@@ -55,7 +56,7 @@ public class SearchHistoryFragment extends Fragment {
         mRecycler.setAdapter(mAdapter);
     }
     private void onClick(){
-        mAdapter.setFooterClickListener(new SearchHistoryAdapter.OnFooterClickListener() {
+        mAdapter.setFooterClickListener(new OnFooterClickListener() {
             @Override
             public void onClick() {
                 final DeleteDialog dialog = new DeleteDialog(getActivity());
@@ -82,7 +83,7 @@ public class SearchHistoryFragment extends Fragment {
 
             }
         });
-        mAdapter.setOnDeleteClickListener(new SearchHistoryAdapter.OnDeleteClickListener() {
+        mAdapter.setOnDeleteClickListener(new OnDeleteClickListener() {
             @Override
             public void onClick(int position) {
                 SearchHistory searchHistory = mSearchHistoryList.get(position);
@@ -94,7 +95,7 @@ public class SearchHistoryFragment extends Fragment {
                 mAdapter.notifyDataSetChanged();
             }
         });
-        mAdapter.setOnItemClcikListener(new SearchHistoryAdapter.OnItemClickListener() {
+        mAdapter.setOnItemClcikListener(new OnItemClickListener() {
             @Override
             public void onClick(int position) {
                 ((SearchFragment)(getParentFragment())).setSeekEdit(mSearchHistoryList.get(position).getHistory());
@@ -114,5 +115,4 @@ public class SearchHistoryFragment extends Fragment {
             mSearchHistoryList.add(searchHistory);
         }
     }
-
 }

@@ -3,21 +3,14 @@ package com.example.musicplayer.util;
 
 import android.content.Context;
 import android.graphics.Bitmap;
-import android.os.Environment;
-import android.support.annotation.Nullable;
 import android.util.Log;
-import android.view.View;
 import android.widget.ImageView;
 
 import com.bumptech.glide.Glide;
 import com.bumptech.glide.request.RequestOptions;
-import com.bumptech.glide.request.target.SimpleTarget;
-import com.bumptech.glide.request.target.Target;
-import com.bumptech.glide.request.transition.Transition;
 import com.example.musicplayer.R;
-import com.example.musicplayer.constant.BaseUri;
-import com.example.musicplayer.constant.MyApplication;
-import com.example.musicplayer.contract.IPlayContract;
+import com.example.musicplayer.configure.BaseUri;
+import com.example.musicplayer.configure.MyApplication;
 import com.example.musicplayer.entiy.Song;
 
 import java.io.File;
@@ -27,8 +20,6 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
-
-import de.hdodenhof.circleimageview.CircleImageView;
 
 /**
  * 将user序列化到本地并取出的工具

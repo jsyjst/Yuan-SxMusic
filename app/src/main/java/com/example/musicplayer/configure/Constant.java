@@ -1,4 +1,4 @@
-package com.example.musicplayer.constant;
+package com.example.musicplayer.configure;
 
 /**
  * Created by 残渊 on 2018/11/23.

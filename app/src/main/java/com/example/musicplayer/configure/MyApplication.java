@@ -1,4 +1,4 @@
-package com.example.musicplayer.constant;
+package com.example.musicplayer.configure;
 
 import android.app.Application;
 import android.content.Context;

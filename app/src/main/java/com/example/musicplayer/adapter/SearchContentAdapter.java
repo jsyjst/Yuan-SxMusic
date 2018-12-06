@@ -8,16 +8,16 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
-import android.widget.LinearLayout;
 import android.widget.TextView;
 
 import com.andexert.library.RippleView;
 import com.bumptech.glide.Glide;
 import com.bumptech.glide.request.RequestOptions;
 import com.example.musicplayer.R;
-import com.example.musicplayer.constant.Constant;
+import com.example.musicplayer.callback.OnAlbumItemClickListener;
+import com.example.musicplayer.callback.OnItemClickListener;
+import com.example.musicplayer.configure.Constant;
 import com.example.musicplayer.entiy.Album;
-import com.example.musicplayer.entiy.AlbumSong;
 import com.example.musicplayer.entiy.SeachSong;
 import com.example.musicplayer.util.CommonUtil;
 import com.example.musicplayer.util.FileHelper;
@@ -34,19 +34,19 @@ public class SearchContentAdapter extends RecyclerView.Adapter<RecyclerView.View
 
     private ArrayList<SeachSong.DataBean> mSongListBeans;
     private List<Album.DataBean> mAlbumList;
-    private static ItemClick mItemClick;
-    private static AlbumClick mAlbumClick;
+    private static OnItemClickListener mItemClick;
+    private static OnAlbumItemClickListener mAlbumClick;
     private String mSeek;
     private Context mContext;
     private int mLastPosition = -1;
     private int mType;
 
 
-    public static void setItemClick(ItemClick itemClick) {
+    public static void setItemClick(OnItemClickListener itemClick) {
         mItemClick = itemClick;
     }
 
-    public static void setAlbumClick(AlbumClick albumClick) {
+    public static void setAlbumClick(OnAlbumItemClickListener albumClick) {
         mAlbumClick = albumClick;
     }
 
@@ -180,14 +180,6 @@ public class SearchContentAdapter extends RecyclerView.Adapter<RecyclerView.View
         return mType;
     }
 
-    public interface ItemClick {
-        void onClick(int position);
-    }
-
-    public interface AlbumClick {
-        void onClick(int position);
-    }
-
     //判断点击的是否为上一个点击的项目
     public void equalPosition(int position) {
         if (position != mLastPosition) {
@@ -195,9 +187,5 @@ public class SearchContentAdapter extends RecyclerView.Adapter<RecyclerView.View
             mLastPosition = position;
         }
         notifyItemChanged(position);
-    }
-
-    public void setLastPosition(int position){
-        mLastPosition =position;
     }
 }

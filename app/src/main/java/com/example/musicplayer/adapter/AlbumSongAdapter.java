@@ -2,7 +2,6 @@ package com.example.musicplayer.adapter;
 
 import android.support.annotation.NonNull;
 import android.support.v7.widget.RecyclerView;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -10,7 +9,8 @@ import android.widget.TextView;
 
 import com.andexert.library.RippleView;
 import com.example.musicplayer.R;
-import com.example.musicplayer.constant.MyApplication;
+import com.example.musicplayer.callback.OnItemClickListener;
+import com.example.musicplayer.configure.MyApplication;
 import com.example.musicplayer.entiy.AlbumSong;
 import com.example.musicplayer.util.FileHelper;
 
@@ -24,7 +24,7 @@ public class AlbumSongAdapter extends RecyclerView.Adapter<RecyclerView.ViewHold
 
     private List<AlbumSong.DataBean.SongsBean> mSongsBeanList;
     private int mLastPosition = -1;
-    private SongClick mSongClick;
+    private OnItemClickListener mSongClick;
     private final int songType = 1;
     private final int footerType = 2;
 
@@ -32,7 +32,7 @@ public class AlbumSongAdapter extends RecyclerView.Adapter<RecyclerView.ViewHold
         mSongsBeanList = songsBeans;
     }
 
-    public void setSongClick(SongClick songClick) {
+    public void setSongClick(OnItemClickListener songClick) {
         mSongClick = songClick;
     }
 
@@ -120,9 +120,5 @@ public class AlbumSongAdapter extends RecyclerView.Adapter<RecyclerView.ViewHold
             mLastPosition = position;
         }
         notifyItemChanged(position);
-    }
-
-    public interface SongClick {
-        void onClick(int position);
     }
 }

@@ -2,7 +2,7 @@ package com.example.musicplayer.model;
 
 import android.util.Log;
 
-import com.example.musicplayer.constant.Constant;
+import com.example.musicplayer.configure.Constant;
 import com.example.musicplayer.contract.IAlbumSongContract;
 import com.example.musicplayer.entiy.AlbumSong;
 import com.example.musicplayer.entiy.OnlineSong;
@@ -10,7 +10,6 @@ import com.example.musicplayer.https.NetWork;
 import com.example.musicplayer.util.RxApiManager;
 
 import org.litepal.LitePal;
-import org.litepal.crud.LitePalSupport;
 
 import java.net.UnknownHostException;
 import java.util.ArrayList;

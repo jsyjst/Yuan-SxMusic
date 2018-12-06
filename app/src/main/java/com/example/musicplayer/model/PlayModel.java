@@ -1,9 +1,8 @@
 package com.example.musicplayer.model;
 
-import android.support.annotation.MainThread;
 import android.util.Log;
 
-import com.example.musicplayer.constant.Constant;
+import com.example.musicplayer.configure.Constant;
 import com.example.musicplayer.contract.IPlayContract;
 import com.example.musicplayer.entiy.Love;
 import com.example.musicplayer.entiy.SingerImg;

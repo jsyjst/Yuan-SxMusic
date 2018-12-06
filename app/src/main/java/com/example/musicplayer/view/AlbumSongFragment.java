@@ -6,17 +6,13 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.ServiceConnection;
-import android.graphics.BitmapFactory;
 import android.os.Bundle;
 import android.os.IBinder;
 import android.support.v4.app.Fragment;
 import android.support.v4.widget.NestedScrollView;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
-import android.util.Log;
-import android.view.InflateException;
 import android.view.LayoutInflater;
-import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
@@ -24,13 +20,11 @@ import android.widget.TextView;
 
 import com.example.musicplayer.R;
 import com.example.musicplayer.adapter.AlbumSongAdapter;
-import com.example.musicplayer.adapter.SearchContentAdapter;
-import com.example.musicplayer.constant.BroadcastName;
-import com.example.musicplayer.constant.Constant;
+import com.example.musicplayer.callback.OnItemClickListener;
+import com.example.musicplayer.configure.BroadcastName;
+import com.example.musicplayer.configure.Constant;
 import com.example.musicplayer.contract.IAlbumSongContract;
-import com.example.musicplayer.entiy.Album;
 import com.example.musicplayer.entiy.AlbumSong;
-import com.example.musicplayer.entiy.SeachSong;
 import com.example.musicplayer.entiy.Song;
 import com.example.musicplayer.presenter.AlbumSongPresenter;
 import com.example.musicplayer.service.PlayerService;
@@ -45,8 +39,6 @@ import org.litepal.LitePal;
 
 import java.util.ArrayList;
 import java.util.List;
-
-import static com.example.musicplayer.view.SearchContentFragment.IS_ONLINE;
 
 /**
  * Created by 残渊 on 2018/11/25.
@@ -175,7 +167,7 @@ public class AlbumSongFragment extends Fragment implements IAlbumSongContract.Vi
         mRecycle.addItemDecoration(new MaterialViewPagerHeaderDecorator());
         mRecycle.setAdapter(mAdapter);
 
-        mAdapter.setSongClick(new AlbumSongAdapter.SongClick() {
+        mAdapter.setSongClick(new OnItemClickListener() {
             @Override
             public void onClick(int position) {
                 AlbumSong.DataBean.SongsBean dataBean= songList.get(position);

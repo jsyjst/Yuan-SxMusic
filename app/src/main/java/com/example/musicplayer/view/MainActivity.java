@@ -17,26 +17,25 @@ import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentTransaction;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
+import android.view.KeyEvent;
 import android.view.View;
 import android.view.animation.LinearInterpolator;
 import android.widget.Button;
-import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.SeekBar;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.andexert.library.RippleView;
 import com.bumptech.glide.Glide;
 import com.bumptech.glide.request.RequestOptions;
 import com.example.musicplayer.R;
-import com.example.musicplayer.constant.BroadcastName;
-import com.example.musicplayer.constant.Constant;
-import com.example.musicplayer.constant.PlayerStatus;
+import com.example.musicplayer.configure.BroadcastName;
+import com.example.musicplayer.configure.PlayerStatus;
 import com.example.musicplayer.entiy.Song;
 import com.example.musicplayer.service.PlayerService;
 import com.example.musicplayer.util.CommonUtil;
 import com.example.musicplayer.util.FileHelper;
-import com.example.musicplayer.util.MediaUtil;
 import com.example.musicplayer.util.RxApiManager;
 
 import org.litepal.LitePal;
@@ -45,7 +44,6 @@ import de.hdodenhof.circleimageview.CircleImageView;
 
 public class MainActivity extends AppCompatActivity {
     private static final String TAG = "MainActivity";
-
 
     private boolean isChange; //拖动进度条
     private boolean isSeek;//标记是否在暂停的时候拖动进度条
@@ -58,6 +56,7 @@ public class MainActivity extends AppCompatActivity {
     private CircleImageView mCoverIv;//封面
     private ObjectAnimator mCircleAnimator;//动画
     private Song mSong;
+    private FragmentTransaction transaction;
     private LinearLayout mLinear;
     private MediaPlayer mMediaPlayer;
     private SeekBar mSeekBar;
@@ -98,6 +97,18 @@ public class MainActivity extends AppCompatActivity {
         bindService(playIntent, connection, Context.BIND_AUTO_CREATE);
         initView();
     }
+    @Override
+    public void onDestroy() {
+        unbindService(connection);
+        unregisterReceiver(songChangeReceiver);
+        if (mSeekBarThread != null||mSeekBarThread.isAlive()) mSeekBarThread.interrupt();
+        Song song = FileHelper.getSong();
+        song.setCurrentTime(mPlayStatusBinder.getCurrentTime());
+        FileHelper.saveSong(song);
+        RxApiManager.get().cancelAll();
+        super.onDestroy();
+
+    }
 
 
     private void initView() {
@@ -118,6 +129,7 @@ public class MainActivity extends AppCompatActivity {
 
 
         if (mSong.getSongName() != null) {
+            Log.d(TAG, "initView: "+mSong.toString());
             mLinear.setVisibility(View.VISIBLE);
             mSongNameTv.setText(mSong.getSongName());
             mSingerTv.setText(mSong.getSinger());
@@ -246,23 +258,12 @@ public class MainActivity extends AppCompatActivity {
     private void addMainFragment() {
         MainFragment mainFragment = new MainFragment();
         FragmentManager fragmentManager = getSupportFragmentManager();
-        FragmentTransaction transaction = fragmentManager.beginTransaction();
+        transaction = fragmentManager.beginTransaction();
         transaction.add(R.id.fragment_container, mainFragment);
         transaction.commit();
     }
 
-    @Override
-    public void onDestroy() {
-        unbindService(connection);
-        unregisterReceiver(songChangeReceiver);
-        if (mSeekBarThread != null) mSeekBarThread.interrupt();
-        Song song = FileHelper.getSong();
-        song.setCurrentTime(mPlayStatusBinder.getCurrentTime());
-        FileHelper.saveSong(song);
-        RxApiManager.get().cancelAll();
-        super.onDestroy();
 
-    }
 
     private void seekBarStart() {
         mSeekBarThread = new Thread(new SeekBarThread());
@@ -284,8 +285,6 @@ public class MainActivity extends AppCompatActivity {
             }
         }
     }
-
-
     class SongChangeReceiver extends BroadcastReceiver {
         @Override
         public void onReceive(Context context, Intent intent) {

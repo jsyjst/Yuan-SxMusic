@@ -10,6 +10,7 @@ import android.widget.TextView;
 
 import com.andexert.library.RippleView;
 import com.example.musicplayer.R;
+import com.example.musicplayer.callback.OnChildItemClickListener;
 import com.example.musicplayer.entiy.AlbumCollection;
 import com.example.musicplayer.util.CommonUtil;
 
@@ -148,8 +149,4 @@ public class ExpandableListViewAdapter extends BaseExpandableListAdapter {
         TextView authorTv;
         RippleView childView;
     }
-    public interface OnChildItemClickListener{
-        void onClick(int groupPosition,int childPosition);
-    }
-
 }

@@ -18,7 +18,6 @@ import android.media.MediaPlayer;
 import android.os.Handler;
 import android.os.IBinder;
 import android.os.Message;
-import android.provider.ContactsContract;
 import android.support.annotation.Nullable;
 import android.transition.Slide;
 import android.util.Log;
@@ -39,10 +38,10 @@ import com.bumptech.glide.request.target.Target;
 import com.bumptech.glide.request.transition.Transition;
 import com.example.musicplayer.R;
 import com.example.musicplayer.base.BaseActivity;
-import com.example.musicplayer.constant.BaseUri;
-import com.example.musicplayer.constant.BroadcastName;
-import com.example.musicplayer.constant.Constant;
-import com.example.musicplayer.constant.PlayerStatus;
+import com.example.musicplayer.configure.BaseUri;
+import com.example.musicplayer.configure.BroadcastName;
+import com.example.musicplayer.configure.Constant;
+import com.example.musicplayer.configure.PlayerStatus;
 import com.example.musicplayer.contract.IPlayContract;
 import com.example.musicplayer.entiy.LocalSong;
 import com.example.musicplayer.entiy.Song;
@@ -84,6 +83,7 @@ public class PlayActivity extends BaseActivity implements IPlayContract.View {
     private TextView mSingerTv;
     private Button mPlayBtn;
     private Button mLastBtn;
+    private Button mOrderBtn;
     private Button mNextBtn;
     private RelativeLayout mPlayRelative;
     private PlayPresenter mPresenter;
@@ -112,13 +112,7 @@ public class PlayActivity extends BaseActivity implements IPlayContract.View {
         @Override
         public void onServiceConnected(ComponentName name, IBinder service) {
             mPlayStatusBinder = (PlayerService.PlayStatusBinder) service;
-            //缓存进度条
-            mPlayStatusBinder.getMediaPlayer().setOnBufferingUpdateListener(new MediaPlayer.OnBufferingUpdateListener() {
-                @Override
-                public void onBufferingUpdate(MediaPlayer mp, int percent) {
-                    mSeekBar.setSecondaryProgress(percent*mSeekBar.getProgress());
-                }
-            });
+
             isOnline = FileHelper.getSong().isOnline();
             if (isOnline) {
                 mGetImgAndLrcBtn.setVisibility(View.GONE);
@@ -132,7 +126,16 @@ public class PlayActivity extends BaseActivity implements IPlayContract.View {
             } else {
                 mDurationTimeTv.setText(MediaUtil.formatTime(mSong.getDuration()));
                 setLocalImg(mSong.getSinger());
+                mSeekBar.setSecondaryProgress((int)mSong.getDuration());
             }
+
+            //缓存进度条
+            mPlayStatusBinder.getMediaPlayer().setOnBufferingUpdateListener(new MediaPlayer.OnBufferingUpdateListener() {
+                @Override
+                public void onBufferingUpdate(MediaPlayer mp, int percent) {
+                    mSeekBar.setSecondaryProgress(percent*mSeekBar.getProgress());
+                }
+            });
         }
 
         @Override
@@ -159,18 +162,13 @@ public class PlayActivity extends BaseActivity implements IPlayContract.View {
     protected void initViews() {
         CommonUtil.hideStatusBar(this, true);
         setContentView(R.layout.activity_play);
-
         //设置进入退出动画
         getWindow().setEnterTransition(new Slide());
         getWindow().setExitTransition(new Slide());
-
         //与Presenter建立关系
         mPresenter = new PlayPresenter();
         mPresenter.attachView(this);
-
         //是否为网络歌曲
-
-
         mPlayStatus = getIntent().getIntExtra(PlayerStatus.PLAYER_STATUS, 2);
 
         //注册广播
@@ -180,7 +178,6 @@ public class PlayActivity extends BaseActivity implements IPlayContract.View {
         mIntentFilter.addAction(BroadcastName.ONLINE_ALBUM_SONG_Change);
         songChangeReceiver = new SongChangeReceiver();
         registerReceiver(songChangeReceiver, mIntentFilter);
-
 
         mRootLayout = findViewById(R.id.relative_root);
         mSongTv = findViewById(R.id.tv_song);
@@ -193,13 +190,10 @@ public class PlayActivity extends BaseActivity implements IPlayContract.View {
         mSeekBar = findViewById(R.id.seek);
         mDurationTimeTv = findViewById(R.id.tv_duration_time);
         mCurrentTimeTv = findViewById(R.id.tv_current_time);
-
-
         mDisc = findViewById(R.id.disc_view);
         mDiscImg = findViewById(R.id.iv_disc_background);
         mLoveBtn = findViewById(R.id.btn_love);
-
-
+        mOrderBtn = findViewById(R.id.btn_order);
 
         //界面填充
         mSong = FileHelper.getSong();
@@ -309,6 +303,13 @@ public class PlayActivity extends BaseActivity implements IPlayContract.View {
             }
         });
 
+        mOrderBtn.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                CommonUtil.showToast(PlayActivity.this,"抱歉，目前只支持顺序播放，其他功能还在开发中");
+            }
+        });
+
         //
         mPlayBtn.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -415,9 +416,8 @@ public class PlayActivity extends BaseActivity implements IPlayContract.View {
                     CommonUtil.showToast(PlayActivity.this, "获取封面歌词成功");
                     //将封面地址放到数据库中
                     LocalSong localSong =new LocalSong();
-                    mLocalSong = LitePal.findAll(LocalSong.class);
                     localSong.setPic(BaseUri.STORAGE_IMG_FILE + FileHelper.getSong().getSinger() + ".jpg");
-                    localSong.save();
+                    localSong.updateAll("songId=?",FileHelper.getSong().getOnlineId());
                 }
 
                 try2UpdateMusicPicBackground(mImgBmp);

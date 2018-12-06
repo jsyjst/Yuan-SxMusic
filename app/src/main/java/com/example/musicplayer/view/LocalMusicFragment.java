@@ -11,20 +11,17 @@ import android.os.IBinder;
 import android.support.v4.app.Fragment;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.view.ViewStub;
 import android.widget.FrameLayout;
 import android.widget.ImageView;
-import android.widget.LinearLayout;
-import android.widget.Toast;
 
 import com.example.musicplayer.R;
 import com.example.musicplayer.adapter.SongAdapter;
-import com.example.musicplayer.constant.BroadcastName;
-import com.example.musicplayer.constant.Constant;
+import com.example.musicplayer.callback.OnItemClickListener;
+import com.example.musicplayer.configure.BroadcastName;
+import com.example.musicplayer.configure.Constant;
 import com.example.musicplayer.contract.ILocalMusicContract;
 import com.example.musicplayer.entiy.LocalSong;
 import com.example.musicplayer.entiy.Song;
@@ -101,33 +98,47 @@ public class LocalMusicFragment extends Fragment implements ILocalMusicContract.
     }
 
     private void initView() {
-        LitePal.getDatabase(); //创建数据库
         mLocalSongsList = new ArrayList<>();
-        layoutManager = new LinearLayoutManager(mView.getContext());
-        songAdapter = new SongAdapter(mView.getContext(), mLocalSongsList);
+        layoutManager = new LinearLayoutManager(getActivity());
         mPresenter = new LocalMusicPresenter();
         mPresenter.attachView(this); //与Presenter建立关系
         //启动服务
         Intent playIntent = new Intent(getActivity(), PlayerService.class);
         getActivity().bindService(playIntent, connection, Context.BIND_AUTO_CREATE);
 
-        mLocalSongsList = LitePal.findAll(LocalSong.class);
+        mLocalSongsList.clear();
+        mLocalSongsList.addAll(LitePal.findAll(LocalSong.class));
         if (mLocalSongsList.size() == 0) {
             mRecycler.setVisibility(View.GONE);
             mEmptyViewLinear.setVisibility(View.VISIBLE);
         } else {
-            mRecycler.setVisibility(View.VISIBLE);
             mEmptyViewLinear.setVisibility(View.GONE);
-
+            mRecycler.setVisibility(View.VISIBLE);
             mRecycler.setLayoutManager(layoutManager);
-
-
             //令recyclerView定位到当前播放的位置
             songAdapter = new SongAdapter(mView.getContext(), mLocalSongsList);
             mRecycler.setAdapter(songAdapter);
             if (FileHelper.getSong() != null) {
                 layoutManager.scrollToPositionWithOffset(FileHelper.getSong().getCurrent() - 4, mRecycler.getHeight());
             }
+            songAdapter.setOnItemClickListener(new OnItemClickListener() {
+                @Override
+                public void onClick(int position) {
+                    //将点击的序列化到本地
+                    LocalSong mp3Info = mLocalSongsList.get(position);
+                    Song song = new Song();
+                    song.setSongName(mp3Info.getName());
+                    song.setSinger(mp3Info.getSinger());
+                    song.setUrl(mp3Info.getUrl());
+                    song.setDuration(mp3Info.getDuration());
+                    song.setCurrent(position);
+                    song.setOnline(false);
+                    song.setOnlineId(mp3Info.getSongId());
+                    song.setListType(Constant.LIST_TYPE_LOCAL);
+                    FileHelper.saveSong(song);
+                    mPlayStatusBinder.play(Constant.LIST_TYPE_LOCAL);
+                }
+            });
 
         }
 
@@ -135,25 +146,6 @@ public class LocalMusicFragment extends Fragment implements ILocalMusicContract.
 
     //按钮事件
     private void setOnClickListener() {
-
-        songAdapter.setOnItemClickListener(new SongAdapter.OnItemClickListener() {
-            @Override
-            public void onSongClick(int position) {
-                //将点击的序列化到本地
-                LocalSong mp3Info = mLocalSongsList.get(position);
-                Song song = new Song();
-                song.setSongName(mp3Info.getName());
-                song.setSinger(mp3Info.getSinger());
-                song.setUrl(mp3Info.getUrl());
-                song.setDuration(mp3Info.getDuration());
-                song.setCurrent(position);
-                song.setOnline(false);
-                song.setOnlineId(mp3Info.getSongId());
-                song.setListType(Constant.LIST_TYPE_LOCAL);
-                FileHelper.saveSong(song);
-                mPlayStatusBinder.play(Constant.LIST_TYPE_LOCAL);
-            }
-        });
         mFindLocalMusicIv.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -186,16 +178,35 @@ public class LocalMusicFragment extends Fragment implements ILocalMusicContract.
                     //令recyclerView定位到当前播放的位置
                     songAdapter = new SongAdapter(mView.getContext(), mLocalSongsList);
                     mRecycler.setAdapter(songAdapter);
-                    setOnClickListener();
                     CommonUtil.showToast(getActivity(), "成功导入本地音乐");
                     mPresenter.saveSong(mp3InfoList);//保存到数据库中
-                    if (FileHelper.getSong() != null) {
-                        layoutManager.scrollToPositionWithOffset(FileHelper.getSong().getCurrent() - 4, mRecycler.getHeight());
-                    }
+                    songAdapter.setOnItemClickListener(new OnItemClickListener() {
+                        @Override
+                        public void onClick(int position) {
+                            //将点击的序列化到本地
+                            LocalSong mp3Info = mLocalSongsList.get(position);
+                            Song song = new Song();
+                            song.setSongName(mp3Info.getName());
+                            song.setSinger(mp3Info.getSinger());
+                            song.setUrl(mp3Info.getUrl());
+                            song.setDuration(mp3Info.getDuration());
+                            song.setCurrent(position);
+                            song.setOnline(false);
+                            song.setOnlineId(mp3Info.getSongId());
+                            song.setListType(Constant.LIST_TYPE_LOCAL);
+                            FileHelper.saveSong(song);
+                            mPlayStatusBinder.play(Constant.LIST_TYPE_LOCAL);
+                        }
+                    });
                 }
             }
         });
 
+    }
+
+    @Override
+    public void saveLocalSuccess() {
+        getActivity().sendBroadcast(new Intent(BroadcastName.LOCAL_SONG_NUM_CHANGE));
     }
 
     class SongChangeLocalMusicReceiver extends BroadcastReceiver {

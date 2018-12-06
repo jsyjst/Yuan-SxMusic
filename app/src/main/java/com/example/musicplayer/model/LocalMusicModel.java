@@ -2,12 +2,10 @@ package com.example.musicplayer.model;
 
 import android.database.Cursor;
 import android.provider.MediaStore;
-import android.util.Log;
 
-import com.example.musicplayer.constant.MyApplication;
+import com.example.musicplayer.configure.MyApplication;
 import com.example.musicplayer.contract.ILocalMusicContract;
 import com.example.musicplayer.entiy.LocalSong;
-import com.example.musicplayer.util.MediaUtil;
 
 import org.litepal.LitePal;
 
@@ -37,7 +35,6 @@ public class LocalMusicModel implements ILocalMusicContract.Model {
                         MediaStore.Audio.Media.EXTERNAL_CONTENT_URI, null, null, null,
                         MediaStore.Audio.Media.DEFAULT_SORT_ORDER);
                 for (int i = 0; i < cursor.getCount(); i++) {
-
                     cursor.moveToNext();
                     LocalSong mp3Info = new LocalSong();
                     long id = cursor.getLong(cursor
@@ -68,7 +65,6 @@ public class LocalMusicModel implements ILocalMusicContract.Model {
                             mp3Info.setDuration(duration);
                             mp3Info.setUrl(url);
                             mp3Info.setSongId(String.valueOf(id));
-                            Log.d(TAG, "run: "+mp3Info.getSongId());
                             mp3InfoList.add(mp3Info);
                         }
                     }
@@ -95,6 +91,7 @@ public class LocalMusicModel implements ILocalMusicContract.Model {
                     song.setSongId(localSong.getSongId());
                     song.save();
                 }
+                mPresenter.saveLocalSuccess();
             }
 
         }).start();

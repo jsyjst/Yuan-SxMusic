@@ -22,6 +22,7 @@ import com.bumptech.glide.request.target.SimpleTarget;
 import com.bumptech.glide.request.target.Target;
 import com.bumptech.glide.request.transition.Transition;
 import com.example.musicplayer.R;
+import com.example.musicplayer.configure.BaseUri;
 import com.example.musicplayer.configure.MyApplication;
 
 /**
@@ -168,6 +169,20 @@ public class CommonUtil {
                 .load(imgUrl)
                 .apply(RequestOptions.placeholderOf(R.drawable.welcome))
                 .apply(RequestOptions.errorOf(R.drawable.love))
+                .into(view);
+    }
+    public static void setSingerImg (Context context, String singer, ImageView view) {
+        if(singer.contains("/")){
+            String[] s=singer.split("/");
+            singer=s[0];
+        }
+        singer=singer.trim();
+        String imgUrl = BaseUri.STORAGE_IMG_FILE + singer + ".jpg";
+
+        Glide.with(context)
+                .load(imgUrl)
+                .apply(RequestOptions.placeholderOf(R.drawable.welcome))
+                .apply(RequestOptions.errorOf(R.drawable.welcome))
                 .into(view);
     }
 

@@ -93,7 +93,7 @@ public class LoveSongAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
             holder.songNameTv.setText(love.getName());
             holder.singerTv.setText(love.getSinger());
             //根据点击显示
-            if (love.getSongId().equals(FileHelper.getSong().getOnlineId())) {
+            if (love.getSongId().equals(FileHelper.getSong().getSongId())) {
                 holder.playLine.setVisibility(View.VISIBLE);
                 mLastPosition = position;
                 holder.songNameTv.setTextColor(mContext.getResources()

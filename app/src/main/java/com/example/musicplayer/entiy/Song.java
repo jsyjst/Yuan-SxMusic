@@ -9,16 +9,16 @@ import java.io.Serializable;
 public class Song implements Serializable {
     private static final long serialVersionUID=1L;
 
-    private String onlineId;
-    private String singer;
-    private long duration;
-    private String songName;
-    private String url;
-    private long currentTime;
-    private int current;//在本地音乐的位置
-    private String imgUrl;
-    private boolean isOnline;
-    private int listType;
+    private String songId; //歌曲id
+    private String singer; //歌手
+    private long duration; //总时长
+    private String songName; //歌曲名字
+    private String url;  //歌曲url
+    private long currentTime; //歌曲播放时长位置
+    private int current;//在音乐列表的位置
+    private String imgUrl; //歌曲照片
+    private boolean isOnline; //是否为网络歌曲
+    private int listType; //歌曲列表类别
 
     public String getImgUrl() {
         return imgUrl;
@@ -92,18 +92,18 @@ public class Song implements Serializable {
         this.listType = listType;
     }
 
-    public String getOnlineId() {
-        return onlineId;
+    public String getSongId() {
+        return songId;
     }
 
-    public void setOnlineId(String onlineId) {
-        this.onlineId = onlineId;
+    public void setSongId(String songId) {
+        this.songId = songId;
     }
 
     public String toString(){
         return "songName="+songName+",singer="+singer+",url="+url+",imgUrl="+imgUrl
                 +",duration="+duration+",currentTime="+currentTime+",current="+current
-                +",onlineId="+onlineId+",isOnline="+isOnline+",listType="+listType;
+                +",songId="+songId+",isOnline="+isOnline+",listType="+listType;
 
     }
 }

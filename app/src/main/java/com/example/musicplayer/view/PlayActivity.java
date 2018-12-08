@@ -204,7 +204,7 @@ public class PlayActivity extends BaseActivity implements IPlayContract.View {
         mSeekBar.setMax((int) mSong.getDuration());
         mSeekBar.setProgress((int) mSong.getCurrentTime());
 
-        mPresenter.queryLove(mSong.getOnlineId()); //查找歌曲是否为我喜欢的歌曲
+        mPresenter.queryLove(mSong.getSongId()); //查找歌曲是否为我喜欢的歌曲
 
         if (mPlayStatus == PlayerStatus.PLAY) {
             mDisc.play();
@@ -374,7 +374,7 @@ public class PlayActivity extends BaseActivity implements IPlayContract.View {
                 showLoveAnim();
                 if(isLove){
                     mLoveBtn.setSelected(false);
-                    mPresenter.deleteFromLove(FileHelper.getSong().getOnlineId());
+                    mPresenter.deleteFromLove(FileHelper.getSong().getSongId());
                 }else {
                     mLoveBtn.setSelected(true);
                     mPresenter.saveToLove(FileHelper.getSong());
@@ -417,7 +417,7 @@ public class PlayActivity extends BaseActivity implements IPlayContract.View {
                     //将封面地址放到数据库中
                     LocalSong localSong =new LocalSong();
                     localSong.setPic(BaseUri.STORAGE_IMG_FILE + FileHelper.getSong().getSinger() + ".jpg");
-                    localSong.updateAll("songId=?",FileHelper.getSong().getOnlineId());
+                    localSong.updateAll("songId=?",FileHelper.getSong().getSongId());
                 }
 
                 try2UpdateMusicPicBackground(mImgBmp);
@@ -503,7 +503,7 @@ public class PlayActivity extends BaseActivity implements IPlayContract.View {
                     mSeekBar.setSecondaryProgress(percent*mSeekBar.getProgress());
                 }
             });
-            mPresenter.queryLove(mSong.getOnlineId()); //查找歌曲是否为我喜欢的歌曲
+            mPresenter.queryLove(mSong.getSongId()); //查找歌曲是否为我喜欢的歌曲
             if (mSong.isOnline()) {
                 setSingerImg(mSong.getImgUrl());
             } else {

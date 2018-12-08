@@ -8,7 +8,7 @@ import java.util.List;
  * Created by 残渊 on 2018/10/17.
  */
 
-public interface ILocalMusicContract {
+public interface ILocalContract {
     interface Model{
         void getLocalMp3Info(); //得到本地音乐列表
         void saveSong(List<LocalSong> localSongs);//将本地音乐放到数据库中

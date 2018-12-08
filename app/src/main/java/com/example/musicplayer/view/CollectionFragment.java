@@ -113,7 +113,7 @@ public class CollectionFragment extends Fragment {
             public void onClick(int position) {
                 Love love = mLoveList.get(position);
                 Song song = new Song();
-                song.setOnlineId(love.getSongId());
+                song.setSongId(love.getSongId());
                 song.setSongName(love.getName());
                 song.setSinger(love.getSinger());
                 song.setOnline(love.isOnline());

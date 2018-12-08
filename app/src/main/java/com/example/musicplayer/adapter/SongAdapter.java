@@ -93,7 +93,7 @@ public class SongAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
             holder.songNameTv.setText(mp3Info.getName());
             holder.artistTv.setText(mp3Info.getSinger());
             //根据播放的歌曲是否为当前列表的歌曲显示
-            if(mp3Info.getSongId().equals(FileHelper.getSong().getOnlineId())){
+            if(mp3Info.getSongId().equals(FileHelper.getSong().getSongId())){
                 holder.songNameTv.setTextColor(MyApplication.getContext().
                         getResources().getColor(R.color.musicStyle_low));
                 holder.artistTv.setTextColor(MyApplication.getContext().

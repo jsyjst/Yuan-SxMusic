@@ -60,8 +60,6 @@ public class PlayerService extends Service {
 
     @Override
     public IBinder onBind(Intent arg0) {
-
-
         mediaPlayer.setOnCompletionListener(new MediaPlayer.OnCompletionListener() {
             @Override
             public void onCompletion(MediaPlayer mp) {
@@ -119,10 +117,6 @@ public class PlayerService extends Service {
         return mPlayStatusBinder;
     }
 
-    @Override
-    public void onRebind(Intent intent) {
-
-    }
 
     public class PlayStatusBinder extends Binder {
 
@@ -371,7 +365,7 @@ public class PlayerService extends Service {
         song.setDuration(localSong.getDuration());
         song.setUrl(localSong.getUrl());
         song.setImgUrl(localSong.getPic());
-        song.setOnlineId(localSong.getSongId());
+        song.setSongId(localSong.getSongId());
         song.setOnline(false);
         song.setListType(Constant.LIST_TYPE_LOCAL);
         FileHelper.saveSong(song);
@@ -382,7 +376,7 @@ public class PlayerService extends Service {
         mSongList = LitePal.findAll(OnlineSong.class);
         Song song = new Song();
         song.setCurrent(current);
-        song.setOnlineId(mSongList.get(current).getSongId());
+        song.setSongId(mSongList.get(current).getSongId());
         song.setSongName(mSongList.get(current).getName());
         song.setSinger(mSongList.get(current).getSinger());
         song.setDuration(mediaPlayer.getDuration());
@@ -399,7 +393,7 @@ public class PlayerService extends Service {
         Love love = mLoveList.get(current);
         Song song = new Song();
         song.setCurrent(current);
-        song.setOnlineId(love.getSongId());
+        song.setSongId(love.getSongId());
         song.setSongName(love.getName());
         song.setSinger(love.getSinger());
         song.setUrl(love.getUrl());
@@ -414,7 +408,7 @@ public class PlayerService extends Service {
         HistorySong historySong = mHistoryList.get(current);
         Song song = new Song();
         song.setCurrent(current);
-        song.setOnlineId(historySong.getSongId());
+        song.setSongId(historySong.getSongId());
         song.setSongName(historySong.getName());
         song.setSinger(historySong.getSinger());
         song.setUrl(historySong.getUrl());
@@ -428,15 +422,15 @@ public class PlayerService extends Service {
     private void saveToHistoryTable() {
 
         final Song song = FileHelper.getSong();
-        LitePal.where("songId=?", song.getOnlineId()).findAsync(HistorySong.class)
+        LitePal.where("songId=?", song.getSongId()).findAsync(HistorySong.class)
                 .listen(new FindMultiCallback<HistorySong>() {
                     @Override
                     public void onFinish(List<HistorySong> list) {
                         if (list.size() == 1) {
-                            LitePal.deleteAll(HistorySong.class, "songId=?", song.getOnlineId());
+                            LitePal.deleteAll(HistorySong.class, "songId=?", song.getSongId());
                         }
                         final HistorySong history = new HistorySong();
-                        history.setSongId(song.getOnlineId());
+                        history.setSongId(song.getSongId());
                         history.setName(song.getSongName());
                         history.setSinger(song.getSinger());
                         history.setUrl(song.getUrl());

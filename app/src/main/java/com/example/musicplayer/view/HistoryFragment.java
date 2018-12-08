@@ -116,7 +116,7 @@ public class HistoryFragment extends Fragment {
             public void onClick(int position) {
                 HistorySong history = mHistoryList.get(position);
                 Song song = new Song();
-                song.setOnlineId(history.getSongId());
+                song.setSongId(history.getSongId());
                 song.setSongName(history.getName());
                 song.setSinger(history.getSinger());
                 song.setOnline(history.isOnline());

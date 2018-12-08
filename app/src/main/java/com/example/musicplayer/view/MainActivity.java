@@ -136,7 +136,7 @@ public class MainActivity extends AppCompatActivity {
             mSeekBar.setMax((int) mSong.getDuration());
             mSeekBar.setProgress((int) mSong.getCurrentTime());
             if (mSong.getImgUrl() == null) {
-                FileHelper.setSingerImg(MainActivity.this, mSong.getSinger(), mCoverIv);
+                CommonUtil.setSingerImg(MainActivity.this, mSong.getSinger(), mCoverIv);
             } else {
                 Glide.with(this)
                         .load(mSong.getImgUrl())
@@ -289,7 +289,6 @@ public class MainActivity extends AppCompatActivity {
         @Override
         public void onReceive(Context context, Intent intent) {
             String action = intent.getAction();
-
             mSong = FileHelper.getSong();
             onClick();
             if (action.equals(BroadcastName.ONLINE_SONG_ERROR)) {
@@ -312,7 +311,7 @@ public class MainActivity extends AppCompatActivity {
                 seekBarStart();
             }
             if (!mSong.isOnline()) {
-                FileHelper.setSingerImg(MainActivity.this, mSong.getSinger(), mCoverIv);
+                CommonUtil.setSingerImg(MainActivity.this, mSong.getSinger(), mCoverIv);
             } else {
                 Glide.with(MainActivity.this)
                         .load(mSong.getImgUrl())

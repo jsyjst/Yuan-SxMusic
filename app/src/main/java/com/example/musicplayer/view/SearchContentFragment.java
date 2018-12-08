@@ -165,7 +165,7 @@ public class SearchContentFragment extends Fragment implements ISearchContentCon
             public void onClick(int position) {
                 SeachSong.DataBean dataBean = mSongList.get(position);
                 Song song = new Song();
-                song.setOnlineId(dataBean.getId());
+                song.setSongId(dataBean.getId());
                 song.setSinger(dataBean.getSinger());
                 song.setSongName(dataBean.getName());
                 song.setUrl(dataBean.getUrl());

@@ -93,7 +93,7 @@ public class HistoryAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder
             holder.songNameTv.setText(history.getName());
             holder.singerTv.setText(history.getSinger());
             //根据点击显示
-            if(history.getSongId().equals(FileHelper.getSong().getOnlineId())){
+            if(history.getSongId().equals(FileHelper.getSong().getSongId())){
                 holder.playLine.setVisibility(View.VISIBLE);
                 mLastPosition =position;
                 holder.songNameTv.setTextColor(mContext.getResources()

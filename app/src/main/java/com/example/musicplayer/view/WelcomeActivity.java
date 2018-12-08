@@ -57,7 +57,7 @@ public class WelcomeActivity extends AppCompatActivity {
                 if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
                     mHandler.sendEmptyMessageDelayed(0, 2000);
                 } else {
-                    Toast.makeText(this, "拒绝该权限无法使用该程序", Toast.LENGTH_SHORT).show();
+                    Toast.makeText(this, "软件工程3班：袁健策 3117004905\n拒绝该权限无法使用该程序", Toast.LENGTH_SHORT).show();
                     finish();
                 }
                 break;

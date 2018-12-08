@@ -1,9 +1,9 @@
 package com.example.musicplayer.presenter;
 
 import com.example.musicplayer.base.BasePresenter;
-import com.example.musicplayer.contract.ILocalMusicContract;
+import com.example.musicplayer.contract.ILocalContract;
 import com.example.musicplayer.entiy.LocalSong;
-import com.example.musicplayer.model.LocalMusicModel;
+import com.example.musicplayer.model.LocalModel;
 
 import java.util.List;
 
@@ -11,11 +11,11 @@ import java.util.List;
  * Created by 残渊 on 2018/10/17.
  */
 
-public class LocalMusicPresenter extends BasePresenter<ILocalMusicContract.View> implements ILocalMusicContract.Presenter {
+public class LocalPresenter extends BasePresenter<ILocalContract.View> implements ILocalContract.Presenter {
 
-    private LocalMusicModel mModel;
-    public LocalMusicPresenter(){
-        mModel=new LocalMusicModel(this);
+    private LocalModel mModel;
+    public LocalPresenter(){
+        mModel=new LocalModel(this);
     }
 
 

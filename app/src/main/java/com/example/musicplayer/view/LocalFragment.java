@@ -22,10 +22,10 @@ import com.example.musicplayer.adapter.SongAdapter;
 import com.example.musicplayer.callback.OnItemClickListener;
 import com.example.musicplayer.configure.BroadcastName;
 import com.example.musicplayer.configure.Constant;
-import com.example.musicplayer.contract.ILocalMusicContract;
+import com.example.musicplayer.contract.ILocalContract;
 import com.example.musicplayer.entiy.LocalSong;
 import com.example.musicplayer.entiy.Song;
-import com.example.musicplayer.presenter.LocalMusicPresenter;
+import com.example.musicplayer.presenter.LocalPresenter;
 import com.example.musicplayer.service.PlayerService;
 import com.example.musicplayer.util.CommonUtil;
 import com.example.musicplayer.util.FileHelper;
@@ -36,11 +36,11 @@ import java.util.ArrayList;
 import java.util.List;
 
 
-public class LocalMusicFragment extends Fragment implements ILocalMusicContract.View {
+public class LocalFragment extends Fragment implements ILocalContract.View {
     private static final String TAG = "LocalFragment";
     private RecyclerView mRecycler;
     private List<LocalSong> mLocalSongsList;
-    private LocalMusicPresenter mPresenter;
+    private LocalPresenter mPresenter;
     private View mView;
     private SongAdapter songAdapter;
     private LinearLayoutManager layoutManager;
@@ -100,7 +100,7 @@ public class LocalMusicFragment extends Fragment implements ILocalMusicContract.
     private void initView() {
         mLocalSongsList = new ArrayList<>();
         layoutManager = new LinearLayoutManager(getActivity());
-        mPresenter = new LocalMusicPresenter();
+        mPresenter = new LocalPresenter();
         mPresenter.attachView(this); //与Presenter建立关系
         //启动服务
         Intent playIntent = new Intent(getActivity(), PlayerService.class);
@@ -133,7 +133,7 @@ public class LocalMusicFragment extends Fragment implements ILocalMusicContract.
                     song.setDuration(mp3Info.getDuration());
                     song.setCurrent(position);
                     song.setOnline(false);
-                    song.setOnlineId(mp3Info.getSongId());
+                    song.setSongId(mp3Info.getSongId());
                     song.setListType(Constant.LIST_TYPE_LOCAL);
                     FileHelper.saveSong(song);
                     mPlayStatusBinder.play(Constant.LIST_TYPE_LOCAL);
@@ -169,6 +169,7 @@ public class LocalMusicFragment extends Fragment implements ILocalMusicContract.
                 mLocalSongsList.clear();
                 mLocalSongsList.addAll(mp3InfoList);
                 if (mLocalSongsList.size() == 0) {
+                    CommonUtil.showToast(getActivity(),"本地音乐为空");
                     mRecycler.setVisibility(View.GONE);
                     mEmptyViewLinear.setVisibility(View.VISIBLE);
                 } else {
@@ -192,7 +193,7 @@ public class LocalMusicFragment extends Fragment implements ILocalMusicContract.
                             song.setDuration(mp3Info.getDuration());
                             song.setCurrent(position);
                             song.setOnline(false);
-                            song.setOnlineId(mp3Info.getSongId());
+                            song.setSongId(mp3Info.getSongId());
                             song.setListType(Constant.LIST_TYPE_LOCAL);
                             FileHelper.saveSong(song);
                             mPlayStatusBinder.play(Constant.LIST_TYPE_LOCAL);

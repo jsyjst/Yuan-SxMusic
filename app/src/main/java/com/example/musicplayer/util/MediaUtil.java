@@ -21,61 +21,6 @@ import java.io.FileNotFoundException;
  */
 
 public class MediaUtil {
-    //获取专辑封面的Uri
-
-    private static final String TAG = "MediaUtil";
-    private static final Uri albumArtUri = Uri.parse("content://media/external/audio/albumart");
-
-
-
-
-    //
-    public static Bitmap getMusicBitmap(Context context, long songid,
-                                        long albumid) {
-        Bitmap bm = null;
-        // 专辑id和歌曲id小于0说明没有专辑、歌曲，并抛出异常
-        if (albumid < 0 && songid < 0) {
-            throw new IllegalArgumentException(
-                    "Must specify an album or a song id");
-        }
-        try {
-            if (albumid < 0) {
-                Uri uri = Uri.parse("content://media/external/audio/media/"
-                        + songid + "/albumart");
-                ParcelFileDescriptor pfd = context.getContentResolver()
-                        .openFileDescriptor(uri, "r");
-                if (pfd != null) {
-                    FileDescriptor fd = pfd.getFileDescriptor();
-                    Log.d(TAG, "getMusicBitmap: songId");
-                    bm = BitmapFactory.decodeFileDescriptor(fd);
-                }
-            } else {
-                Uri uri = ContentUris.withAppendedId(albumArtUri, albumid);
-                ParcelFileDescriptor pfd = context.getContentResolver()
-                        .openFileDescriptor(uri, "r");
-                if (pfd != null) {
-                    FileDescriptor fd = pfd.getFileDescriptor();
-                    bm = BitmapFactory.decodeFileDescriptor(fd);
-
-
-                } else {
-                    return null;
-                }
-            }
-        } catch (FileNotFoundException ex) {
-            ex.printStackTrace();
-        }
-        //如果获取的bitmap为空，则返回一个默认的bitmap
-        if (bm == null) {
-            Resources resources = context.getResources();
-            Drawable drawable = resources.getDrawable(R.drawable.background);
-            //Drawable 转 Bitmap
-            BitmapDrawable bitmapDrawable = (BitmapDrawable) drawable;
-            bm = bitmapDrawable.getBitmap();
-        }
-
-        return Bitmap.createScaledBitmap(bm, 150, 150, true);
-    }
 
     public static String formatTime(long time) {
         String min = time / (1000 * 60) + "";
@@ -101,7 +46,6 @@ public class MediaUtil {
             String []s=singer.split("/");
             singer=s[0];
         }
-
         return singer.trim();
     }
 

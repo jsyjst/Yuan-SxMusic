@@ -4,7 +4,7 @@ import android.database.Cursor;
 import android.provider.MediaStore;
 
 import com.example.musicplayer.configure.MyApplication;
-import com.example.musicplayer.contract.ILocalMusicContract;
+import com.example.musicplayer.contract.ILocalContract;
 import com.example.musicplayer.entiy.LocalSong;
 
 import org.litepal.LitePal;
@@ -16,12 +16,12 @@ import java.util.List;
  * Created by 残渊 on 2018/10/17.
  */
 
-public class LocalMusicModel implements ILocalMusicContract.Model {
-    private static final String TAG="LocalMusicModel";
+public class LocalModel implements ILocalContract.Model {
+    private static final String TAG="LocalModel";
 
-    private ILocalMusicContract.Presenter mPresenter;
+    private ILocalContract.Presenter mPresenter;
 
-    public LocalMusicModel(ILocalMusicContract.Presenter presenter){
+    public LocalModel(ILocalContract.Presenter presenter){
         mPresenter=presenter;
     }
 

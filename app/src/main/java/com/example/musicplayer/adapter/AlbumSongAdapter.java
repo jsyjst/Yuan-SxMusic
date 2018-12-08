@@ -61,7 +61,7 @@ public class AlbumSongAdapter extends RecyclerView.Adapter<RecyclerView.ViewHold
             holder.titleTv.setText(songsBean.getName());
             holder.mItemView.setBackgroundResource(R.color.translucent);
             //根据点击显示
-            if(songsBean.getId().equals(FileHelper.getSong().getOnlineId())){
+            if(songsBean.getId().equals(FileHelper.getSong().getSongId())){
                 holder.playLine.setVisibility(View.VISIBLE);
                 holder.titleTv.setTextColor(MyApplication.getContext().getResources().getColor(R.color.yellow));
                 holder.artistTv.setTextColor(MyApplication.getContext().getResources().getColor(R.color.yellow));

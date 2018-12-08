@@ -116,7 +116,7 @@ public class MainFragment extends Fragment {
         mLocalMusicLinear.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                replaceFragment(new LocalMusicFragment());
+                replaceFragment(new LocalFragment());
             }
         });
 

@@ -3,6 +3,7 @@ package com.example.musicplayer.widget;
 import android.animation.Animator;
 import android.animation.ObjectAnimator;
 import android.animation.ValueAnimator;
+import android.annotation.TargetApi;
 import android.content.Context;
 import android.graphics.drawable.Drawable;
 import android.graphics.drawable.LayerDrawable;
@@ -94,7 +95,7 @@ public class BackgroundAnimationRelativeLayout extends RelativeLayout {
             }
         });
     }
-
+    @TargetApi(23)
     public void setForeground(Drawable drawable) {
         layerDrawable.setDrawable(INDEX_FOREGROUND, drawable);
     }

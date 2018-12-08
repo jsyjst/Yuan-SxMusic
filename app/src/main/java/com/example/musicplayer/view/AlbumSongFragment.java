@@ -72,6 +72,7 @@ public class AlbumSongFragment extends Fragment implements IAlbumSongContract.Vi
     private AlbumSongAdapter mAdapter;
 
     private IntentFilter intentFilter;
+    private Intent playIntent;
     private AlbumSongChangeReceiver albumSongChangeReceiver;
 
     private PlayerService.PlayStatusBinder mPlayStatusBinder;
@@ -122,7 +123,7 @@ public class AlbumSongFragment extends Fragment implements IAlbumSongContract.Vi
             albumSongChangeReceiver = new AlbumSongChangeReceiver();
             getActivity().registerReceiver(albumSongChangeReceiver,intentFilter);
             //启动服务
-            Intent playIntent = new Intent(getActivity(), PlayerService.class);
+            playIntent = new Intent(getActivity(), PlayerService.class);
             getActivity().bindService(playIntent, connection, Context.BIND_AUTO_CREATE);
         }else{
             MaterialViewPagerHelper.registerScrollView(getActivity(), mScrollView);
@@ -136,6 +137,12 @@ public class AlbumSongFragment extends Fragment implements IAlbumSongContract.Vi
     @Override
     public void onDestroyView(){
         RxApiManager.get().cancel(Constant.ALBUM);
+        if(albumSongChangeReceiver!=null){
+            getActivity().unregisterReceiver(albumSongChangeReceiver);
+        }
+        if(playIntent!=null){
+            getActivity().unbindService(connection);
+        }
         super.onDestroyView();
     }
 
@@ -172,7 +179,7 @@ public class AlbumSongFragment extends Fragment implements IAlbumSongContract.Vi
             public void onClick(int position) {
                 AlbumSong.DataBean.SongsBean dataBean= songList.get(position);
                 Song song = new Song();
-                song.setOnlineId(dataBean.getId());
+                song.setSongId(dataBean.getId());
                 song.setSinger(dataBean.getSinger());
                 song.setSongName(dataBean.getName());
                 song.setUrl(dataBean.getUrl());

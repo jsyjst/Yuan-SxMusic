@@ -96,7 +96,7 @@ public class SearchContentAdapter extends RecyclerView.Adapter<RecyclerView.View
             CommonUtil.showStringColor(mSeek, songListBean.getName(), songHolder.titleTv);
 
                 //根据点击显示
-            if(songListBean.getId().equals(FileHelper.getSong().getOnlineId())){
+            if(songListBean.getId().equals(FileHelper.getSong().getSongId())){
                 songHolder.playLine.setVisibility(View.VISIBLE);
                 mLastPosition =position;
                 songHolder.mItemView.setBackgroundResource(R.color.click);

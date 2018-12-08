@@ -49,10 +49,8 @@ public class FileHelper {
             oos.writeObject(song);//将Person对象p写入到oos中
             oos.close();                        //关闭文件流
         } catch (FileNotFoundException e) {
-            // TODO Auto-generated catch block
             e.printStackTrace();
         } catch (IOException e) {
-            // TODO Auto-generated catch block
             e.printStackTrace();
         }
     }
@@ -106,20 +104,5 @@ public class FileHelper {
                 e.printStackTrace();
             }
         }
-    }
-
-    public static void setSingerImg (Context context, String singer, ImageView view) {
-        if(singer.contains("/")){
-            String[] s=singer.split("/");
-            singer=s[0];
-        }
-        singer=singer.trim();
-        String imgUrl =BaseUri.STORAGE_IMG_FILE + singer + ".jpg";
-
-        Glide.with(context)
-                .load(imgUrl)
-                .apply(RequestOptions.placeholderOf(R.drawable.welcome))
-                .apply(RequestOptions.errorOf(R.drawable.welcome))
-                .into(view);
     }
 }

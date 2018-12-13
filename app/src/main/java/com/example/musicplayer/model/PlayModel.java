@@ -101,6 +101,7 @@ public class PlayModel implements IPlayContract.Model {
                 love.setSinger(song.getSinger());
                 love.setUrl(song.getUrl());
                 love.setPic(song.getImgUrl());
+                love.setDuration(song.getDuration());
                 love.setSongId(song.getSongId());
                 love.setOnline(song.isOnline());
                 love.saveAsync().listen(new SaveCallback() {

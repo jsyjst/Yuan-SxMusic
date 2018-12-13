@@ -14,6 +14,7 @@ public class OnlineSong extends LitePalSupport {
     private String url;
     private String pic;
     private String lrc;
+    private long duration;
 
 
     public int getId() {
@@ -70,5 +71,13 @@ public class OnlineSong extends LitePalSupport {
 
     public void setSongId(String songId) {
         this.songId = songId;
+    }
+
+    public void setDuration(long duration) {
+        this.duration = duration;
+    }
+
+    public long getDuration() {
+        return duration;
     }
 }

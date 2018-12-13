@@ -159,10 +159,6 @@ public class PlayerService extends Service {
                     mediaPlayer.setDataSource(mHistoryList.get(mCurrent).getUrl());
                 }
                 mediaPlayer.prepare();    //进行缓冲
-                //保存歌曲时长
-                Song song = FileHelper.getSong();
-                song.setDuration(mediaPlayer.getDuration());
-                FileHelper.saveSong(song);
                 isPlaying = true;
                 mediaPlayer.start();
                 saveToHistoryTable();
@@ -180,9 +176,6 @@ public class PlayerService extends Service {
                 mediaPlayer.reset();
                 mediaPlayer.setDataSource(FileHelper.getSong().getUrl());
                 mediaPlayer.prepare();
-                Song song = FileHelper.getSong();
-                song.setDuration(mediaPlayer.getDuration());
-                FileHelper.saveSong(song);
                 mediaPlayer.start();
                 isPlaying = true;
                 saveToHistoryTable();
@@ -379,7 +372,7 @@ public class PlayerService extends Service {
         song.setSongId(mSongList.get(current).getSongId());
         song.setSongName(mSongList.get(current).getName());
         song.setSinger(mSongList.get(current).getSinger());
-        song.setDuration(mediaPlayer.getDuration());
+        song.setDuration(mSongList.get(current).getDuration());
         song.setUrl(mSongList.get(current).getUrl());
         song.setImgUrl(mSongList.get(current).getPic());
         song.setOnline(true);
@@ -400,6 +393,7 @@ public class PlayerService extends Service {
         song.setImgUrl(love.getPic());
         song.setListType(Constant.LIST_TYPE_LOVE);
         song.setOnline(love.isOnline());
+        song.setDuration(love.getDuration());
         FileHelper.saveSong(song);
     }
 
@@ -415,6 +409,7 @@ public class PlayerService extends Service {
         song.setImgUrl(historySong.getPic());
         song.setListType(Constant.LIST_TYPE_HISTORY);
         song.setOnline(historySong.isOnline());
+        song.setDuration(historySong.getDuration());
         FileHelper.saveSong(song);
     }
 
@@ -436,6 +431,7 @@ public class PlayerService extends Service {
                         history.setUrl(song.getUrl());
                         history.setPic(song.getImgUrl());
                         history.setOnline(song.isOnline());
+                        history.setDuration(song.getDuration());
                         history.saveAsync().listen(new SaveCallback() {
                             @Override
                             public void onFinish(boolean success) {

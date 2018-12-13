@@ -185,6 +185,7 @@ public class AlbumSongFragment extends Fragment implements IAlbumSongContract.Vi
                 song.setUrl(dataBean.getUrl());
                 song.setImgUrl(dataBean.getPic());
                 song.setCurrent(position);
+                song.setDuration(dataBean.getTime()*1000);
                 song.setOnline(true);
                 song.setListType(Constant.LIST_TYPE_ONLINE);
                 FileHelper.saveSong(song);

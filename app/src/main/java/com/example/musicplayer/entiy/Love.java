@@ -13,6 +13,7 @@ public class Love extends LitePalSupport{
     private String singer;
     private String url;
     private String pic;
+    private long duration;
     private boolean isOnline;
 
 
@@ -71,5 +72,13 @@ public class Love extends LitePalSupport{
 
     public boolean isOnline() {
         return isOnline;
+    }
+
+    public long getDuration() {
+        return duration;
+    }
+
+    public void setDuration(long duration) {
+        this.duration = duration;
     }
 }

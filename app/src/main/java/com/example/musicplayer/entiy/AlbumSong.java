@@ -136,6 +136,7 @@ public class AlbumSong {
              * id : 002usg9o4GTAKf
              * name : 爱在西元前
              * singer : 周杰伦
+             * time: 215,
              * url : https://api.bzqll.com/music/tencent/url?id=002usg9o4GTAKf&key=579621905
              * pic : https://api.bzqll.com/music/tencent/pic?id=002usg9o4GTAKf&key=579621905
              * lrc : https://api.bzqll.com/music/tencent/lrc?id=002usg9o4GTAKf&key=579621905
@@ -147,6 +148,7 @@ public class AlbumSong {
             private String url;
             private String pic;
             private String lrc;
+            private long time;
 
             public String getId() {
                 return id;
@@ -194,6 +196,14 @@ public class AlbumSong {
 
             public void setLrc(String lrc) {
                 this.lrc = lrc;
+            }
+
+            public long getTime() {
+                return time;
+            }
+
+            public void setTime(long time) {
+                this.time = time;
             }
         }
     }

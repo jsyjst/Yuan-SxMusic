@@ -88,6 +88,7 @@ public class AlbumSongModel implements IAlbumSongContract.Model {
                     onlineSong.setSinger(song.getSinger());
                     onlineSong.setLrc(song.getLrc());
                     onlineSong.setSongId(song.getId());
+                    onlineSong.setDuration(song.getTime());
                     onlineSong.save();
                 }
             }

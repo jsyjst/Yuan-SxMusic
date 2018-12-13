@@ -120,6 +120,7 @@ public class CollectionFragment extends Fragment {
                 song.setUrl(love.getUrl());
                 song.setImgUrl(love.getPic());
                 song.setCurrent(position);
+                song.setDuration(love.getDuration());
                 song.setListType(Constant.LIST_TYPE_LOVE);
                 FileHelper.saveSong(song);
 

@@ -59,6 +59,7 @@ public class SeachSong {
         private String pic;
         private String lrc;
         private String url;
+        private long time;
 
         public String getId() {
             return id;
@@ -106,6 +107,14 @@ public class SeachSong {
 
         public void setUrl(String url) {
             this.url = url;
+        }
+
+        public long getTime() {
+            return time;
+        }
+
+        public void setTime(long time) {
+            this.time = time;
         }
     }
 }

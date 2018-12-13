@@ -123,6 +123,7 @@ public class HistoryFragment extends Fragment {
                 song.setUrl(history.getUrl());
                 song.setImgUrl(history.getPic());
                 song.setCurrent(position);
+                song.setDuration(history.getDuration());
                 song.setListType(Constant.LIST_TYPE_HISTORY);
                 FileHelper.saveSong(song);
 

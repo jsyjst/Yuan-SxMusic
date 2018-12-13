@@ -116,7 +116,6 @@ public class PlayActivity extends BaseActivity implements IPlayContract.View {
             isOnline = FileHelper.getSong().isOnline();
             if (isOnline) {
                 mGetImgAndLrcBtn.setVisibility(View.GONE);
-                mDurationTimeTv.setText(MediaUtil.formatTime(FileHelper.getSong().getDuration()));
                 setSingerImg(FileHelper.getSong().getImgUrl());
                 if (mPlayStatus == PlayerStatus.PLAY) {
                     mDisc.play();
@@ -124,11 +123,10 @@ public class PlayActivity extends BaseActivity implements IPlayContract.View {
                     startUpdateSeekBarProgress();
                 }
             } else {
-                mDurationTimeTv.setText(MediaUtil.formatTime(mSong.getDuration()));
                 setLocalImg(mSong.getSinger());
                 mSeekBar.setSecondaryProgress((int)mSong.getDuration());
             }
-
+            mDurationTimeTv.setText(MediaUtil.formatTime(mSong.getDuration()));
             //缓存进度条
             mPlayStatusBinder.getMediaPlayer().setOnBufferingUpdateListener(new MediaPlayer.OnBufferingUpdateListener() {
                 @Override

@@ -171,6 +171,7 @@ public class SearchContentFragment extends Fragment implements ISearchContentCon
                 song.setUrl(dataBean.getUrl());
                 song.setImgUrl(dataBean.getPic());
                 song.setCurrent(position);
+                song.setDuration(dataBean.getTime()*1000);
                 song.setOnline(true);
                 FileHelper.saveSong(song);
 

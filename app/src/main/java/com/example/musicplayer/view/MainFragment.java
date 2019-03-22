@@ -91,7 +91,7 @@ public class MainFragment extends Fragment {
         mAlbumCollectionList = new ArrayList<>();
         AlbumCollection albumCollection = new AlbumCollection();
         albumCollection.setAlbumName("我喜欢");
-        albumCollection.setSingerName("袁健策");
+        albumCollection.setSingerName("残渊");
         mLoveAlbumList.add(albumCollection);
         mAlbumCollectionList.add(mLoveAlbumList);
         mAlbumCollectionList.add(orderCollection(LitePal.findAll(AlbumCollection.class)));

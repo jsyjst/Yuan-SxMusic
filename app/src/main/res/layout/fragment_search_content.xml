@@ -20,8 +20,6 @@
             android:layout_height="match_parent"
             android:layout_marginBottom="65dp"
             android:visibility="gone">
-
-
         </com.github.jdsjlzx.recyclerview.LRecyclerView>
 
         <com.wang.avi.AVLoadingIndicatorView

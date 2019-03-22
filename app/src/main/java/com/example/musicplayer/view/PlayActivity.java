@@ -55,9 +55,21 @@ import com.example.musicplayer.util.MediaUtil;
 import com.example.musicplayer.util.RxApiManager;
 import com.example.musicplayer.widget.BackgroundAnimationRelativeLayout;
 import com.example.musicplayer.widget.DiscView;
+import com.example.musicplayer.widget.LrcView;
 
-import org.litepal.LitePal;
-
+import java.io.BufferedReader;
+import java.io.BufferedWriter;
+import java.io.ByteArrayOutputStream;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.io.OutputStreamWriter;
+import java.net.HttpURLConnection;
+import java.net.URL;
 import java.util.List;
 
 /**
@@ -92,6 +104,8 @@ public class PlayActivity extends BaseActivity implements IPlayContract.View {
     private TextView mCurrentTimeTv;
     private TextView mDurationTimeTv;
 
+    private String mLrc = null;
+
 
     private Button mLoveBtn;
     private boolean isLove;//是否已经在我喜欢的列表中
@@ -102,6 +116,7 @@ public class PlayActivity extends BaseActivity implements IPlayContract.View {
     private Button mGetImgAndLrcBtn;//获取封面和歌词
     private BackgroundAnimationRelativeLayout mRootLayout;
     private List<LocalSong> mLocalSong;//用来判断是否有本地照片
+    private LrcView mLrcView; //歌词自定义View
 
     //服务
     private Thread mSeekBarThread;
@@ -124,14 +139,14 @@ public class PlayActivity extends BaseActivity implements IPlayContract.View {
                 }
             } else {
                 setLocalImg(mSong.getSinger());
-                mSeekBar.setSecondaryProgress((int)mSong.getDuration());
+                mSeekBar.setSecondaryProgress((int) mSong.getDuration());
             }
             mDurationTimeTv.setText(MediaUtil.formatTime(mSong.getDuration()));
             //缓存进度条
             mPlayStatusBinder.getMediaPlayer().setOnBufferingUpdateListener(new MediaPlayer.OnBufferingUpdateListener() {
                 @Override
                 public void onBufferingUpdate(MediaPlayer mp, int percent) {
-                    mSeekBar.setSecondaryProgress(percent*mSeekBar.getProgress());
+                    mSeekBar.setSecondaryProgress(percent * mSeekBar.getProgress());
                 }
             });
         }
@@ -192,6 +207,7 @@ public class PlayActivity extends BaseActivity implements IPlayContract.View {
         mDiscImg = findViewById(R.id.iv_disc_background);
         mLoveBtn = findViewById(R.id.btn_love);
         mOrderBtn = findViewById(R.id.btn_order);
+        mLrcView = findViewById(R.id.lrcView);
 
         //界面填充
         mSong = FileHelper.getSong();
@@ -288,7 +304,6 @@ public class PlayActivity extends BaseActivity implements IPlayContract.View {
             @Override
             public void onStopTrackingTouch(SeekBar seekBar) {
                 if (mPlayStatusBinder.isPlaying()) {
-                    Log.d(TAG, "onStopTrackingTouch: isPlay");
                     mMediaPlayer = mPlayStatusBinder.getMediaPlayer();
                     mMediaPlayer.seekTo(seekBar.getProgress());
                     startUpdateSeekBarProgress();
@@ -304,7 +319,7 @@ public class PlayActivity extends BaseActivity implements IPlayContract.View {
         mOrderBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                CommonUtil.showToast(PlayActivity.this,"抱歉，目前只支持顺序播放，其他功能还在开发中");
+                CommonUtil.showToast(PlayActivity.this, "抱歉，目前只支持顺序播放，其他功能还在开发中");
             }
         });
 
@@ -332,7 +347,6 @@ public class PlayActivity extends BaseActivity implements IPlayContract.View {
                     mPlayBtn.setSelected(true);
                     startUpdateSeekBarProgress();
                 } else {
-                    Log.d(TAG, "onClick: --------play");
                     if (isOnline) {
                         mPlayStatusBinder.playOnline();
                     } else {
@@ -370,16 +384,35 @@ public class PlayActivity extends BaseActivity implements IPlayContract.View {
             @Override
             public void onClick(View v) {
                 showLoveAnim();
-                if(isLove){
+                if (isLove) {
                     mLoveBtn.setSelected(false);
                     mPresenter.deleteFromLove(FileHelper.getSong().getSongId());
-                }else {
+                } else {
                     mLoveBtn.setSelected(true);
                     mPresenter.saveToLove(FileHelper.getSong());
                 }
                 isLove = !isLove;
             }
         });
+
+        //唱碟点击效果
+        mDisc.setOnClickListener(v -> {
+                    if (!isOnline) {
+                        if (getLrcFromLocal().equals("")) {
+                            mPresenter.getLrc(getSongName(), mSong.getDuration());
+                        }
+                        showLrc(getLrcFromLocal());
+                    } else {
+                        mPresenter.getLrc(getSongName(), mSong.getDuration());
+                    }
+                }
+        );
+        //歌词点击效果
+        mLrcView.setOnClickListener(v -> {
+            mLrcView.setVisibility(View.GONE);
+            mDisc.setVisibility(View.VISIBLE);
+        });
+
     }
 
     @Override
@@ -394,15 +427,19 @@ public class PlayActivity extends BaseActivity implements IPlayContract.View {
 
     }
 
+    private String getSongName() {
+        Song song = FileHelper.getSong();
+        return song.getSongName().trim();
+    }
+
     @Override
     public void getSingerAndLrc() {
         mGetImgAndLrcBtn.setText("正在获取...");
-        mPresenter.getSingerImg(getSingerName());
+        mPresenter.getSingerImg(getSingerName(), getSongName(), mSong.getDuration());
     }
 
     @Override
     public void setSingerImg(String ImgUrl) {
-        Log.d(TAG, "setSingerImg: success");
         SimpleTarget target = new SimpleTarget<Drawable>(Target.SIZE_ORIGINAL, Target.SIZE_ORIGINAL) {
             @Override
             public void onResourceReady(@Nullable Drawable resource, Transition<? super Drawable> transition) {
@@ -411,11 +448,10 @@ public class PlayActivity extends BaseActivity implements IPlayContract.View {
                 if (!isOnline) {
                     //保存图片到本地
                     FileHelper.saveImgToNative(PlayActivity.this, mImgBmp, getSingerName());
-                    CommonUtil.showToast(PlayActivity.this, "获取封面歌词成功");
                     //将封面地址放到数据库中
-                    LocalSong localSong =new LocalSong();
+                    LocalSong localSong = new LocalSong();
                     localSong.setPic(BaseUri.STORAGE_IMG_FILE + FileHelper.getSong().getSinger() + ".jpg");
-                    localSong.updateAll("songId=?",FileHelper.getSong().getSongId());
+                    localSong.updateAll("songId=?", FileHelper.getSong().getSongId());
                 }
 
                 try2UpdateMusicPicBackground(mImgBmp);
@@ -438,13 +474,13 @@ public class PlayActivity extends BaseActivity implements IPlayContract.View {
 
     @Override
     public void showLove(final boolean love) {
-        isLove =love;
+        isLove = love;
         runOnUiThread(new Runnable() {
             @Override
             public void run() {
-                if(love){
+                if (love) {
                     mLoveBtn.setSelected(true);
-                }else{
+                } else {
                     mLoveBtn.setSelected(false);
                 }
             }
@@ -461,7 +497,7 @@ public class PlayActivity extends BaseActivity implements IPlayContract.View {
 
     @Override
     public void saveToLoveSuccess() {
-        CommonUtil.showToast(PlayActivity.this,"添加成功");
+        CommonUtil.showToast(PlayActivity.this, "添加成功");
     }
 
     @Override
@@ -469,11 +505,21 @@ public class PlayActivity extends BaseActivity implements IPlayContract.View {
         sendBroadcast(new Intent(BroadcastName.LOVE_SONG_CANCEL));
     }
 
+    @Override
+    public void showLrcMessage(String lrc) {
+        if (lrc == null) {
+            CommonUtil.showToast(PlayActivity.this, "抱歉，获取不到该歌曲的歌词信息");
+            mLrc = null;
+        } else {
+            mLrc = lrc;
+            saveLrcToLocal();
+        }
+    }
+
 
     //设置唱碟中歌手头像
     private void setDiscImg(Bitmap bitmap) {
         mDiscImg.setImageDrawable(mDisc.getDiscDrawable(bitmap));
-
         int marginTop = (int) (DisplayUtil.SCALE_DISC_MARGIN_TOP * CommonUtil.getScreenHeight(PlayActivity.this));
         RelativeLayout.LayoutParams layoutParams = (RelativeLayout.LayoutParams) mDiscImg
                 .getLayoutParams();
@@ -486,6 +532,8 @@ public class PlayActivity extends BaseActivity implements IPlayContract.View {
 
         @Override
         public void onReceive(Context context, Intent intent) {
+            mDisc.setVisibility(View.VISIBLE);
+            mLrcView.setVisibility(View.GONE);
             Song mSong = FileHelper.getSong();
             mSongTv.setText(mSong.getSongName());
             mSingerTv.setText(mSong.getSinger());
@@ -497,8 +545,8 @@ public class PlayActivity extends BaseActivity implements IPlayContract.View {
             mPlayStatusBinder.getMediaPlayer().setOnBufferingUpdateListener(new MediaPlayer.OnBufferingUpdateListener() {
                 @Override
                 public void onBufferingUpdate(MediaPlayer mp, int percent) {
-                    Log.d(TAG, "onBufferingUpdate: "+percent);
-                    mSeekBar.setSecondaryProgress(percent*mSeekBar.getProgress());
+                    Log.d(TAG, "onBufferingUpdate: " + percent);
+                    mSeekBar.setSecondaryProgress(percent * mSeekBar.getProgress());
                 }
             });
             mPresenter.queryLove(mSong.getSongId()); //查找歌曲是否为我喜欢的歌曲
@@ -521,7 +569,6 @@ public class PlayActivity extends BaseActivity implements IPlayContract.View {
     }
 
     private void setLocalImg(String singer) {
-
         String imgUrl = BaseUri.STORAGE_IMG_FILE + MediaUtil.formatSinger(singer) + ".jpg";
         SimpleTarget target = new SimpleTarget<Drawable>(Target.SIZE_ORIGINAL, Target.SIZE_ORIGINAL) {
             @Override
@@ -553,6 +600,104 @@ public class PlayActivity extends BaseActivity implements IPlayContract.View {
                 .apply(RequestOptions.errorOf(R.drawable.welcome))
                 .into(target);
 
+    }
+
+    private void saveLrcToLocal() {
+        new Thread(new Runnable() {
+            @Override
+            public void run() {
+                HttpURLConnection urlConnection = null;
+                BufferedReader reader = null;
+                BufferedWriter writer = null;
+                try {
+                    URL url = new URL(mLrc);
+                    urlConnection = (HttpURLConnection) url.openConnection();
+                    urlConnection.setRequestMethod("GET");
+                    InputStream inputStream = urlConnection.getInputStream();
+                    reader = new BufferedReader(new InputStreamReader(inputStream));
+                    StringBuilder lrcBuilder = new StringBuilder();
+                    String lrc;
+
+                    /**
+                     * 保存到本地
+                     */
+                    if (!isOnline) {
+                        File file = new File(BaseUri.STORAGE_LRC_FILE);
+                        if (!file.exists()) {
+                            file.mkdirs();
+                        }
+                        File lrcFile = new File(file, getSongName() + ".lrc");
+                        FileOutputStream outputStream = new FileOutputStream(lrcFile);
+                        OutputStreamWriter outputStreamWriter = new OutputStreamWriter(outputStream, "gbk");
+                        writer = new BufferedWriter(outputStreamWriter);
+                    }
+                    while ((lrc = reader.readLine()) != null) {
+                        if (isOnline) {
+                            lrcBuilder.append(lrc);
+                            lrcBuilder.append("\n");
+                        } else {
+                            //写入
+                            writer.write(lrc);
+                            writer.newLine();
+                        }
+
+                    }
+                    if (isOnline) showLrc(lrcBuilder.toString());
+                } catch (Exception e) {
+                    e.printStackTrace();
+                } finally {
+                    if (urlConnection != null) urlConnection.disconnect();
+                    try {
+                        if (reader != null) reader.close();
+                        if (writer != null) writer.close();
+                    } catch (IOException e) {
+                        e.printStackTrace();
+                    }
+                }
+            }
+        }).start();
+    }
+
+    /**
+     * 从本地读取歌词文件
+     */
+    private String getLrcFromLocal() {
+        try {
+            InputStream inputStream = new FileInputStream(new File(BaseUri.STORAGE_LRC_FILE + getSongName() + ".lrc"));
+            ByteArrayOutputStream os = new ByteArrayOutputStream();
+            byte[] buffer = new byte[1024];
+            int len = -1;
+            while ((len = inputStream.read(buffer)) != -1) {
+                os.write(buffer, 0, len);
+            }
+            Log.d(TAG, "getLrcFromLocal: "+os.toString("gbk"));
+            return os.toString("gbk"); //文件编码是gbk
+
+        } catch (FileNotFoundException e) {
+            e.printStackTrace();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        return "";
+    }
+
+    /**
+     * 展示歌词
+     *
+     * @param lrc
+     */
+    private void showLrc(final String lrc) {
+        runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                mDisc.setVisibility(View.GONE);
+                mLrcView.setVisibility(View.VISIBLE);
+                mLrcView.setLrc(lrc);
+                mLrcView.setHighLineColor(getResources().getColor(R.color.musicStyle));
+                mLrcView.setPlayer(mPlayStatusBinder.getMediaPlayer());
+                mLrcView.init();
+            }
+        });
     }
 
     @Override

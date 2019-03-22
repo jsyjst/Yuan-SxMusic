@@ -21,4 +21,12 @@ public interface SearchApi {
 
     @GET("search?key=579621905&type=album&limit=30")
     Observable<Album> searchAlbum(@Query("s") String seek,@Query("offset")int offset);
+
+    /**
+     * 搜索歌词
+     * @param seek
+     * @return
+     */
+    @GET("search?key=579621905&type=song&limit=10&offset=0")
+    Observable<SeachSong> search(@Query("s") String seek);
 }

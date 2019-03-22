@@ -12,6 +12,7 @@ public class BaseUri {
     public static String QQ_URL="https://api.bzqll.com/music/tencent/";
 
     public static String STORAGE_IMG_FILE=MyApplication.getContext().getExternalFilesDir("") + "/yuanmusic/img/";
+    public static String STORAGE_LRC_FILE=MyApplication.getContext().getExternalFilesDir("") + "/yuanmusic/lrc/";
 
     public static final String BASE_API_URL_LASTFM = "http://ws.audioscrobbler.com/2.0/";
 }

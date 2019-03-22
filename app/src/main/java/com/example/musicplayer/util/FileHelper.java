@@ -40,7 +40,6 @@ public class FileHelper {
         try {
             File file = new File(MyApplication.getContext().getExternalFilesDir("yuanmusic").getAbsolutePath());
             if (!file.exists()) {
-                Log.d("Login", "------------------" + MyApplication.getContext().getExternalFilesDir(""));
                 file.mkdirs();
             }
             //写对象流的对象

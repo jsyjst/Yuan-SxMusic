@@ -49,6 +49,10 @@ public class MediaUtil {
         return singer.trim();
     }
 
+    public static long formatLongToThree(long duration){
+        return (duration/1000);
+    }
+
 
 }
 

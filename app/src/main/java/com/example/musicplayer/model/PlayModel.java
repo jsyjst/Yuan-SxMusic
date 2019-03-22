@@ -5,6 +5,7 @@ import android.util.Log;
 import com.example.musicplayer.configure.Constant;
 import com.example.musicplayer.contract.IPlayContract;
 import com.example.musicplayer.entiy.Love;
+import com.example.musicplayer.entiy.SeachSong;
 import com.example.musicplayer.entiy.SingerImg;
 import com.example.musicplayer.entiy.Song;
 import com.example.musicplayer.https.NetWork;
@@ -15,13 +16,19 @@ import org.litepal.crud.callback.FindMultiCallback;
 import org.litepal.crud.callback.SaveCallback;
 import org.litepal.crud.callback.UpdateOrDeleteCallback;
 
+import java.net.UnknownHostException;
 import java.util.List;
 
+import io.reactivex.ObservableSource;
 import io.reactivex.Observer;
+import io.reactivex.Scheduler;
 import io.reactivex.android.schedulers.AndroidSchedulers;
 import io.reactivex.disposables.Disposable;
+import io.reactivex.functions.Consumer;
+import io.reactivex.functions.Function;
 import io.reactivex.schedulers.Schedulers;
 
+import static com.example.musicplayer.view.AlbumSongFragment.ALBUM_SONG;
 
 
 /**
@@ -38,31 +45,85 @@ public class PlayModel implements IPlayContract.Model {
     }
 
     @Override
-    public void getSingerImg(String singer) {
+    public void getSingerImg(final String singer, final String song, final long duration) {
         NetWork.getSingerImgApi()
                 .getSingerImg(singer)
                 .subscribeOn(Schedulers.io()).observeOn(AndroidSchedulers.mainThread())
-                .subscribe(new Observer<SingerImg>() {
+                .doOnNext(new Consumer<SingerImg>() {
+                    @Override
+                    public void accept(SingerImg singerImg) throws Exception {
+                        mPresenter.getSingerImgSuccess(singerImg.getResult().getArtists().get(0).getImg1v1Url());
+                    }
+                })
+                .observeOn(Schedulers.io())
+                .flatMap(new Function<SingerImg, ObservableSource<SeachSong>>() {
+                    @Override
+                    public ObservableSource<SeachSong> apply(SingerImg singerImg) throws Exception {
+                        return NetWork.getSearchApi().search(song);
+                    }
+                })
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe(new Observer<SeachSong>() {
                     @Override
                     public void onSubscribe(Disposable d) {
-                        RxApiManager.get().add(Constant.LOCAL_IMG,d);
+                        RxApiManager.get().add(Constant.LOCAL_IMG, d);
                     }
 
                     @Override
-                    public void onNext(SingerImg value) {
-                        if(value.getCode()==200) {
-                            mPresenter.getSingerImgSuccess(value.getResult().getArtists().get(0).getImg1v1Url());
-                            Log.d(TAG, "onNext: "+value.getResult().getArtists().get(0).getImg1v1Url());
-                        }else{
-                            Log.d(TAG, "onNext: "+value.getCode());
-                            mPresenter.getSingerImgFail();
+                    public void onNext(SeachSong value) {
+                        if (value.getCode() == 200) {
+                            mPresenter.getSongLrcSuccess(value.getData(),duration);
+                        } else {
+                            mPresenter.getSongLrcFail();
                         }
                     }
 
                     @Override
                     public void onError(Throwable e) {
-                        e.printStackTrace();
-                        mPresenter.getSingerImgFail();
+                        Log.d(TAG, "onError: " + e.toString());
+                        if (e instanceof UnknownHostException) {
+                            mPresenter.getSongLrcFail();
+                        } else {
+                            mPresenter.getSongLrcFail();
+                        }
+                    }
+
+                    @Override
+                    public void onComplete() {
+
+                    }
+                });
+
+    }
+
+    @Override
+    public void getLrc(String song, long duration) {
+        NetWork.getSearchApi().search(song)
+                .subscribeOn(Schedulers.io())
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe(new Observer<SeachSong>() {
+                    @Override
+                    public void onSubscribe(Disposable d) {
+                        RxApiManager.get().add(Constant.LOCAL_IMG, d);
+                    }
+
+                    @Override
+                    public void onNext(SeachSong value) {
+                        if (value.getCode() == 200) {
+                            mPresenter.getSongLrcSuccess(value.getData(),duration);
+                        } else {
+                            mPresenter.getSongLrcFail();
+                        }
+                    }
+
+                    @Override
+                    public void onError(Throwable e) {
+                        Log.d(TAG, "onError: " + e.toString());
+                        if (e instanceof UnknownHostException) {
+                            mPresenter.getSongLrcFail();
+                        } else {
+                            mPresenter.getSongLrcFail();
+                        }
                     }
 
                     @Override

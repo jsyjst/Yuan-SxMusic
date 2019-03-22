@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <com.example.musicplayer.widget.BackgroundAnimationRelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:id="@+id/relative_root"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
@@ -59,12 +60,23 @@
         android:layout_below="@+id/relative_song"
         android:background="#33ffffff" />
 
+    <com.example.musicplayer.widget.LrcView
+        android:id="@+id/lrcView"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_marginTop="@dimen/dp_40"
+        android:layout_marginBottom="@dimen/dp_40"
+        android:layout_below="@+id/relative_song"
+        android:layout_above="@+id/relative_music_time"
+        app:lrcTextSize="18sp"
+        app:hignLineColor="@color/musicStyle"
+        android:visibility="gone"/>
+
     <include
         android:id="@+id/disc_view"
         layout="@layout/layout_discview"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_above="@+id/rlMusicTime"
         android:layout_below="@+id/relative_song" />
 
     <Button

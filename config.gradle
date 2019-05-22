@@ -1,0 +1,86 @@
+ext {
+    android = [
+            compileSdkVersion: 28,
+            minSdkVersion    : 22,
+            targetSdkVersion : 28,
+            versionCode      : 1,
+            versionName      : "1.0",
+    ]
+
+    version = [
+            //base
+            SupportLibraryVersion  : "28.0.0",
+            ConstraintLayoutVersion: "1.1.3",
+            MarterialDesignVersion : "1.0.0",
+
+            //test
+            JunitVersion           : "4.12",
+            RunnerVersion          : "1.0.2",
+            EspressoVersion        : "3.0.2",
+
+            //黄油刀
+            ButterKnifeVersion     : '8.4.0',
+
+            //rxjava2
+            RxJava2Version         : '2.0.1',
+
+            //network
+            RetrofitVersion        : '2.4.0',
+
+            //ui
+            Gilde                  : "4.8.0",
+            Circleimageview        : '2.2.0',
+            LRecyclerView          : '1.5.4.3',
+            Materialviewpager      : '1.2.3',
+            Kenburnsview           : '1.0.7',
+            Materialtabstrip       : '1.1.0',
+            Avi                    : '2.1.3',
+            Ripple                 : '1.3.1',
+            //数据库
+            LitePal                : "3.0.0",
+
+    ]
+
+    dependencies = [
+            //base
+            appcompat             : "com.android.support:appcompat-v7:${version.SupportLibraryVersion}",
+            "support-v4"          : "com.android.support:support-v4:${version.SupportLibraryVersion}",
+            constraintLayout      : "com.android.support.constraint:constraint-layout:${version.ConstraintLayoutVersion}",
+            cardview              : "com.android.support:cardview-v7:${version.SupportLibraryVersion}",
+            design                : "com.android.support:design:${version.SupportLibraryVersion}",
+
+            //network
+            retrofit              : "com.squareup.retrofit2:retrofit:${version.RetrofitVersion}",
+            retrofitGsonConvert   : "com.squareup.retrofit2:converter-gson:${version.RetrofitVersion}",
+            retrofitRxjava2Adapter: "com.squareup.retrofit2:adapter-rxjava2:${version.RetrofitVersion}",
+
+            //rxjava2
+            rxava2                : "io.reactivex.rxjava2:rxjava:${version.RxJava2Version}",
+            rxAndroid             : "io.reactivex.rxjava2:rxandroid:${version.RxJava2Version}",
+
+            //黄油刀
+            butterKnife           : "com.jakewharton:butterknife:${version.ButterKnifeVersion}",
+            butterKnifeCompiler   : "com.jakewharton:butterknife-compiler:${version.ButterKnifeVersion}",
+
+            //ui
+            gilde                 : "com.github.bumptech.glide:glide:${version.Gilde}",
+            gildeCompiler         : "com.github.bumptech.glide:compiler:${version.Gilde}",
+            circleImageView       : "de.hdodenhof:circleimageview:${version.Circleimageview}",
+            lRecyclerView         : "com.github.jdsjlzx:LRecyclerView:${version.LRecyclerView}",
+
+            materialviewpager     : "com.github.florent37:materialviewpager:${version.Materialviewpager}",
+            kenburnsview          : "com.flaviofaria:kenburnsview:${version.Kenburnsview}",
+            materialtabstrip      : "com.jpardogo.materialtabstrip:library:${version.Materialtabstrip}",
+            ripple                : "com.patrickpissurno:ripple-effect:${version.Ripple}",
+            avi                   : "com.wang.avi:library:${version.Avi}",
+
+            //数据库
+            litePal               : "org.litepal.android:java:${version.LitePal}",
+
+            //test
+            junit                 : "junit:junit:${version.JunitVersion}",
+            runner                : "com.android.support.test:runner:${version.RunnerVersion}",
+            espresso              : "com.android.support.test.espresso:espresso-core:${version.EspressoVersion}",
+
+    ]
+}

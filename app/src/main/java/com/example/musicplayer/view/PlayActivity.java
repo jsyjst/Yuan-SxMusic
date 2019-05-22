@@ -57,6 +57,7 @@ import com.example.musicplayer.widget.BackgroundAnimationRelativeLayout;
 import com.example.musicplayer.widget.DiscView;
 import com.example.musicplayer.widget.LrcView;
 
+import java.io.BufferedOutputStream;
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
 import java.io.ByteArrayOutputStream;
@@ -67,10 +68,17 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.io.OutputStream;
 import java.io.OutputStreamWriter;
+import java.io.PrintStream;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.util.List;
+
+import okhttp3.OkHttpClient;
+import okhttp3.Request;
+import okhttp3.Response;
+import retrofit2.http.Url;
 
 /**
  * 播放界面
@@ -103,6 +111,8 @@ public class PlayActivity extends BaseActivity implements IPlayContract.View {
     private SeekBar mSeekBar;
     private TextView mCurrentTimeTv;
     private TextView mDurationTimeTv;
+
+    private ImageView mDownLoad; //下载
 
     private String mLrc = null;
 
@@ -208,6 +218,7 @@ public class PlayActivity extends BaseActivity implements IPlayContract.View {
         mLoveBtn = findViewById(R.id.btn_love);
         mOrderBtn = findViewById(R.id.btn_order);
         mLrcView = findViewById(R.id.lrcView);
+        mDownLoad = findViewById(R.id.downloadIv);
 
         //界面填充
         mSong = FileHelper.getSong();
@@ -399,11 +410,11 @@ public class PlayActivity extends BaseActivity implements IPlayContract.View {
         mDisc.setOnClickListener(v -> {
                     if (!isOnline) {
                         if (getLrcFromLocal().equals("")) {
-                            mPresenter.getLrc(getSongName(), mSong.getDuration());
+                            mPresenter.getLrcUrl(getSongName(), mSong.getDuration());
                         }
                         showLrc(getLrcFromLocal());
                     } else {
-                        mPresenter.getLrc(getSongName(), mSong.getDuration());
+                        mPresenter.getLrcUrl(getSongName(), mSong.getDuration());
                     }
                 }
         );
@@ -411,6 +422,11 @@ public class PlayActivity extends BaseActivity implements IPlayContract.View {
         mLrcView.setOnClickListener(v -> {
             mLrcView.setVisibility(View.GONE);
             mDisc.setVisibility(View.VISIBLE);
+        });
+        //歌曲下载
+        mDownLoad.setOnClickListener(v -> {
+            CommonUtil.showToast(this,"开始下载歌曲");
+            downLoad(mSong.getUrl(), mSong.getSongName());
         });
 
     }
@@ -506,7 +522,7 @@ public class PlayActivity extends BaseActivity implements IPlayContract.View {
     }
 
     @Override
-    public void showLrcMessage(String lrc) {
+    public void showLrcMessage(String lrc, String id) {
         if (lrc == null) {
             CommonUtil.showToast(PlayActivity.this, "抱歉，获取不到该歌曲的歌词信息");
             mLrc = null;
@@ -670,7 +686,6 @@ public class PlayActivity extends BaseActivity implements IPlayContract.View {
             while ((len = inputStream.read(buffer)) != -1) {
                 os.write(buffer, 0, len);
             }
-            Log.d(TAG, "getLrcFromLocal: "+os.toString("gbk"));
             return os.toString("gbk"); //文件编码是gbk
 
         } catch (FileNotFoundException e) {
@@ -687,17 +702,57 @@ public class PlayActivity extends BaseActivity implements IPlayContract.View {
      * @param lrc
      */
     private void showLrc(final String lrc) {
-        runOnUiThread(new Runnable() {
-            @Override
-            public void run() {
-                mDisc.setVisibility(View.GONE);
-                mLrcView.setVisibility(View.VISIBLE);
-                mLrcView.setLrc(lrc);
-                mLrcView.setHighLineColor(getResources().getColor(R.color.musicStyle));
-                mLrcView.setPlayer(mPlayStatusBinder.getMediaPlayer());
-                mLrcView.init();
-            }
+        runOnUiThread(()->{
+            mDisc.setVisibility(View.GONE);
+            mLrcView.setVisibility(View.VISIBLE);
+            mLrcView.setLrc(lrc);
+            mLrcView.setHighLineColor(getResources().getColor(R.color.musicStyle));
+            mLrcView.setPlayer(mPlayStatusBinder.getMediaPlayer());
+            mLrcView.init();
         });
+
+    }
+
+    private void downLoad(String url, String song) {
+        new Thread(() -> {
+            File file = new File(BaseUri.STORAGE_SONG_FILE);
+            if (!file.exists()) {
+                file.mkdirs();
+            }
+            File songFile = new File(file, song + ".mp3");
+            BufferedOutputStream out = null;
+            try {
+                OkHttpClient client = new OkHttpClient();
+                Request request = new Request.Builder().url(url).build();
+                Response response = client.newCall(request).execute();
+                if (response.isSuccessful()){
+                    out = new BufferedOutputStream(new FileOutputStream(songFile));
+                    byte[] bytes = response.body().bytes();
+                    out.write(bytes,0,bytes.length);
+                    out.close();
+                }
+                showLoadSuccess();
+            } catch (IOException e){
+                e.printStackTrace();
+            }catch (Exception e) {
+                e.printStackTrace();
+            }finally {
+                try{
+                    if(out != null) out.close();
+                }catch (Exception e){
+                    e.printStackTrace();
+                }
+            }
+        }).start();
+    }
+
+
+
+    private void showLoadSuccess(){
+        runOnUiThread(()->{
+            CommonUtil.showToast(this,"歌曲下载成功");
+        });
+
     }
 
     @Override

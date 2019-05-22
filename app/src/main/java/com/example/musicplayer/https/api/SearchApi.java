@@ -29,4 +29,12 @@ public interface SearchApi {
      */
     @GET("search?key=579621905&type=song&limit=10&offset=0")
     Observable<SeachSong> search(@Query("s") String seek);
+
+    /**
+     *
+     * @param id 歌曲id
+     * @return
+     */
+    @GET("lrc?key=579621905")
+    Observable<String> getLrc(@Query("id") String id);
 }

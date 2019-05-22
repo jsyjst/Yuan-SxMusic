@@ -97,7 +97,7 @@ public class PlayModel implements IPlayContract.Model {
     }
 
     @Override
-    public void getLrc(String song, long duration) {
+    public void getLrcUrl(String song, long duration) {
         NetWork.getSearchApi().search(song)
                 .subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())

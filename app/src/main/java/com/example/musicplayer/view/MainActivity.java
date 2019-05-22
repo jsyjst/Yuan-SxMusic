@@ -4,6 +4,8 @@ package com.example.musicplayer.view;
 import android.animation.ObjectAnimator;
 import android.animation.ValueAnimator;
 import android.app.ActivityOptions;
+import android.app.NotificationChannel;
+import android.app.NotificationManager;
 import android.content.BroadcastReceiver;
 import android.content.ComponentName;
 import android.content.Context;
@@ -96,6 +98,7 @@ public class MainActivity extends AppCompatActivity {
         Intent playIntent = new Intent(MainActivity.this, PlayerService.class);
         bindService(playIntent, connection, Context.BIND_AUTO_CREATE);
         initView();
+     
     }
     @Override
     public void onDestroy() {

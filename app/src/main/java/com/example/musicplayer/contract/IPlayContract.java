@@ -13,7 +13,7 @@ import java.util.List;
 public interface IPlayContract {
     interface Model{
         void getSingerImg(String singer,String song,long duration);//网络请求获得歌手uri
-        void getLrc(String song,long duration);//网络获取歌词
+        void getLrcUrl(String song, long duration);//网络获取歌词地址
         void queryLove(String songId);//查询我喜欢的数据库中有没这首歌
         void saveToLove(Song song); //添加到我喜欢的表
         void deleteFromLove(String songId); //从我喜欢的表中移除
@@ -27,11 +27,11 @@ public interface IPlayContract {
         void showLoveAnim(); //喜欢的动画
         void saveToLoveSuccess();//保存到我喜欢数据库成功
         void sendUpdateCollection(); //发送广播更新收藏列表
-        void showLrcMessage(String lrc); //显示歌词获取信息
+        void showLrcMessage(String lrc,String id); //显示歌词获取信息
     }
     interface Presenter{
         void getSingerImg(String singer,String song,long duration);
-        void getLrc(String song,long duration);
+        void getLrcUrl(String song, long duration);
         void getSingerImgSuccess(String ImgUrl); //成功获取图片
         void getSongLrcSuccess(List<SeachSong.DataBean> dataBeans,long duration); //成功获取歌词
         void getSongLrcFail();  //获取歌词失败

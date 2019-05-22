@@ -67,7 +67,7 @@
         android:layout_marginTop="@dimen/dp_40"
         android:layout_marginBottom="@dimen/dp_40"
         android:layout_below="@+id/relative_song"
-        android:layout_above="@+id/relative_music_time"
+        android:layout_above="@+id/downloadIv"
         app:lrcTextSize="18sp"
         app:hignLineColor="@color/musicStyle"
         android:visibility="gone"/>
@@ -85,10 +85,20 @@
         android:layout_height="wrap_content"
         android:layout_below="@+id/disc_view"
         android:layout_centerHorizontal="true"
-        android:layout_marginTop="30dp"
+        android:layout_marginTop="10dp"
         android:textColor="@color/white"
         android:background="@drawable/button_bg"
         android:text="获取封面歌词"/>
+
+
+    <ImageView
+        android:id="@+id/downloadIv"
+        android:layout_width="30dp"
+        android:layout_height="30dp"
+        android:src="@drawable/download_song"
+        android:layout_above="@+id/relative_music_time"
+        android:layout_centerHorizontal="true"
+        />
 
 
     <RelativeLayout

@@ -1,6 +1,5 @@
 package com.example.musicplayer.presenter;
 
-import android.support.design.widget.TabLayout;
 import android.util.Log;
 
 import com.example.musicplayer.base.BasePresenter;
@@ -30,8 +29,8 @@ public class PlayPresenter extends BasePresenter<IPlayContract.View> implements 
     }
 
     @Override
-    public void getLrc(String song, long duration) {
-        mModel.getLrc(song,duration);
+    public void getLrcUrl(String song, long duration) {
+        mModel.getLrcUrl(song,duration);
     }
 
     @Override
@@ -42,26 +41,25 @@ public class PlayPresenter extends BasePresenter<IPlayContract.View> implements 
     }
 
     @Override
-    public void getSongLrcSuccess(List<SeachSong.DataBean> dataBeans,long duration) {
+    public void getSongLrcSuccess(List<SeachSong.DataBean> dataBeans, long duration) {
         if(isAttachView()){
-            Log.d(TAG, "getSongLrcSuccess: duration="+MediaUtil.formatLongToThree(duration));
             boolean isLrc =false;
             for(SeachSong.DataBean dataBean : dataBeans){
                 if(dataBean.getTime() == MediaUtil.formatLongToThree(duration)){
                     isLrc = true;
-                    getMvpView().showLrcMessage(dataBean.getLrc());
+                    getMvpView().showLrcMessage(dataBean.getLrc(),dataBean.getId());
                     break;
                 }
             }
-            Log.d(TAG, "getSongLrcSuccess: "+isLrc);
-            if(!isLrc) getMvpView().showLrcMessage(dataBeans.get(0).getLrc());
+            if(!isLrc) getMvpView().showLrcMessage(dataBeans.get(0).getLrc(),dataBeans.get(0).getId());
         }
     }
+
 
     @Override
     public void getSongLrcFail() {
         if(isAttachView()){
-            getMvpView().showLrcMessage(null);
+            getMvpView().showLrcMessage(null,null);
         }
     }
 

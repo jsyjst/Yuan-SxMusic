@@ -5,7 +5,7 @@ import android.util.Log;
 import com.example.musicplayer.configure.Constant;
 import com.example.musicplayer.contract.IPlayContract;
 import com.example.musicplayer.entiy.Love;
-import com.example.musicplayer.entiy.SeachSong;
+import com.example.musicplayer.entiy.SearchSong;
 import com.example.musicplayer.entiy.SingerImg;
 import com.example.musicplayer.entiy.Song;
 import com.example.musicplayer.https.NetWork;
@@ -21,14 +21,11 @@ import java.util.List;
 
 import io.reactivex.ObservableSource;
 import io.reactivex.Observer;
-import io.reactivex.Scheduler;
 import io.reactivex.android.schedulers.AndroidSchedulers;
 import io.reactivex.disposables.Disposable;
 import io.reactivex.functions.Consumer;
 import io.reactivex.functions.Function;
 import io.reactivex.schedulers.Schedulers;
-
-import static com.example.musicplayer.view.AlbumSongFragment.ALBUM_SONG;
 
 
 /**
@@ -56,23 +53,23 @@ public class PlayModel implements IPlayContract.Model {
                     }
                 })
                 .observeOn(Schedulers.io())
-                .flatMap(new Function<SingerImg, ObservableSource<SeachSong>>() {
+                .flatMap(new Function<SingerImg, ObservableSource<SearchSong>>() {
                     @Override
-                    public ObservableSource<SeachSong> apply(SingerImg singerImg) throws Exception {
+                    public ObservableSource<SearchSong> apply(SingerImg singerImg) throws Exception {
                         return NetWork.getSearchApi().search(song);
                     }
                 })
                 .observeOn(AndroidSchedulers.mainThread())
-                .subscribe(new Observer<SeachSong>() {
+                .subscribe(new Observer<SearchSong>() {
                     @Override
                     public void onSubscribe(Disposable d) {
                         RxApiManager.get().add(Constant.LOCAL_IMG, d);
                     }
 
                     @Override
-                    public void onNext(SeachSong value) {
+                    public void onNext(SearchSong value) {
                         if (value.getCode() == 200) {
-                            mPresenter.getSongLrcSuccess(value.getData(),duration);
+                            mPresenter.getSongLrcSuccess(value.getData().getList(),duration);
                         } else {
                             mPresenter.getSongLrcFail();
                         }
@@ -101,16 +98,16 @@ public class PlayModel implements IPlayContract.Model {
         NetWork.getSearchApi().search(song)
                 .subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
-                .subscribe(new Observer<SeachSong>() {
+                .subscribe(new Observer<SearchSong>() {
                     @Override
                     public void onSubscribe(Disposable d) {
                         RxApiManager.get().add(Constant.LOCAL_IMG, d);
                     }
 
                     @Override
-                    public void onNext(SeachSong value) {
+                    public void onNext(SearchSong value) {
                         if (value.getCode() == 200) {
-                            mPresenter.getSongLrcSuccess(value.getData(),duration);
+                            mPresenter.getSongLrcSuccess(value.getData().getList(),duration);
                         } else {
                             mPresenter.getSongLrcFail();
                         }

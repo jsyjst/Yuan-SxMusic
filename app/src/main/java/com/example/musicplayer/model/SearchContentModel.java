@@ -5,7 +5,7 @@ import android.util.Log;
 import com.example.musicplayer.configure.Constant;
 import com.example.musicplayer.contract.ISearchContentContract;
 import com.example.musicplayer.entiy.Album;
-import com.example.musicplayer.entiy.SeachSong;
+import com.example.musicplayer.entiy.SearchSong;
 import com.example.musicplayer.https.NetWork;
 import com.example.musicplayer.util.RxApiManager;
 
@@ -33,15 +33,15 @@ public class SearchContentModel implements ISearchContentContract.Model {
     public void search(String seek, int offset) {
         NetWork.getSearchApi().search(seek, offset)
                 .subscribeOn(Schedulers.io()).observeOn(AndroidSchedulers.mainThread())
-                .subscribe(new Observer<SeachSong>() {
+                .subscribe(new Observer<SearchSong>() {
                     @Override
                     public void onSubscribe(Disposable d) {
                         RxApiManager.get().add(Constant.SEARCH_SONG, d);
                     }
 
                     @Override
-                    public void onNext(SeachSong value) {
-                        mPresenter.searchSuccess((ArrayList<SeachSong.DataBean>) value.getData());
+                    public void onNext(SearchSong value) {
+                        mPresenter.searchSuccess((ArrayList<SearchSong.DataBean.ListBean>) value.getData().getList());
                     }
 
                     @Override
@@ -49,6 +49,7 @@ public class SearchContentModel implements ISearchContentContract.Model {
                         if (e instanceof UnknownHostException) {
                             mPresenter.networkError();
                         }
+                        e.printStackTrace();
                         Log.d(TAG, "onError: " + e.toString());
                     }
 
@@ -64,20 +65,19 @@ public class SearchContentModel implements ISearchContentContract.Model {
     public void searchMore(String seek, int offset) {
         NetWork.getSearchApi().search(seek, offset)
                 .subscribeOn(Schedulers.io()).observeOn(AndroidSchedulers.mainThread())
-                .subscribe(new Observer<SeachSong>() {
+                .subscribe(new Observer<SearchSong>() {
                     @Override
                     public void onSubscribe(Disposable d) {
                         RxApiManager.get().add(Constant.SEARCH_SONG_MORE, d);
                     }
 
                     @Override
-                    public void onNext(SeachSong value) {
-                        if (value.getResult().equals("SUCCESS")) {
-                            Log.d(TAG, "onNext: success");
-                            if (value.getData().size() == 0) {
+                    public void onNext(SearchSong value) {
+                        if (value.getCode() == 200) {
+                            if (value.getData().getList().size() == 0) {
                                 mPresenter.searchMoreError();
                             } else {
-                                mPresenter.searchMoreSuccess((ArrayList<SeachSong.DataBean>) value.getData());
+                                mPresenter.searchMoreSuccess((ArrayList<SearchSong.DataBean.ListBean>) value.getData().getList());
                             }
                         } else {
                             mPresenter.searchMoreError();
@@ -109,8 +109,8 @@ public class SearchContentModel implements ISearchContentContract.Model {
 
                     @Override
                     public void onNext(Album value) {
-                        if (value.getResult().equals("SUCCESS")) {
-                            mPresenter.searchAlbumSuccess(value.getData());
+                        if (value.getCode() == 200) {
+                            mPresenter.searchAlbumSuccess(value.getData().getList());
                         } else {
                             mPresenter.searchAlbumError();
                         }
@@ -123,6 +123,7 @@ public class SearchContentModel implements ISearchContentContract.Model {
                         } else {
                             mPresenter.searchAlbumError();
                         }
+                        e.printStackTrace();
                         Log.d(TAG, "onError: searchAlbumError" + e.toString());
                     }
 
@@ -146,12 +147,12 @@ public class SearchContentModel implements ISearchContentContract.Model {
 
                     @Override
                     public void onNext(Album value) {
-                        if (value.getResult().equals("SUCCESS")) {
+                        if (value.getCode()==200) {
                             Log.d(TAG, "onNext: success");
-                            if (value.getData().size() == 0) {
+                            if (value.getData().getCurnum() == 0) {
                                 mPresenter.searchMoreError();
                             } else {
-                                mPresenter.searchAlbumMoreSuccess(value.getData());
+                                mPresenter.searchAlbumMoreSuccess(value.getData().getList());
                             }
                         } else {
                             mPresenter.searchMoreError();

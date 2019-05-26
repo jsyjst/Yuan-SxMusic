@@ -69,7 +69,7 @@ public class ContentFragment extends Fragment {
         mTabLayout.post(new Runnable() {
             @Override
             public void run() {
-                setIndicator(mTabLayout, 50, 50);
+              //  setIndicator(mTabLayout, 50, 50);
             }
         });
 
@@ -94,6 +94,7 @@ public class ContentFragment extends Fragment {
         } catch (NoSuchFieldException e) {
             e.printStackTrace();
         }
+        assert tabStrip != null;
         tabStrip.setAccessible(true);
         LinearLayout llTab = null;
         try {

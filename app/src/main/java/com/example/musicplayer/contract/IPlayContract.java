@@ -1,7 +1,6 @@
 package com.example.musicplayer.contract;
 
-import com.example.musicplayer.entiy.Love;
-import com.example.musicplayer.entiy.SeachSong;
+import com.example.musicplayer.entiy.SearchSong;
 import com.example.musicplayer.entiy.Song;
 
 import java.util.List;
@@ -33,7 +32,7 @@ public interface IPlayContract {
         void getSingerImg(String singer,String song,long duration);
         void getLrcUrl(String song, long duration);
         void getSingerImgSuccess(String ImgUrl); //成功获取图片
-        void getSongLrcSuccess(List<SeachSong.DataBean> dataBeans,long duration); //成功获取歌词
+        void getSongLrcSuccess(List<SearchSong.DataBean.ListBean> dataBeans, long duration); //成功获取歌词
         void getSongLrcFail();  //获取歌词失败
         void getSingerImgFail(); //请求失败
         void showNetWorkError();//网络超时

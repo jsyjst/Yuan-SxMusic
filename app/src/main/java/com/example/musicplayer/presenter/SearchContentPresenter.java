@@ -3,12 +3,11 @@ package com.example.musicplayer.presenter;
 import com.example.musicplayer.base.BasePresenter;
 import com.example.musicplayer.contract.ISearchContentContract;
 import com.example.musicplayer.entiy.Album;
-import com.example.musicplayer.entiy.SeachSong;
+import com.example.musicplayer.entiy.SearchSong;
 import com.example.musicplayer.model.SearchContentModel;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.logging.Handler;
 
 /**
  * Created by 残渊 on 2018/11/21.
@@ -37,7 +36,7 @@ public class SearchContentPresenter extends BasePresenter<ISearchContentContract
     }
 
     @Override
-    public void searchSuccess(final ArrayList<SeachSong.DataBean> songListBeans) {
+    public void searchSuccess(final ArrayList<SearchSong.DataBean.ListBean> songListBeans) {
         mHandler.postDelayed(new Runnable() {
             @Override
             public void run() {
@@ -56,7 +55,7 @@ public class SearchContentPresenter extends BasePresenter<ISearchContentContract
     }
 
     @Override
-    public void searchMoreSuccess(final ArrayList<SeachSong.DataBean> songListBeans) {
+    public void searchMoreSuccess(final ArrayList<SearchSong.DataBean.ListBean> songListBeans) {
         mHandler.postDelayed(new Runnable() {
             @Override
             public void run() {
@@ -97,7 +96,7 @@ public class SearchContentPresenter extends BasePresenter<ISearchContentContract
     }
 
     @Override
-    public void searchAlbumSuccess(List<Album.DataBean> albumList) {
+    public void searchAlbumSuccess(List<Album.DataBean.ListBean> albumList) {
         if(isAttachView()){
             getMvpView().searchAlbumSuccess(albumList);
             getMvpView().hideLoading();
@@ -118,7 +117,7 @@ public class SearchContentPresenter extends BasePresenter<ISearchContentContract
     }
 
     @Override
-    public void searchAlbumMoreSuccess(final List<Album.DataBean> songListBeans) {
+    public void searchAlbumMoreSuccess(final List<Album.DataBean.ListBean> songListBeans) {
         mHandler.postDelayed(new Runnable() {
             @Override
             public void run() {

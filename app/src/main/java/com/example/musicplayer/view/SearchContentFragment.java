@@ -8,6 +8,7 @@ import android.content.IntentFilter;
 import android.content.ServiceConnection;
 import android.os.Bundle;
 import android.os.IBinder;
+import android.provider.SyncStateContract;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentTransaction;
@@ -22,11 +23,12 @@ import android.widget.TextView;
 import com.example.musicplayer.R;
 import com.example.musicplayer.adapter.SearchContentAdapter;
 import com.example.musicplayer.callback.*;
+import com.example.musicplayer.configure.BaseUri;
 import com.example.musicplayer.configure.BroadcastName;
 import com.example.musicplayer.configure.Constant;
 import com.example.musicplayer.contract.ISearchContentContract;
 import com.example.musicplayer.entiy.Album;
-import com.example.musicplayer.entiy.SeachSong;
+import com.example.musicplayer.entiy.SearchSong;
 import com.example.musicplayer.entiy.Song;
 import com.example.musicplayer.presenter.SearchContentPresenter;
 import com.example.musicplayer.service.PlayerService;
@@ -59,8 +61,8 @@ public class SearchContentFragment extends Fragment implements ISearchContentCon
     private LRecyclerView mRecycler;
     private LinearLayoutManager manager;
     private SearchContentAdapter mAdapter;
-    private ArrayList<SeachSong.DataBean> mSongList = new ArrayList<>();
-    private List<Album.DataBean> mAlbumList;
+    private ArrayList<SearchSong.DataBean.ListBean> mSongList = new ArrayList<>();
+    private List<Album.DataBean.ListBean> mAlbumList;
     private IntentFilter intentFilter;
 
     private LRecyclerViewAdapter mLRecyclerViewAdapter;//下拉刷新
@@ -152,7 +154,8 @@ public class SearchContentFragment extends Fragment implements ISearchContentCon
 
 
     @Override
-    public void setSongsList(final ArrayList<SeachSong.DataBean> songListBeans) {
+    public void setSongsList(final ArrayList<SearchSong.DataBean.ListBean> songListBeans) {
+        Log.d(TAG, "setSongsList: "+songListBeans.get(0).getSongname());
         mSongList.addAll(songListBeans);
         mAdapter = new SearchContentAdapter(mSongList, mSeek, getActivity(), Constant.TYPE_SONG);
         mLRecyclerViewAdapter = new LRecyclerViewAdapter(mAdapter);
@@ -163,15 +166,15 @@ public class SearchContentFragment extends Fragment implements ISearchContentCon
         mAdapter.setItemClick(new OnItemClickListener() {
             @Override
             public void onClick(int position) {
-                SeachSong.DataBean dataBean = mSongList.get(position);
+                SearchSong.DataBean.ListBean dataBean = mSongList.get(position);
                 Song song = new Song();
-                song.setSongId(dataBean.getId());
-                song.setSinger(dataBean.getSinger());
-                song.setSongName(dataBean.getName());
-                song.setUrl(dataBean.getUrl());
-                song.setImgUrl(dataBean.getPic());
+                song.setSongId(dataBean.getSongmid());
+                song.setSinger(dataBean.getSinger().get(0).getName());
+                song.setSongName(dataBean.getSongname());
+                song.setUrl(BaseUri.PLAY_URL+dataBean.getSongmid());
+                song.setImgUrl(BaseUri.PIC_URL+dataBean.getSongmid());
                 song.setCurrent(position);
-                song.setDuration(dataBean.getTime()*1000);
+                song.setDuration(dataBean.getPubtime());
                 song.setOnline(true);
                 FileHelper.saveSong(song);
 
@@ -181,7 +184,7 @@ public class SearchContentFragment extends Fragment implements ISearchContentCon
     }
 
     @Override
-    public void searchMoreSuccess(ArrayList<SeachSong.DataBean> songListBeans) {
+    public void searchMoreSuccess(ArrayList<SearchSong.DataBean.ListBean> songListBeans) {
         Log.d(TAG, "searchMoreSuccess: success=" + songListBeans.size());
         mSongList.addAll(songListBeans);
         mAdapter.notifyDataSetChanged();
@@ -233,7 +236,7 @@ public class SearchContentFragment extends Fragment implements ISearchContentCon
     }
 
     @Override
-    public void searchAlbumSuccess(final List<Album.DataBean> albumList) {
+    public void searchAlbumSuccess(final List<Album.DataBean.ListBean> albumList) {
         mAlbumList = new ArrayList<>();
         mAlbumList.addAll(albumList);
         mAdapter = new SearchContentAdapter(mAlbumList, mSeek, getActivity(), Constant.TYPE_ALBUM);
@@ -250,7 +253,7 @@ public class SearchContentFragment extends Fragment implements ISearchContentCon
     }
 
     @Override
-    public void searchAlbumMoreSuccess(List<Album.DataBean> songListBeans) {
+    public void searchAlbumMoreSuccess(List<Album.DataBean.ListBean> songListBeans) {
         mAlbumList.addAll(songListBeans);
         mAdapter.notifyDataSetChanged();
         mRecycler.refreshComplete(Constant.OFFSET);
@@ -311,7 +314,7 @@ public class SearchContentFragment extends Fragment implements ISearchContentCon
         }
     }
 
-    public void toAlbumContentFragment(Album.DataBean album) {
+    public void toAlbumContentFragment(Album.DataBean.ListBean album) {
         FragmentManager manager = getActivity().getSupportFragmentManager();
         FragmentTransaction transaction = manager.beginTransaction();
         transaction.setCustomAnimations(R.anim.fragment_in, R.anim.fragment_out, R.anim.slide_in_right, R.anim.slide_out_right);

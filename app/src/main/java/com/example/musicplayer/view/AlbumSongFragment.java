@@ -21,6 +21,7 @@ import android.widget.TextView;
 import com.example.musicplayer.R;
 import com.example.musicplayer.adapter.AlbumSongAdapter;
 import com.example.musicplayer.callback.OnItemClickListener;
+import com.example.musicplayer.configure.BaseUri;
 import com.example.musicplayer.configure.BroadcastName;
 import com.example.musicplayer.configure.Constant;
 import com.example.musicplayer.contract.IAlbumSongContract;
@@ -66,7 +67,7 @@ public class AlbumSongFragment extends Fragment implements IAlbumSongContract.Vi
 
 
 
-    private List<AlbumSong.DataBean.SongsBean> mSongsList;
+    private List<AlbumSong.DataBean.GetSongInfoBean> mSongsList;
     private RecyclerView mRecycle;
     private LinearLayoutManager mLinearManager;
     private AlbumSongAdapter mAdapter;
@@ -166,8 +167,8 @@ public class AlbumSongFragment extends Fragment implements IAlbumSongContract.Vi
     }
 
     @Override
-    public void setAlbumSongList(final List<AlbumSong.DataBean.SongsBean> songList) {
-        mPresenter.insertAllAlbumSong((ArrayList<AlbumSong.DataBean.SongsBean>) songList);//存到数据库中
+    public void setAlbumSongList(final List<AlbumSong.DataBean.GetSongInfoBean> songList) {
+        mPresenter.insertAllAlbumSong((ArrayList<AlbumSong.DataBean.GetSongInfoBean>) songList);//存到数据库中
         mLinearManager =new LinearLayoutManager(getActivity());
         mRecycle.setLayoutManager(mLinearManager);
         mAdapter =new AlbumSongAdapter(songList);
@@ -177,15 +178,15 @@ public class AlbumSongFragment extends Fragment implements IAlbumSongContract.Vi
         mAdapter.setSongClick(new OnItemClickListener() {
             @Override
             public void onClick(int position) {
-                AlbumSong.DataBean.SongsBean dataBean= songList.get(position);
+                AlbumSong.DataBean.GetSongInfoBean dataBean= songList.get(position);
                 Song song = new Song();
-                song.setSongId(dataBean.getId());
-                song.setSinger(dataBean.getSinger());
-                song.setSongName(dataBean.getName());
-                song.setUrl(dataBean.getUrl());
-                song.setImgUrl(dataBean.getPic());
+                song.setSongId(dataBean.getSongmid());
+                song.setSinger(dataBean.getSinger().get(0).getName());
+                song.setSongName(dataBean.getAlbumname());
+                song.setUrl(BaseUri.PLAY_URL+dataBean.getSongmid());
+                song.setImgUrl(BaseUri.PIC_URL+dataBean.getSongmid());
                 song.setCurrent(position);
-                song.setDuration(dataBean.getTime()*1000);
+                song.setDuration(dataBean.getInterval());
                 song.setOnline(true);
                 song.setListType(Constant.LIST_TYPE_ONLINE);
                 FileHelper.saveSong(song);

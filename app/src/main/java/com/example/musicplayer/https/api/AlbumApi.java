@@ -11,6 +11,6 @@ import retrofit2.http.Query;
  */
 
 public interface AlbumApi {
-    @GET("album?key=579621905")
+    @GET("album?")
     Observable<AlbumSong> getAlbumSong(@Query("id")String id);
 }

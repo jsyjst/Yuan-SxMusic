@@ -40,7 +40,7 @@ public class AlbumSongPresenter extends BasePresenter<IAlbumSongContract.View> i
 
     @Override
     public void getAlbumDetailSuccess(final int type, final List<AlbumSong.DataBean.GetSongInfoBean> songList,
-                                      final String name, final String singer, final String company, final String desc) {
+                                      String name,String language,String company,String albumType,String desc) {
         mHandler.postDelayed(new Runnable() {
             @Override
             public void run() {
@@ -49,7 +49,7 @@ public class AlbumSongPresenter extends BasePresenter<IAlbumSongContract.View> i
                         getMvpView().setAlbumSongList(songList);
                         getMvpView().hideLoading();
                     } else {
-                        getMvpView().showAlbumMessage(name, singer, company, desc);
+                        getMvpView().showAlbumMessage(name, language, company, albumType,desc);
                     }
 
                 }

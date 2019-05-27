@@ -25,6 +25,9 @@ public class MediaUtil {
     public static String formatTime(long time) {
         String min = time / 60 + "";
         String sec = time % 60 + "";
+        if(sec.length()<2){
+            sec = "0"+sec;
+        }
         return min + ":" + sec;
     }
     public static String formatSinger(String singer){

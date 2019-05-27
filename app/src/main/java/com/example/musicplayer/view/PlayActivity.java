@@ -513,7 +513,7 @@ public class PlayActivity extends BaseActivity implements IPlayContract.View {
 
     @Override
     public void saveToLoveSuccess() {
-        CommonUtil.showToast(PlayActivity.this, "添加成功");
+        CommonUtil.showToast(PlayActivity.this, getString(R.string.love_success));
     }
 
     @Override
@@ -524,7 +524,7 @@ public class PlayActivity extends BaseActivity implements IPlayContract.View {
     @Override
     public void showLrcMessage(String lrc, String id) {
         if (lrc == null) {
-            CommonUtil.showToast(PlayActivity.this, "抱歉，获取不到该歌曲的歌词信息");
+            CommonUtil.showToast(PlayActivity.this, getString(R.string.get_lrc_fail));
             mLrc = null;
         } else {
             mLrc = lrc;

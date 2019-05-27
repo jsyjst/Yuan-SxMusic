@@ -89,7 +89,12 @@ public class SearchContentAdapter extends RecyclerView.Adapter<RecyclerView.View
         if (holder instanceof ViewHolder) {
             ViewHolder songHolder = (ViewHolder) holder;
             SearchSong.DataBean.ListBean songListBean = mSongListBeans.get(position);
+
+            //设置歌手，因为歌手可能有两个
             String singer = songListBean.getSinger().get(0).getName();
+            for (int i = 1; i < songListBean.getSinger().size(); i++) {
+                singer+="、"+songListBean.getSinger().get(i).getName();
+            }
             songHolder.artistTv.setText(singer);
             //设置与搜索一样的string的颜色
             CommonUtil.showStringColor(mSeek, singer, songHolder.artistTv);

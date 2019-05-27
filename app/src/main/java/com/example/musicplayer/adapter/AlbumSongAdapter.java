@@ -57,7 +57,12 @@ public class AlbumSongAdapter extends RecyclerView.Adapter<RecyclerView.ViewHold
         if (viewHolder instanceof ViewHolder) {
             ViewHolder holder = (ViewHolder) viewHolder;
             AlbumSong.DataBean.GetSongInfoBean songsBean = mSongsBeanList.get(position);
-            holder.artistTv.setText(songsBean.getSinger().get(0).getName());
+            //设置歌手，因为歌手可能有两个
+            String singer = songsBean.getSinger().get(0).getName();
+            for (int i = 1; i < songsBean.getSinger().size(); i++) {
+                singer+="、"+songsBean.getSinger().get(i).getName();
+            }
+            holder.artistTv.setText(singer);
             holder.titleTv.setText(songsBean.getSongname());
             holder.mItemView.setBackgroundResource(R.color.translucent);
             //根据点击显示
@@ -98,7 +103,7 @@ public class AlbumSongAdapter extends RecyclerView.Adapter<RecyclerView.ViewHold
         RippleView mItemView;
         View playLine;
 
-        public ViewHolder(View itemView) {
+        ViewHolder(View itemView) {
             super(itemView);
             titleTv = itemView.findViewById(R.id.tv_title);
             artistTv = itemView.findViewById(R.id.tv_artist);
@@ -108,7 +113,7 @@ public class AlbumSongAdapter extends RecyclerView.Adapter<RecyclerView.ViewHold
     }
 
     class FooterHolder extends RecyclerView.ViewHolder {
-        public FooterHolder(View itemView) {
+        FooterHolder(View itemView) {
             super(itemView);
         }
     }

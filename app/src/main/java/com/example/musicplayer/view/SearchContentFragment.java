@@ -169,7 +169,7 @@ public class SearchContentFragment extends Fragment implements ISearchContentCon
                 SearchSong.DataBean.ListBean dataBean = mSongList.get(position);
                 Song song = new Song();
                 song.setSongId(dataBean.getSongmid());
-                song.setSinger(dataBean.getSinger().get(0).getName());
+                song.setSinger(getSinger(dataBean));
                 song.setSongName(dataBean.getSongname());
                 song.setUrl(BaseUri.PLAY_URL+dataBean.getSongmid());
                 song.setImgUrl(BaseUri.PIC_URL+dataBean.getSongmid());
@@ -324,5 +324,15 @@ public class SearchContentFragment extends Fragment implements ISearchContentCon
         //将事务提交到返回栈
         transaction.addToBackStack(null);
         transaction.commit();
+    }
+
+
+    //获取歌手，因为歌手可能有很多个
+    private String getSinger( SearchSong.DataBean.ListBean dataBean){
+        String singer = dataBean.getSinger().get(0).getName();
+        for (int i = 1; i < dataBean.getSinger().size(); i++) {
+            singer+="、"+dataBean.getSinger().get(i).getName();
+        }
+        return singer;
     }
 }

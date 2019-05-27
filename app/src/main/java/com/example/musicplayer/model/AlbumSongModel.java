@@ -51,8 +51,9 @@ public class AlbumSongModel implements IAlbumSongContract.Model {
                             mPresenter.getAlbumDetailSuccess(type,
                                     value.getData().getGetSongInfo(),
                                     value.getData().getGetSongInfo().get(0).getAlbumname(),
-                                    value.getData().getGetSongInfo().get(0).getSinger().get(0).getName(),
+                                    value.getData().getLanguage(),
                                     value.getData().getGetCompanyInfo().getFcompany_name(),
+                                    value.getData().getAlbumtype(),
                                     value.getData().getGetAlbumDesc().getFalbum_desc());
                         } else {
                             mPresenter.getAlbumDetailError();

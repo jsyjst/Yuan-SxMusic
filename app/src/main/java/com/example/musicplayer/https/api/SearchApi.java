@@ -35,6 +35,6 @@ public interface SearchApi {
      * @param id 歌曲id
      * @return
      */
-    @GET("lrc?key=579621905")
+    @GET("lrc?")
     Observable<String> getLrc(@Query("id") String id);
 }

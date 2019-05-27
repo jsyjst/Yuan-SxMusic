@@ -23,23 +23,9 @@ import java.io.FileNotFoundException;
 public class MediaUtil {
 
     public static String formatTime(long time) {
-        String min = time / (1000 * 60) + "";
-        String sec = time % (1000 * 60) + "";
-        if (min.length() < 2) {
-            min = "0" + time / (1000 * 60) + "";
-        } else {
-            min = time / (1000 * 60) + "";
-        }
-        if (sec.length() == 4) {
-            sec = "0" + (time % (1000 * 60)) + "";
-        } else if (sec.length() == 3) {
-            sec = "00" + (time % (1000 * 60)) + "";
-        } else if (sec.length() == 2) {
-            sec = "000" + (time % (1000 * 60)) + "";
-        } else if (sec.length() == 1) {
-            sec = "0000" + (time % (1000 * 60)) + "";
-        }
-        return min + ":" + sec.trim().substring(0, 2);
+        String min = time / 60 + "";
+        String sec = time % 60 + "";
+        return min + ":" + sec;
     }
     public static String formatSinger(String singer){
         if(singer.contains("/")){
@@ -49,9 +35,6 @@ public class MediaUtil {
         return singer.trim();
     }
 
-    public static long formatLongToThree(long duration){
-        return (duration/1000);
-    }
 
 
 }

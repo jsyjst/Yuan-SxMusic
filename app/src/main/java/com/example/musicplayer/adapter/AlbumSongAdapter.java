@@ -58,7 +58,7 @@ public class AlbumSongAdapter extends RecyclerView.Adapter<RecyclerView.ViewHold
             ViewHolder holder = (ViewHolder) viewHolder;
             AlbumSong.DataBean.GetSongInfoBean songsBean = mSongsBeanList.get(position);
             holder.artistTv.setText(songsBean.getSinger().get(0).getName());
-            holder.titleTv.setText(songsBean.getAlbumname());
+            holder.titleTv.setText(songsBean.getSongname());
             holder.mItemView.setBackgroundResource(R.color.translucent);
             //根据点击显示
             if(songsBean.getSongmid().equals(FileHelper.getSong().getSongId())){

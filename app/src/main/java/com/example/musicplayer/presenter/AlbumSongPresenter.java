@@ -39,8 +39,8 @@ public class AlbumSongPresenter extends BasePresenter<IAlbumSongContract.View> i
     }
 
     @Override
-    public void getAlbumDetailSuccess(final int type, final List<AlbumSong.DataBean.SongsBean> songList,
-                                      final String name, final String singer, final String company, final String desc) {
+    public void getAlbumDetailSuccess(final int type, final List<AlbumSong.DataBean.GetSongInfoBean> songList,
+                                      String name,String language,String company,String albumType,String desc) {
         mHandler.postDelayed(new Runnable() {
             @Override
             public void run() {
@@ -49,7 +49,7 @@ public class AlbumSongPresenter extends BasePresenter<IAlbumSongContract.View> i
                         getMvpView().setAlbumSongList(songList);
                         getMvpView().hideLoading();
                     } else {
-                        getMvpView().showAlbumMessage(name, singer, company, desc);
+                        getMvpView().showAlbumMessage(name, language, company, albumType,desc);
                     }
 
                 }
@@ -73,7 +73,7 @@ public class AlbumSongPresenter extends BasePresenter<IAlbumSongContract.View> i
     }
 
     @Override
-    public void insertAllAlbumSong(ArrayList<AlbumSong.DataBean.SongsBean> songList) {
+    public void insertAllAlbumSong(ArrayList<AlbumSong.DataBean.GetSongInfoBean> songList) {
         mModel.insertAllAlbumSong(songList);
     }
 

@@ -16,6 +16,14 @@
     <string name="cancel">取消</string>
     <string name="sure">确定</string>
 
-    <!-- TODO: Remove or change this placeholder text -->
-    <string name="hello_blank_fragment">Hello blank fragment</string>
+    <string name="love_success">收藏成功</string>
+    <string name="get_lrc_fail">抱歉，获取不到该歌曲的歌词信息</string>
+
+    //专辑
+    <string name="album_album">专辑</string>
+    <string name="album_language">语言</string>
+    <string name="album_company">唱片公司</string>
+    <string name="album_publish_time">发行时间</string>
+    <string name="album_type">专辑类型</string>
+
 </resources>

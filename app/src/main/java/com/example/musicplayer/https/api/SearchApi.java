@@ -1,14 +1,10 @@
 package com.example.musicplayer.https.api;
 
 import com.example.musicplayer.entiy.Album;
-import com.example.musicplayer.entiy.SeachSong;
+import com.example.musicplayer.entiy.SearchSong;
 
 import io.reactivex.Observable;
-import retrofit2.http.Field;
-import retrofit2.http.FormUrlEncoded;
 import retrofit2.http.GET;
-import retrofit2.http.POST;
-import retrofit2.http.Path;
 import retrofit2.http.Query;
 
 /**
@@ -16,25 +12,29 @@ import retrofit2.http.Query;
  */
 
 public interface SearchApi {
-    @GET("search?key=579621905&type=song&limit=30")
-    Observable<SeachSong> search(@Query("s") String seek,@Query("offset")int offset);
+    /**
+     *  搜索歌曲
+     *  https://v1.itooi.cn/tencent/search?keyword=周杰伦&type=song&page=1&pageSize=30
+     */
+    @GET("search?type=song")
+    Observable<SearchSong> search(@Query("keyword") String seek, @Query("page")int offset);
 
-    @GET("search?key=579621905&type=album&limit=30")
-    Observable<Album> searchAlbum(@Query("s") String seek,@Query("offset")int offset);
+    @GET("search?type=album")
+    Observable<Album> searchAlbum(@Query("keyword") String seek,@Query("page")int offset);
 
     /**
      * 搜索歌词
      * @param seek
      * @return
      */
-    @GET("search?key=579621905&type=song&limit=10&offset=0")
-    Observable<SeachSong> search(@Query("s") String seek);
+    @GET("search?type=song&page=1")
+    Observable<SearchSong> search(@Query("keyword") String seek);
 
     /**
      *
      * @param id 歌曲id
      * @return
      */
-    @GET("lrc?key=579621905")
+    @GET("lrc?")
     Observable<String> getLrc(@Query("id") String id);
 }

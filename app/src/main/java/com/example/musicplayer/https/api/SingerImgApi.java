@@ -1,14 +1,11 @@
 package com.example.musicplayer.https.api;
 
-import com.example.musicplayer.entiy.SeachSong;
 import com.example.musicplayer.entiy.SingerImg;
 
 import io.reactivex.Observable;
 import retrofit2.http.Field;
 import retrofit2.http.FormUrlEncoded;
-import retrofit2.http.GET;
 import retrofit2.http.POST;
-import retrofit2.http.Query;
 
 /**
  * Created by 残渊 on 2018/10/26.

@@ -176,7 +176,7 @@ public class PlayerService extends Service {
                 mediaPlayer.reset();
                 mediaPlayer.setDataSource(FileHelper.getSong().getUrl());
                 mediaPlayer.prepare();
-                mediaPlayer.start();
+
                 isPlaying = true;
                 saveToHistoryTable();
                 sendBroadcast(new Intent(BroadcastName.ONLINE_SONG));
@@ -185,6 +185,7 @@ public class PlayerService extends Service {
                 sendBroadcast(new Intent(BroadcastName.ONLINE_SONG_ERROR));
                 e.printStackTrace();
             }
+            mediaPlayer.start();
         }
 
         /**
@@ -307,7 +308,7 @@ public class PlayerService extends Service {
         }
 
         public long getCurrentTime() {
-            return mediaPlayer.getCurrentPosition();
+            return mediaPlayer.getCurrentPosition()/1000;
         }
     }
 

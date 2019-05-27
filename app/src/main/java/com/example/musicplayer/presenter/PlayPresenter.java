@@ -1,10 +1,9 @@
 package com.example.musicplayer.presenter;
 
-import android.util.Log;
-
 import com.example.musicplayer.base.BasePresenter;
+import com.example.musicplayer.configure.BaseUri;
 import com.example.musicplayer.contract.IPlayContract;
-import com.example.musicplayer.entiy.SeachSong;
+import com.example.musicplayer.entiy.SearchSong;
 import com.example.musicplayer.entiy.Song;
 import com.example.musicplayer.model.PlayModel;
 import com.example.musicplayer.util.MediaUtil;
@@ -41,17 +40,18 @@ public class PlayPresenter extends BasePresenter<IPlayContract.View> implements 
     }
 
     @Override
-    public void getSongLrcSuccess(List<SeachSong.DataBean> dataBeans, long duration) {
+    public void getSongLrcSuccess(List<SearchSong.DataBean.ListBean> dataBeans, long duration) {
         if(isAttachView()){
             boolean isLrc =false;
-            for(SeachSong.DataBean dataBean : dataBeans){
-                if(dataBean.getTime() == MediaUtil.formatLongToThree(duration)){
+            for(SearchSong.DataBean.ListBean dataBean : dataBeans){
+                if(dataBean.getPubtime() == duration){
                     isLrc = true;
-                    getMvpView().showLrcMessage(dataBean.getLrc(),dataBean.getId());
+                    getMvpView().showLrcMessage(BaseUri.LRC_URL+dataBean.getSongmid(),dataBean.getSongmid());
                     break;
                 }
             }
-            if(!isLrc) getMvpView().showLrcMessage(dataBeans.get(0).getLrc(),dataBeans.get(0).getId());
+            if(!isLrc) getMvpView().showLrcMessage(BaseUri.LRC_URL+dataBeans.get(0).getSongmid(),
+                    dataBeans.get(0).getSongmid());
         }
     }
 

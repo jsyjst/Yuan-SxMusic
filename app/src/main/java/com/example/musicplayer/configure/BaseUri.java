@@ -7,9 +7,11 @@ package com.example.musicplayer.configure;
 public class BaseUri {
     public static String SINGER_URL="http://music.163.com/api/search/get/";
 
-    public static String SEARCH_URL="https://api.bzqll.com/music/netease/";
 
-    public static String QQ_URL="https://api.bzqll.com/music/tencent/";
+    public static String QQ_URL="https://v1.itooi.cn/tencent/";
+    public static String PLAY_URL="https://v1.itooi.cn/tencent/url?id=";
+    public static String PIC_URL=QQ_URL+"pic?id=";
+    public static String LRC_URL=QQ_URL+"lrc?id=";
 
     public static String STORAGE_IMG_FILE=MyApplication.getContext().getExternalFilesDir("") + "/yuanmusic/img/";
     public static String STORAGE_LRC_FILE=MyApplication.getContext().getExternalFilesDir("") + "/yuanmusic/lrc/";

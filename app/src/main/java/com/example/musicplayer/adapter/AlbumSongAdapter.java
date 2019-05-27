@@ -22,13 +22,13 @@ import java.util.List;
 
 public class AlbumSongAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
 
-    private List<AlbumSong.DataBean.SongsBean> mSongsBeanList;
+    private List<AlbumSong.DataBean.GetSongInfoBean> mSongsBeanList;
     private int mLastPosition = -1;
     private OnItemClickListener mSongClick;
     private final int songType = 1;
     private final int footerType = 2;
 
-    public AlbumSongAdapter(List<AlbumSong.DataBean.SongsBean> songsBeans) {
+    public AlbumSongAdapter(List<AlbumSong.DataBean.GetSongInfoBean> songsBeans) {
         mSongsBeanList = songsBeans;
     }
 
@@ -56,12 +56,17 @@ public class AlbumSongAdapter extends RecyclerView.Adapter<RecyclerView.ViewHold
     public void onBindViewHolder(@NonNull RecyclerView.ViewHolder viewHolder, final int position) {
         if (viewHolder instanceof ViewHolder) {
             ViewHolder holder = (ViewHolder) viewHolder;
-            AlbumSong.DataBean.SongsBean songsBean = mSongsBeanList.get(position);
-            holder.artistTv.setText(songsBean.getSinger());
-            holder.titleTv.setText(songsBean.getName());
+            AlbumSong.DataBean.GetSongInfoBean songsBean = mSongsBeanList.get(position);
+            //设置歌手，因为歌手可能有两个
+            String singer = songsBean.getSinger().get(0).getName();
+            for (int i = 1; i < songsBean.getSinger().size(); i++) {
+                singer+="、"+songsBean.getSinger().get(i).getName();
+            }
+            holder.artistTv.setText(singer);
+            holder.titleTv.setText(songsBean.getSongname());
             holder.mItemView.setBackgroundResource(R.color.translucent);
             //根据点击显示
-            if(songsBean.getId().equals(FileHelper.getSong().getSongId())){
+            if(songsBean.getSongmid().equals(FileHelper.getSong().getSongId())){
                 holder.playLine.setVisibility(View.VISIBLE);
                 holder.titleTv.setTextColor(MyApplication.getContext().getResources().getColor(R.color.yellow));
                 holder.artistTv.setTextColor(MyApplication.getContext().getResources().getColor(R.color.yellow));
@@ -98,7 +103,7 @@ public class AlbumSongAdapter extends RecyclerView.Adapter<RecyclerView.ViewHold
         RippleView mItemView;
         View playLine;
 
-        public ViewHolder(View itemView) {
+        ViewHolder(View itemView) {
             super(itemView);
             titleTv = itemView.findViewById(R.id.tv_title);
             artistTv = itemView.findViewById(R.id.tv_artist);
@@ -108,7 +113,7 @@ public class AlbumSongAdapter extends RecyclerView.Adapter<RecyclerView.ViewHold
     }
 
     class FooterHolder extends RecyclerView.ViewHolder {
-        public FooterHolder(View itemView) {
+        FooterHolder(View itemView) {
             super(itemView);
         }
     }

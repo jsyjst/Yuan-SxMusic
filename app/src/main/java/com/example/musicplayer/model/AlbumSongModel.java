@@ -2,6 +2,7 @@ package com.example.musicplayer.model;
 
 import android.util.Log;
 
+import com.example.musicplayer.configure.BaseUri;
 import com.example.musicplayer.configure.Constant;
 import com.example.musicplayer.contract.IAlbumSongContract;
 import com.example.musicplayer.entiy.AlbumSong;
@@ -45,10 +46,15 @@ public class AlbumSongModel implements IAlbumSongContract.Model {
 
                     @Override
                     public void onNext(AlbumSong value) {
-                        if (value.getResult().equals("SUCCESS")) {
-                            mPresenter.getAlbumDetailSuccess(type, value.getData().getSongs(),
-                                    value.getData().getName(), value.getData().getSinger(),
-                                    value.getData().getCompany(), value.getData().getDesc());
+                        if (value.getCode()==200) {
+
+                            mPresenter.getAlbumDetailSuccess(type,
+                                    value.getData().getGetSongInfo(),
+                                    value.getData().getGetSongInfo().get(0).getAlbumname(),
+                                    value.getData().getLanguage(),
+                                    value.getData().getGetCompanyInfo().getFcompany_name(),
+                                    value.getData().getAlbumtype(),
+                                    value.getData().getGetAlbumDesc().getFalbum_desc());
                         } else {
                             mPresenter.getAlbumDetailError();
                         }
@@ -73,22 +79,22 @@ public class AlbumSongModel implements IAlbumSongContract.Model {
     }
 
     @Override
-    public void insertAllAlbumSong(final ArrayList<AlbumSong.DataBean.SongsBean> songList) {
+    public void insertAllAlbumSong(final ArrayList<AlbumSong.DataBean.GetSongInfoBean> songList) {
         new Thread(new Runnable() {
             @Override
             public void run() {
                 LitePal.deleteAll(OnlineSong.class);
                 for (int i = 0; i < songList.size(); i++) {
-                    AlbumSong.DataBean.SongsBean song = songList.get(i);
+                    AlbumSong.DataBean.GetSongInfoBean song = songList.get(i);
                     OnlineSong onlineSong = new OnlineSong();
                     onlineSong.setId(i + 1);
-                    onlineSong.setUrl(song.getUrl());
-                    onlineSong.setName(song.getName());
-                    onlineSong.setPic(song.getPic());
-                    onlineSong.setSinger(song.getSinger());
-                    onlineSong.setLrc(song.getLrc());
-                    onlineSong.setSongId(song.getId());
-                    onlineSong.setDuration(song.getTime());
+                    onlineSong.setUrl(BaseUri.PLAY_URL+song.getSongmid());
+                    onlineSong.setName(song.getSongname());
+                    onlineSong.setPic(BaseUri.PIC_URL+song.getSongmid());
+                    onlineSong.setSinger(song.getSinger().get(0).getName());
+                    onlineSong.setLrc(BaseUri.LRC_URL+song.getSongmid());
+                    onlineSong.setSongId(song.getSongmid());
+                    onlineSong.setDuration(song.getInterval());
                     onlineSong.save();
                 }
             }

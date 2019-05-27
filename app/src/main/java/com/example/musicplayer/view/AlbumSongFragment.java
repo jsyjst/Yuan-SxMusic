@@ -21,6 +21,7 @@ import android.widget.TextView;
 import com.example.musicplayer.R;
 import com.example.musicplayer.adapter.AlbumSongAdapter;
 import com.example.musicplayer.callback.OnItemClickListener;
+import com.example.musicplayer.configure.BaseUri;
 import com.example.musicplayer.configure.BroadcastName;
 import com.example.musicplayer.configure.Constant;
 import com.example.musicplayer.contract.IAlbumSongContract;
@@ -54,7 +55,7 @@ public class AlbumSongFragment extends Fragment implements IAlbumSongContract.Vi
     private String mId;
 
     private NestedScrollView mScrollView;
-    private TextView mNameTv,mSingerTv,mDescTv,mCompany,mPublicTimeTv;
+    private TextView mNameTv, mLanguageTv,mDescTv,mCompany,mPublicTimeTv,mTypeTv;
     private int mType;
     private String mPublicTime;
     private String mDesc;
@@ -66,7 +67,7 @@ public class AlbumSongFragment extends Fragment implements IAlbumSongContract.Vi
 
 
 
-    private List<AlbumSong.DataBean.SongsBean> mSongsList;
+    private List<AlbumSong.DataBean.GetSongInfoBean> mSongsList;
     private RecyclerView mRecycle;
     private LinearLayoutManager mLinearManager;
     private AlbumSongAdapter mAdapter;
@@ -105,9 +106,10 @@ public class AlbumSongFragment extends Fragment implements IAlbumSongContract.Vi
             mScrollView = view.findViewById(R.id.scrollView);
             mDescTv = view.findViewById(R.id.tv_desc);
             mNameTv = view.findViewById(R.id.tv_album_name);
-            mSingerTv = view.findViewById(R.id.tv_singer);
+            mLanguageTv = view.findViewById(R.id.tv_language);
             mCompany = view.findViewById(R.id.tv_company);
             mPublicTimeTv = view.findViewById(R.id.tv_public_time);
+            mTypeTv = view.findViewById(R.id.tv_album_type);
 
         }
 
@@ -166,8 +168,8 @@ public class AlbumSongFragment extends Fragment implements IAlbumSongContract.Vi
     }
 
     @Override
-    public void setAlbumSongList(final List<AlbumSong.DataBean.SongsBean> songList) {
-        mPresenter.insertAllAlbumSong((ArrayList<AlbumSong.DataBean.SongsBean>) songList);//存到数据库中
+    public void setAlbumSongList(final List<AlbumSong.DataBean.GetSongInfoBean> songList) {
+        mPresenter.insertAllAlbumSong((ArrayList<AlbumSong.DataBean.GetSongInfoBean>) songList);//存到数据库中
         mLinearManager =new LinearLayoutManager(getActivity());
         mRecycle.setLayoutManager(mLinearManager);
         mAdapter =new AlbumSongAdapter(songList);
@@ -177,15 +179,15 @@ public class AlbumSongFragment extends Fragment implements IAlbumSongContract.Vi
         mAdapter.setSongClick(new OnItemClickListener() {
             @Override
             public void onClick(int position) {
-                AlbumSong.DataBean.SongsBean dataBean= songList.get(position);
+                AlbumSong.DataBean.GetSongInfoBean dataBean= songList.get(position);
                 Song song = new Song();
-                song.setSongId(dataBean.getId());
-                song.setSinger(dataBean.getSinger());
-                song.setSongName(dataBean.getName());
-                song.setUrl(dataBean.getUrl());
-                song.setImgUrl(dataBean.getPic());
+                song.setSongId(dataBean.getSongmid());
+                song.setSinger(getSinger(dataBean));
+                song.setSongName(dataBean.getSongname());
+                song.setUrl(BaseUri.PLAY_URL+dataBean.getSongmid());
+                song.setImgUrl(BaseUri.PIC_URL+dataBean.getSongmid());
                 song.setCurrent(position);
-                song.setDuration(dataBean.getTime()*1000);
+                song.setDuration(dataBean.getInterval());
                 song.setOnline(true);
                 song.setListType(Constant.LIST_TYPE_ONLINE);
                 FileHelper.saveSong(song);
@@ -202,12 +204,13 @@ public class AlbumSongFragment extends Fragment implements IAlbumSongContract.Vi
     }
 
     @Override
-    public void showAlbumMessage(String name, String singer, String company, String desc) {
+    public void showAlbumMessage(String name, String language, String company, String type,String desc) {
         mNameTv.setText(name);
-        mSingerTv.setText(singer);
+        mLanguageTv.setText(language);
         mCompany.setText(company);
         mDescTv.setText(desc);
         mPublicTimeTv.setText(mPublicTime);
+        mTypeTv.setText(type);
     }
 
     @Override
@@ -236,5 +239,14 @@ public class AlbumSongFragment extends Fragment implements IAlbumSongContract.Vi
         public void onReceive(Context context, Intent intent) {
             mAdapter.notifyDataSetChanged();
         }
+    }
+
+    //获取歌手，因为歌手可能有很多个
+    private String getSinger(AlbumSong.DataBean.GetSongInfoBean dataBean){
+        String singer = dataBean.getSinger().get(0).getName();
+        for (int i = 1; i < dataBean.getSinger().size(); i++) {
+            singer+="、"+dataBean.getSinger().get(i).getName();
+        }
+        return singer;
     }
 }

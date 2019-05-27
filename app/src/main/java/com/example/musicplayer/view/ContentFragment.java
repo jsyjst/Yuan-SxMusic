@@ -66,12 +66,7 @@ public class ContentFragment extends Fragment {
         mAdapter = new SearchAdapter(getChildFragmentManager(), mFragments, mTitleList);
         mPager.setAdapter(mAdapter);
         mTabLayout.setupWithViewPager(mPager);
-        mTabLayout.post(new Runnable() {
-            @Override
-            public void run() {
-                setIndicator(mTabLayout, 50, 50);
-            }
-        });
+
 
 
     }
@@ -90,10 +85,11 @@ public class ContentFragment extends Fragment {
         Class<?> tabLayout = tabs.getClass();
         Field tabStrip = null;
         try {
-            tabStrip = tabLayout.getDeclaredField("mTabStrip");
+            tabStrip = tabLayout.getDeclaredField("slidingTabIndicator");
         } catch (NoSuchFieldException e) {
             e.printStackTrace();
         }
+        assert tabStrip != null;
         tabStrip.setAccessible(true);
         LinearLayout llTab = null;
         try {

@@ -62,7 +62,7 @@ public class LocalModel implements ILocalContract.Model {
                             }
                             mp3Info.setName(title.trim());
                             mp3Info.setSinger(artist);
-                            mp3Info.setDuration(duration);
+                            mp3Info.setDuration(duration/1000);
                             mp3Info.setUrl(url);
                             mp3Info.setSongId(String.valueOf(id));
                             mp3InfoList.add(mp3Info);

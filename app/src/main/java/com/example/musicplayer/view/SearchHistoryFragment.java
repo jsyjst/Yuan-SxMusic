@@ -8,11 +8,11 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 
+import com.example.SpeedDialog.dialog.SpeedDialog;
 import com.example.musicplayer.R;
 import com.example.musicplayer.adapter.SearchHistoryAdapter;
 import com.example.musicplayer.callback.*;
 import com.example.musicplayer.entiy.SearchHistory;
-import com.example.musicplayer.widget.DeleteDialog;
 
 import org.litepal.LitePal;
 
@@ -59,28 +59,14 @@ public class SearchHistoryFragment extends Fragment {
         mAdapter.setFooterClickListener(new OnFooterClickListener() {
             @Override
             public void onClick() {
-                final DeleteDialog dialog = new DeleteDialog(getActivity());
-                dialog.setOnClickListener(new DeleteDialog.OnClickListener() {
-                    @Override
-                    public void selectCancel() {
-                        dialog.dismiss();
-                    }
-
-                    @Override
-                    public void selectDelete() {
-                        //删除数据库中的历史记录
-                        LitePal.deleteAll(SearchHistory.class);
-                        mRecycler.setVisibility(View.GONE);
-                        dialog.dismiss();
-                    }
-
-                    @Override
-                    public String setTitle() {
-                        return "确定清空搜索历史？";
-                    }
-                });
-                dialog.show();
-
+                SpeedDialog deleteDialog = new SpeedDialog(getActivity());
+                deleteDialog.setTitle("删除")
+                        .setMessage("确定清空所有搜索历史吗？")
+                        .setSureClickListener(dialog -> {
+                            //删除数据库中的历史记录
+                            LitePal.deleteAll(SearchHistory.class);
+                            mRecycler.setVisibility(View.GONE);
+                        }).show();
             }
         });
         mAdapter.setOnDeleteClickListener(new OnDeleteClickListener() {

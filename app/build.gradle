@@ -67,6 +67,7 @@ dependencies {
 
     //litePal
     implementation rootProject.ext.dependencies["litePal"]
+    implementation rootProject.ext.dependencies["speedDialog"]
 
 
 

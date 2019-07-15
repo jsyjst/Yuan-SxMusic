@@ -1,4 +1,4 @@
-package com.example.musicplayer.configure;
+package com.example.musicplayer.app;
 
 /**
  * Created by 残渊 on 2018/11/23.
@@ -20,4 +20,15 @@ public class Constant {
     public static final String SEARCH_ALBUM="search_album";
     public static final String SEARCH_ALBUM_MORE="search_album_more";
     public static final String ALBUM="album";
+
+
+    //布局
+    public static final int NORMAL_STATE = 0;
+    public static final int LOADING_STATE = 1;
+    public static final int ERROR_STATE = 2;
+
+    //playerStatus
+    public static final String PLAYER_STATUS="PlayerStatus";
+    public static final int PLAY=1;
+    public static final int PAUSE=2;
 }

@@ -1,4 +1,4 @@
-package com.example.musicplayer.configure;
+package com.example.musicplayer.app;
 
 /**
  * Created by 残渊 on 2018/11/24.

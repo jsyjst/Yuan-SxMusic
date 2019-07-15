@@ -2,12 +2,12 @@ package com.example.musicplayer.model;
 
 import android.util.Log;
 
-import com.example.musicplayer.configure.BaseUri;
-import com.example.musicplayer.configure.Constant;
+import com.example.musicplayer.app.BaseUri;
+import com.example.musicplayer.app.Constant;
 import com.example.musicplayer.contract.IAlbumSongContract;
 import com.example.musicplayer.entiy.AlbumSong;
 import com.example.musicplayer.entiy.OnlineSong;
-import com.example.musicplayer.https.NetWork;
+import com.example.musicplayer.model.https.RetrofitFactory;
 import com.example.musicplayer.util.RxApiManager;
 
 import org.litepal.LitePal;
@@ -36,7 +36,7 @@ public class AlbumSongModel implements IAlbumSongContract.Model {
 
     @Override
     public void getAlbumDetail(String id, final int type) {
-        NetWork.getAlbumApi().getAlbumSong(id)
+        RetrofitFactory.createRequest().getAlbumSong(id)
                 .subscribeOn(Schedulers.io()).observeOn(AndroidSchedulers.mainThread())
                 .subscribe(new Observer<AlbumSong>() {
                     @Override

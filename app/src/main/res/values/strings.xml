@@ -26,4 +26,7 @@
     <string name="album_publish_time">发行时间</string>
     <string name="album_type">专辑类型</string>
 
+    <string name="loading_text">加载中，请稍后</string>
+    <string name="reload">重试</string>
+
 </resources>

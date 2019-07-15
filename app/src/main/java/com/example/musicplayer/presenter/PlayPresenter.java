@@ -1,12 +1,11 @@
 package com.example.musicplayer.presenter;
 
 import com.example.musicplayer.base.BasePresenter;
-import com.example.musicplayer.configure.BaseUri;
+import com.example.musicplayer.app.BaseUri;
 import com.example.musicplayer.contract.IPlayContract;
 import com.example.musicplayer.entiy.SearchSong;
 import com.example.musicplayer.entiy.Song;
 import com.example.musicplayer.model.PlayModel;
-import com.example.musicplayer.util.MediaUtil;
 
 import java.util.List;
 

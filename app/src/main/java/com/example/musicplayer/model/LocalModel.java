@@ -3,7 +3,7 @@ package com.example.musicplayer.model;
 import android.database.Cursor;
 import android.provider.MediaStore;
 
-import com.example.musicplayer.configure.MyApplication;
+import com.example.musicplayer.app.App;
 import com.example.musicplayer.contract.ILocalContract;
 import com.example.musicplayer.entiy.LocalSong;
 
@@ -31,7 +31,7 @@ public class LocalModel implements ILocalContract.Model {
             @Override
             public void run() {
                 List<LocalSong> mp3InfoList = new ArrayList<>();
-                Cursor cursor = MyApplication.getContext().getContentResolver().query(
+                Cursor cursor = App.getContext().getContentResolver().query(
                         MediaStore.Audio.Media.EXTERNAL_CONTENT_URI, null, null, null,
                         MediaStore.Audio.Media.DEFAULT_SORT_ORDER);
                 for (int i = 0; i < cursor.getCount(); i++) {

@@ -27,7 +27,7 @@ import com.bumptech.glide.request.target.SimpleTarget;
 import com.bumptech.glide.request.target.Target;
 import com.bumptech.glide.request.transition.Transition;
 import com.example.musicplayer.R;
-import com.example.musicplayer.configure.BroadcastName;
+import com.example.musicplayer.app.BroadcastName;
 import com.example.musicplayer.entiy.AlbumCollection;
 import com.example.musicplayer.util.CommonUtil;
 import com.github.florent37.materialviewpager.MaterialViewPager;

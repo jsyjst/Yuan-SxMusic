@@ -1,5 +1,6 @@
 package com.example.musicplayer.util;
 
+import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.content.Context;
 import android.graphics.Bitmap;
@@ -22,8 +23,8 @@ import com.bumptech.glide.request.target.SimpleTarget;
 import com.bumptech.glide.request.target.Target;
 import com.bumptech.glide.request.transition.Transition;
 import com.example.musicplayer.R;
-import com.example.musicplayer.configure.BaseUri;
-import com.example.musicplayer.configure.MyApplication;
+import com.example.musicplayer.app.BaseUri;
+import com.example.musicplayer.app.App;
 
 /**
  * Created by 残渊 on 2018/10/26.
@@ -44,11 +45,12 @@ public class CommonUtil {
             }
         } else {
             decorView.setSystemUiVisibility(View.SYSTEM_UI_FLAG_VISIBLE);
-            activity.getWindow().setStatusBarColor(MyApplication.getContext().getResources().getColor(R.color.actionBarColor));
+            activity.getWindow().setStatusBarColor(App.getContext().getResources().getColor(R.color.actionBarColor));
         }
     }
 
     //
+    @SuppressLint("ShowToast")
     public static void showToast(Context context, String message) {
         if (toast == null) {
             toast = Toast.makeText(context, message, Toast.LENGTH_SHORT);
@@ -129,8 +131,8 @@ public class CommonUtil {
     //高斯模糊
     public static Drawable getForegroundDrawable(Bitmap bitmap) {
         /*得到屏幕的宽高比，以便按比例切割图片一部分*/
-        final float widthHeightSize = (float) (DisplayUtil.getScreenWidth(MyApplication.getContext())
-                * 1.0 / DisplayUtil.getScreenHeight(MyApplication.getContext()) * 1.0);
+        final float widthHeightSize = (float) (DisplayUtil.getScreenWidth(App.getContext())
+                * 1.0 / DisplayUtil.getScreenHeight(App.getContext()) * 1.0);
 
         int cropBitmapWidth = (int) (widthHeightSize * bitmap.getHeight());
         int cropBitmapWidthX = (int) ((bitmap.getWidth() - cropBitmapWidth) / 2.0);

@@ -20,8 +20,8 @@ import android.widget.ImageView;
 import com.example.musicplayer.R;
 import com.example.musicplayer.adapter.SongAdapter;
 import com.example.musicplayer.callback.OnItemClickListener;
-import com.example.musicplayer.configure.BroadcastName;
-import com.example.musicplayer.configure.Constant;
+import com.example.musicplayer.app.BroadcastName;
+import com.example.musicplayer.app.Constant;
 import com.example.musicplayer.contract.ILocalContract;
 import com.example.musicplayer.entiy.LocalSong;
 import com.example.musicplayer.entiy.Song;
@@ -72,7 +72,7 @@ public class LocalFragment extends Fragment implements ILocalContract.View {
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         mView = inflater.inflate(R.layout.fragment_local_music, container, false);
-        mRecycler = mView.findViewById(R.id.recycler_song_list);
+        mRecycler = mView.findViewById(R.id.normalView);
         mFindLocalMusicIv = mView.findViewById(R.id.iv_find_local_song);
         mBackIv = mView.findViewById(R.id.iv_back);
         mEmptyViewLinear = mView.findViewById(R.id.linear_empty);

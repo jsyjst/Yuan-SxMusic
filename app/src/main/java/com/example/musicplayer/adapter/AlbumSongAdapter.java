@@ -10,7 +10,7 @@ import android.widget.TextView;
 import com.andexert.library.RippleView;
 import com.example.musicplayer.R;
 import com.example.musicplayer.callback.OnItemClickListener;
-import com.example.musicplayer.configure.MyApplication;
+import com.example.musicplayer.app.App;
 import com.example.musicplayer.entiy.AlbumSong;
 import com.example.musicplayer.util.FileHelper;
 
@@ -68,13 +68,13 @@ public class AlbumSongAdapter extends RecyclerView.Adapter<RecyclerView.ViewHold
             //根据点击显示
             if(songsBean.getSongmid().equals(FileHelper.getSong().getSongId())){
                 holder.playLine.setVisibility(View.VISIBLE);
-                holder.titleTv.setTextColor(MyApplication.getContext().getResources().getColor(R.color.yellow));
-                holder.artistTv.setTextColor(MyApplication.getContext().getResources().getColor(R.color.yellow));
+                holder.titleTv.setTextColor(App.getContext().getResources().getColor(R.color.yellow));
+                holder.artistTv.setTextColor(App.getContext().getResources().getColor(R.color.yellow));
                 mLastPosition = position;
             }else{
                 holder.playLine.setVisibility(View.INVISIBLE);
-                holder.titleTv.setTextColor(MyApplication.getContext().getResources().getColor(R.color.white));
-                holder.artistTv.setTextColor(MyApplication.getContext().getResources().getColor(R.color.white_blue));
+                holder.titleTv.setTextColor(App.getContext().getResources().getColor(R.color.white));
+                holder.artistTv.setTextColor(App.getContext().getResources().getColor(R.color.white_blue));
             }
             holder.mItemView.setOnRippleCompleteListener(new RippleView.OnRippleCompleteListener() {
                 @Override

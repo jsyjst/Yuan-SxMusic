@@ -11,7 +11,7 @@ import android.widget.TextView;
 import com.andexert.library.RippleView;
 import com.example.musicplayer.R;
 import com.example.musicplayer.callback.OnItemClickListener;
-import com.example.musicplayer.configure.Constant;
+import com.example.musicplayer.app.Constant;
 import com.example.musicplayer.entiy.HistorySong;
 import com.example.musicplayer.util.FileHelper;
 

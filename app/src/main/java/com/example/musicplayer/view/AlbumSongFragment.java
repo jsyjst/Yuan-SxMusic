@@ -21,9 +21,9 @@ import android.widget.TextView;
 import com.example.musicplayer.R;
 import com.example.musicplayer.adapter.AlbumSongAdapter;
 import com.example.musicplayer.callback.OnItemClickListener;
-import com.example.musicplayer.configure.BaseUri;
-import com.example.musicplayer.configure.BroadcastName;
-import com.example.musicplayer.configure.Constant;
+import com.example.musicplayer.app.BaseUri;
+import com.example.musicplayer.app.BroadcastName;
+import com.example.musicplayer.app.Constant;
 import com.example.musicplayer.contract.IAlbumSongContract;
 import com.example.musicplayer.entiy.AlbumSong;
 import com.example.musicplayer.entiy.Song;
@@ -96,7 +96,7 @@ public class AlbumSongFragment extends Fragment implements IAlbumSongContract.Vi
         View view = null;
         if (mType == ALBUM_SONG) {
             view = inflater.inflate(R.layout.fragment_album_recycler, container, false);
-            mRecycle = view.findViewById(R.id.recycler_song_list);
+            mRecycle = view.findViewById(R.id.normalView);
             mLoading = view.findViewById(R.id.avi);
             mLoadingTv = view.findViewById(R.id.tv_loading);
             mNetworkErrorIv = view.findViewById(R.id.iv_network_error);

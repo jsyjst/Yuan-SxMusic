@@ -23,8 +23,8 @@ import com.example.musicplayer.R;
 import com.example.musicplayer.adapter.HistoryAdapter;
 
 import com.example.musicplayer.callback.OnItemClickListener;
-import com.example.musicplayer.configure.BroadcastName;
-import com.example.musicplayer.configure.Constant;
+import com.example.musicplayer.app.BroadcastName;
+import com.example.musicplayer.app.Constant;
 import com.example.musicplayer.entiy.HistorySong;
 import com.example.musicplayer.entiy.Song;
 import com.example.musicplayer.service.PlayerService;

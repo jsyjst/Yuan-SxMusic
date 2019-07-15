@@ -4,8 +4,6 @@ package com.example.musicplayer.view;
 import android.animation.ObjectAnimator;
 import android.animation.ValueAnimator;
 import android.app.ActivityOptions;
-import android.app.NotificationChannel;
-import android.app.NotificationManager;
 import android.content.BroadcastReceiver;
 import android.content.ComponentName;
 import android.content.Context;
@@ -19,21 +17,19 @@ import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentTransaction;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
-import android.view.KeyEvent;
 import android.view.View;
 import android.view.animation.LinearInterpolator;
 import android.widget.Button;
 import android.widget.LinearLayout;
 import android.widget.SeekBar;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import com.andexert.library.RippleView;
 import com.bumptech.glide.Glide;
 import com.bumptech.glide.request.RequestOptions;
 import com.example.musicplayer.R;
-import com.example.musicplayer.configure.BroadcastName;
-import com.example.musicplayer.configure.PlayerStatus;
+import com.example.musicplayer.app.BroadcastName;
+import com.example.musicplayer.app.Constant;
 import com.example.musicplayer.entiy.Song;
 import com.example.musicplayer.service.PlayerService;
 import com.example.musicplayer.util.CommonUtil;
@@ -242,7 +238,7 @@ public class MainActivity extends AppCompatActivity {
                     Song song = FileHelper.getSong();
                     song.setCurrentTime(mPlayStatusBinder.getCurrentTime());
                     FileHelper.saveSong(song);
-                    toPlayActivityIntent.putExtra(PlayerStatus.PLAYER_STATUS, PlayerStatus.PLAY);
+                    toPlayActivityIntent.putExtra(Constant.PLAYER_STATUS, Constant.PLAY);
                 } else {
                     //暂停情况
                     Song song = FileHelper.getSong();

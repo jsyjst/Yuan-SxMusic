@@ -1,4 +1,4 @@
-package com.example.musicplayer.configure;
+package com.example.musicplayer.app;
 
 import android.app.Application;
 import android.content.Context;
@@ -10,7 +10,7 @@ import org.litepal.LitePal;
  * Created by 残渊 on 2018/7/17.
  */
 
-public class MyApplication extends Application {
+public class App extends Application {
     private static Context context;
 
     @Override

@@ -54,8 +54,7 @@
         android:background="@color/translucent">
 
         <android.support.v7.widget.RecyclerView
-
-            android:id="@+id/recycler_song_list"
+            android:id="@+id/normalView"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             android:layout_marginBottom="65dp">

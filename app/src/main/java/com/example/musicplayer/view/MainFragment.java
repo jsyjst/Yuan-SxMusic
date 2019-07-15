@@ -19,7 +19,7 @@ import android.widget.TextView;
 import com.example.musicplayer.R;
 import com.example.musicplayer.adapter.ExpandableListViewAdapter;
 import com.example.musicplayer.callback.OnChildItemClickListener;
-import com.example.musicplayer.configure.BroadcastName;
+import com.example.musicplayer.app.BroadcastName;
 import com.example.musicplayer.entiy.AlbumCollection;
 import com.example.musicplayer.entiy.HistorySong;
 import com.example.musicplayer.entiy.LocalSong;

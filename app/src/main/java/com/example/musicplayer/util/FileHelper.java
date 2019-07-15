@@ -4,13 +4,9 @@ package com.example.musicplayer.util;
 import android.content.Context;
 import android.graphics.Bitmap;
 import android.util.Log;
-import android.widget.ImageView;
 
-import com.bumptech.glide.Glide;
-import com.bumptech.glide.request.RequestOptions;
-import com.example.musicplayer.R;
-import com.example.musicplayer.configure.BaseUri;
-import com.example.musicplayer.configure.MyApplication;
+import com.example.musicplayer.app.BaseUri;
+import com.example.musicplayer.app.App;
 import com.example.musicplayer.entiy.Song;
 
 import java.io.File;
@@ -38,7 +34,7 @@ public class FileHelper {
 
     public static void saveSong(Song song) {
         try {
-            File file = new File(MyApplication.getContext().getExternalFilesDir("yuanmusic").getAbsolutePath());
+            File file = new File(App.getContext().getExternalFilesDir("yuanmusic").getAbsolutePath());
             if (!file.exists()) {
                 file.mkdirs();
             }
@@ -60,7 +56,7 @@ public class FileHelper {
 
     public static Song getSong() {
         try {
-            ObjectInputStream ois = new ObjectInputStream(new FileInputStream(MyApplication.getContext().getExternalFilesDir("") + "/yuanmusic/song.txt"));
+            ObjectInputStream ois = new ObjectInputStream(new FileInputStream(App.getContext().getExternalFilesDir("") + "/yuanmusic/song.txt"));
             Song song = (Song) ois.readObject();//读出对象
             return song;                                       //返回对象
         } catch (FileNotFoundException e) {

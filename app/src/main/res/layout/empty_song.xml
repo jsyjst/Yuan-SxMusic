@@ -9,7 +9,7 @@
         android:layout_centerInParent="true"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:src="@drawable/empty_song"
+        android:src="@drawable/2"
         android:scaleType="centerCrop"/>
 
     <TextView

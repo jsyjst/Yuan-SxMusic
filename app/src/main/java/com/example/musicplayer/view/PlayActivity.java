@@ -38,10 +38,9 @@ import com.bumptech.glide.request.target.Target;
 import com.bumptech.glide.request.transition.Transition;
 import com.example.musicplayer.R;
 import com.example.musicplayer.base.BaseActivity;
-import com.example.musicplayer.configure.BaseUri;
-import com.example.musicplayer.configure.BroadcastName;
-import com.example.musicplayer.configure.Constant;
-import com.example.musicplayer.configure.PlayerStatus;
+import com.example.musicplayer.app.BaseUri;
+import com.example.musicplayer.app.BroadcastName;
+import com.example.musicplayer.app.Constant;
 import com.example.musicplayer.contract.IPlayContract;
 import com.example.musicplayer.entiy.LocalSong;
 import com.example.musicplayer.entiy.Song;
@@ -68,9 +67,7 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
-import java.io.OutputStream;
 import java.io.OutputStreamWriter;
-import java.io.PrintStream;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.util.List;
@@ -78,7 +75,6 @@ import java.util.List;
 import okhttp3.OkHttpClient;
 import okhttp3.Request;
 import okhttp3.Response;
-import retrofit2.http.Url;
 
 /**
  * 播放界面
@@ -142,7 +138,7 @@ public class PlayActivity extends BaseActivity implements IPlayContract.View {
             if (isOnline) {
                 mGetImgAndLrcBtn.setVisibility(View.GONE);
                 setSingerImg(FileHelper.getSong().getImgUrl());
-                if (mPlayStatus == PlayerStatus.PLAY) {
+                if (mPlayStatus == Constant.PLAY) {
                     mDisc.play();
                     mPlayBtn.setSelected(true);
                     startUpdateSeekBarProgress();
@@ -192,7 +188,7 @@ public class PlayActivity extends BaseActivity implements IPlayContract.View {
         mPresenter = new PlayPresenter();
         mPresenter.attachView(this);
         //是否为网络歌曲
-        mPlayStatus = getIntent().getIntExtra(PlayerStatus.PLAYER_STATUS, 2);
+        mPlayStatus = getIntent().getIntExtra(Constant.PLAYER_STATUS, 2);
 
         //注册广播
         mIntentFilter = new IntentFilter();
@@ -231,7 +227,7 @@ public class PlayActivity extends BaseActivity implements IPlayContract.View {
 
         mPresenter.queryLove(mSong.getSongId()); //查找歌曲是否为我喜欢的歌曲
 
-        if (mPlayStatus == PlayerStatus.PLAY) {
+        if (mPlayStatus == Constant.PLAY) {
             mDisc.play();
             mPlayBtn.setSelected(true);
             startUpdateSeekBarProgress();

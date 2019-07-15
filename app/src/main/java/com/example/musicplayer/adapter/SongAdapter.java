@@ -11,7 +11,7 @@ import android.widget.TextView;
 
 import com.andexert.library.RippleView;
 import com.example.musicplayer.callback.OnItemClickListener;
-import com.example.musicplayer.configure.MyApplication;
+import com.example.musicplayer.app.App;
 import com.example.musicplayer.R;
 import com.example.musicplayer.entiy.LocalSong;
 import com.example.musicplayer.util.FileHelper;
@@ -94,16 +94,16 @@ public class SongAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
             holder.artistTv.setText(mp3Info.getSinger());
             //根据播放的歌曲是否为当前列表的歌曲显示
             if(mp3Info.getSongId().equals(FileHelper.getSong().getSongId())){
-                holder.songNameTv.setTextColor(MyApplication.getContext().
+                holder.songNameTv.setTextColor(App.getContext().
                         getResources().getColor(R.color.musicStyle_low));
-                holder.artistTv.setTextColor(MyApplication.getContext().
+                holder.artistTv.setTextColor(App.getContext().
                         getResources().getColor(R.color.musicStyle_low));
                 holder.playingIv.setVisibility(View.VISIBLE);
                 mLastPosition = position;
             }else {
-                holder.songNameTv.setTextColor(MyApplication.getContext().
+                holder.songNameTv.setTextColor(App.getContext().
                         getResources().getColor(R.color.white));
-                holder.artistTv.setTextColor(MyApplication.getContext().
+                holder.artistTv.setTextColor(App.getContext().
                         getResources().getColor(R.color.white));
                 holder.playingIv.setVisibility(View.GONE);
             }

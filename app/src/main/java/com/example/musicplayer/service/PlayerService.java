@@ -8,8 +8,8 @@ import android.os.Binder;
 import android.os.IBinder;
 import android.util.Log;
 
-import com.example.musicplayer.configure.BroadcastName;
-import com.example.musicplayer.configure.Constant;
+import com.example.musicplayer.app.BroadcastName;
+import com.example.musicplayer.app.Constant;
 import com.example.musicplayer.entiy.HistorySong;
 import com.example.musicplayer.entiy.LocalSong;
 import com.example.musicplayer.entiy.Love;

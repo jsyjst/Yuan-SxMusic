@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout
+    xmlns:android="http://schemas.android.com/apk/res/android" android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:id="@+id/errorView">
+
+    <de.hdodenhof.circleimageview.CircleImageView
+        android:id="@+id/networkErrorImg"
+        android:layout_width="150dp"
+        android:layout_height="150dp"
+        android:layout_marginTop="130dp"
+        android:layout_centerHorizontal="true"
+        android:src="@drawable/network_error"
+        android:scaleType="centerCrop"
+        />
+    <TextView
+        android:id="@+id/reloadBtn"
+        android:layout_width="@dimen/dp_180"
+        android:layout_height="wrap_content"
+        android:background="@drawable/bg_reload"
+        android:layout_below="@id/networkErrorImg"
+        android:layout_marginTop="@dimen/dp_20"
+        android:layout_centerHorizontal="true"
+        android:textColor="@color/white"
+        android:text="@string/reload"
+        android:gravity="center"
+        android:paddingTop="@dimen/dp_5"
+        android:paddingBottom="@dimen/dp_5"/>
+
+</RelativeLayout>

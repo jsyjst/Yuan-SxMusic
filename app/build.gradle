@@ -62,12 +62,13 @@ dependencies {
     implementation rootProject.ext.dependencies["materialtabstrip"]
     implementation rootProject.ext.dependencies["ripple"]   //水波纹按钮
     implementation rootProject.ext.dependencies["avi"]     //加载动画
+    implementation rootProject.ext.dependencies["speedDialog"]
 
 
 
     //litePal
     implementation rootProject.ext.dependencies["litePal"]
-    implementation rootProject.ext.dependencies["speedDialog"]
+
 
 
 

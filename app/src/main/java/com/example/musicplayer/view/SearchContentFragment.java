@@ -8,7 +8,6 @@ import android.content.IntentFilter;
 import android.content.ServiceConnection;
 import android.os.Bundle;
 import android.os.IBinder;
-import android.provider.SyncStateContract;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentTransaction;
@@ -23,9 +22,9 @@ import android.widget.TextView;
 import com.example.musicplayer.R;
 import com.example.musicplayer.adapter.SearchContentAdapter;
 import com.example.musicplayer.callback.*;
-import com.example.musicplayer.configure.BaseUri;
-import com.example.musicplayer.configure.BroadcastName;
-import com.example.musicplayer.configure.Constant;
+import com.example.musicplayer.app.BaseUri;
+import com.example.musicplayer.app.BroadcastName;
+import com.example.musicplayer.app.Constant;
 import com.example.musicplayer.contract.ISearchContentContract;
 import com.example.musicplayer.entiy.Album;
 import com.example.musicplayer.entiy.SearchSong;
@@ -99,7 +98,7 @@ public class SearchContentFragment extends Fragment implements ISearchContentCon
             mType = mBundle.getString(TYPE_KEY);
         }
 
-        mRecycler = view.findViewById(R.id.recycler_song_list);
+        mRecycler = view.findViewById(R.id.normalView);
         mLoading = view.findViewById(R.id.avi);
         mLoadingTv = view.findViewById(R.id.tv_loading);
         mBackgroundIv = view.findViewById(R.id.iv_background);

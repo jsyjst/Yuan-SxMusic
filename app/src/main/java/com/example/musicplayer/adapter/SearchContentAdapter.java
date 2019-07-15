@@ -16,7 +16,7 @@ import com.bumptech.glide.request.RequestOptions;
 import com.example.musicplayer.R;
 import com.example.musicplayer.callback.OnAlbumItemClickListener;
 import com.example.musicplayer.callback.OnItemClickListener;
-import com.example.musicplayer.configure.Constant;
+import com.example.musicplayer.app.Constant;
 import com.example.musicplayer.entiy.Album;
 import com.example.musicplayer.entiy.SearchSong;
 import com.example.musicplayer.util.CommonUtil;

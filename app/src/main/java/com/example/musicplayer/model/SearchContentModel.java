@@ -2,11 +2,11 @@ package com.example.musicplayer.model;
 
 import android.util.Log;
 
-import com.example.musicplayer.configure.Constant;
+import com.example.musicplayer.app.Constant;
 import com.example.musicplayer.contract.ISearchContentContract;
 import com.example.musicplayer.entiy.Album;
 import com.example.musicplayer.entiy.SearchSong;
-import com.example.musicplayer.https.NetWork;
+import com.example.musicplayer.model.https.RetrofitFactory;
 import com.example.musicplayer.util.RxApiManager;
 
 import java.net.UnknownHostException;
@@ -31,7 +31,7 @@ public class SearchContentModel implements ISearchContentContract.Model {
 
     @Override
     public void search(String seek, int offset) {
-        NetWork.getSearchApi().search(seek, offset)
+        RetrofitFactory.createRequest().search(seek, offset)
                 .subscribeOn(Schedulers.io()).observeOn(AndroidSchedulers.mainThread())
                 .subscribe(new Observer<SearchSong>() {
                     @Override
@@ -63,7 +63,7 @@ public class SearchContentModel implements ISearchContentContract.Model {
 
     @Override
     public void searchMore(String seek, int offset) {
-        NetWork.getSearchApi().search(seek, offset)
+        RetrofitFactory.createRequest().search(seek, offset)
                 .subscribeOn(Schedulers.io()).observeOn(AndroidSchedulers.mainThread())
                 .subscribe(new Observer<SearchSong>() {
                     @Override
@@ -99,7 +99,7 @@ public class SearchContentModel implements ISearchContentContract.Model {
 
     @Override
     public void searchAlbum(String seek, int offset) {
-        NetWork.getSearchApi().searchAlbum(seek, offset)
+        RetrofitFactory.createRequest().searchAlbum(seek, offset)
                 .subscribeOn(Schedulers.io()).observeOn(AndroidSchedulers.mainThread())
                 .subscribe(new Observer<Album>() {
                     @Override
@@ -137,7 +137,7 @@ public class SearchContentModel implements ISearchContentContract.Model {
 
     @Override
     public void searchAlbumMore(String seek, int offset) {
-        NetWork.getSearchApi().searchAlbum(seek, offset)
+        RetrofitFactory.createRequest().searchAlbum(seek, offset)
                 .subscribeOn(Schedulers.io()).observeOn(AndroidSchedulers.mainThread())
                 .subscribe(new Observer<Album>() {
                     @Override

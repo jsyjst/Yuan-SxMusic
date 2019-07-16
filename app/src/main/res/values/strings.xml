@@ -29,4 +29,13 @@
     <string name="loading_text">加载中，请稍后</string>
     <string name="reload">重试</string>
 
+    //error
+    <string name="error_unknown">未知错误</string>
+    <string name="error_network">当前网络不可用，请检查网络设置</string>
+    <string name="error_timeout">连接超时，请重试</string>
+    <string name="error_http">网络错误</string>r
+    <string name="error_parse">解析错误</string>
+    <string name="error_view_network">网络不给力</string>
+    <string name="error_view_retry">重试</string>
+
 </resources>

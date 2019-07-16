@@ -31,4 +31,7 @@ public class Constant {
     public static final String PLAYER_STATUS="PlayerStatus";
     public static final int PLAY=1;
     public static final int PAUSE=2;
+
+    //TAG
+    public static final String TAG_ERROR = "error";
 }

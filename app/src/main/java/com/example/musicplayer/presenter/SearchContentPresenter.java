@@ -1,13 +1,16 @@
 package com.example.musicplayer.presenter;
 
-import com.example.musicplayer.base.BasePresenter;
+
+import com.example.musicplayer.base.observer.BaseObserver;
+import com.example.musicplayer.base.presenter.BasePresenter;
 import com.example.musicplayer.contract.ISearchContentContract;
 import com.example.musicplayer.entiy.Album;
 import com.example.musicplayer.entiy.SearchSong;
-import com.example.musicplayer.model.SearchContentModel;
 
 import java.util.ArrayList;
-import java.util.List;
+
+import io.reactivex.android.schedulers.AndroidSchedulers;
+import io.reactivex.schedulers.Schedulers;
 
 /**
  * Created by 残渊 on 2018/11/21.
@@ -15,123 +18,94 @@ import java.util.List;
 
 public class SearchContentPresenter extends BasePresenter<ISearchContentContract.View>
         implements ISearchContentContract.Presenter {
-    private SearchContentModel mModel;
-    private android.os.Handler mHandler = new android.os.Handler();
 
-    public SearchContentPresenter(){
-        mModel = new SearchContentModel(this);
+    @Override
+    public void search(String seek, int offset) {
+        addRxSubscribe(
+                mModel.search(seek, offset)
+                        .subscribeOn(Schedulers.io()).observeOn(AndroidSchedulers.mainThread())
+                        .subscribeWith(new BaseObserver<SearchSong>(mView, true, true) {
+                            @Override
+                            public void onNext(SearchSong searchSong) {
+                                super.onNext(searchSong);
+                                if (searchSong.getCode() == 200) {
+                                    mView.setSongsList((ArrayList<SearchSong.DataBean.ListBean>)
+                                            searchSong.getData().getList());
+                                }
+                            }
+                        }));
     }
 
     @Override
-    public void search(String seek,int offset) {
-        mModel.search(seek,offset);
-        if(isAttachView()){
-            getMvpView().showLoading();
-        }
+    public void searchMore(String seek, int offset) {
+        addRxSubscribe(
+                mModel.search(seek, offset)
+                        .subscribeOn(Schedulers.io()).observeOn(AndroidSchedulers.mainThread())
+                        .subscribeWith(new BaseObserver<SearchSong>(mView, false, true) {
+                            @Override
+                            public void onNext(SearchSong searchSong) {
+                                super.onNext(searchSong);
+                                if (searchSong.getCode() == 200) {
+                                    ArrayList<SearchSong.DataBean.ListBean> songListBeans =
+                                            (ArrayList<SearchSong.DataBean.ListBean>) searchSong.getData().getList();
+                                    if (songListBeans.size() == 0) {
+                                        mView.searchMoreError();
+                                    } else {
+                                        mView.searchMoreSuccess(songListBeans);
+                                    }
+                                } else {
+                                    mView.searchMoreError();
+                                }
+                            }
+
+                            @Override
+                            public void onError(Throwable e){
+                                super.onError(e);
+                                mView.showSearcherMoreNetworkError();
+                            }
+                        }));
     }
 
-    @Override
-    public void searchMore(String seek,int offset) {
-        mModel.searchMore(seek,offset);
-    }
-
-    @Override
-    public void searchSuccess(final ArrayList<SearchSong.DataBean.ListBean> songListBeans) {
-        mHandler.postDelayed(new Runnable() {
-            @Override
-            public void run() {
-                if(isAttachView()){
-                    getMvpView().hideLoading();
-                    getMvpView().setSongsList(songListBeans);
-                }
-            }
-        },500);
-
-    }
-
-    @Override
-    public void searchError() {
-        getMvpView().showError();
-    }
-
-    @Override
-    public void searchMoreSuccess(final ArrayList<SearchSong.DataBean.ListBean> songListBeans) {
-        mHandler.postDelayed(new Runnable() {
-            @Override
-            public void run() {
-                if(isAttachView()){
-                    getMvpView().searchMoreSuccess(songListBeans);
-                }
-            }
-        },500);
-
-    }
-
-    @Override
-    public void searchMoreError() {
-        if(isAttachView()){
-            getMvpView().searchMoreError();
-        }
-    }
-
-    @Override
-    public void showSearchMoreNetworkError() {
-        mHandler.postDelayed(new Runnable() {
-            @Override
-            public void run() {
-                if(isAttachView()){
-                    getMvpView().showSearcherMoreNetworkError();
-                }
-            }
-        },500);
-
-    }
 
     @Override
     public void searchAlbum(String seek, int offset) {
-        mModel.searchAlbum(seek,offset);
-        if(isAttachView()){
-            getMvpView().showLoading();
-        }
-    }
-
-    @Override
-    public void searchAlbumSuccess(List<Album.DataBean.ListBean> albumList) {
-        if(isAttachView()){
-            getMvpView().searchAlbumSuccess(albumList);
-            getMvpView().hideLoading();
-        }
-    }
-
-    @Override
-    public void searchAlbumError() {
-        if(isAttachView()){
-            getMvpView().searchAlbumError();
-            getMvpView().hideLoading();
-        }
+        addRxSubscribe(
+                mModel.searchAlbum(seek, offset)
+                        .subscribeOn(Schedulers.io()).observeOn(AndroidSchedulers.mainThread())
+                        .subscribeWith(new BaseObserver<Album>(mView, true, true) {
+                            @Override
+                            public void onNext(Album album) {
+                                super.onNext(album);
+                                if (album.getCode() == 200) {
+                                    mView.searchAlbumSuccess(album.getData().getList());
+                                } else {
+                                    mView.searchAlbumError();
+                                }
+                            }
+                        }));
     }
 
     @Override
     public void searchAlbumMore(String seek, int offset) {
-        mModel.searchAlbumMore(seek,offset);
+        addRxSubscribe(
+                mModel.searchAlbum(seek, offset)
+                        .subscribeOn(Schedulers.io()).observeOn(AndroidSchedulers.mainThread())
+                        .subscribeWith(new BaseObserver<Album>(mView, false, true) {
+                            @Override
+                            public void onNext(Album album) {
+                                super.onNext(album);
+                                if (album.getCode() == 200) {
+                                    mView.searchAlbumMoreSuccess(album.getData().getList());
+                                } else {
+                                    mView.searchMoreError();
+                                }
+                            }
+                            @Override
+                            public void onError(Throwable e){
+                                super.onError(e);
+                                mView.showSearcherMoreNetworkError();
+                            }
+                        }));
     }
 
-    @Override
-    public void searchAlbumMoreSuccess(final List<Album.DataBean.ListBean> songListBeans) {
-        mHandler.postDelayed(new Runnable() {
-            @Override
-            public void run() {
-                if(isAttachView()){
-                    getMvpView().searchAlbumMoreSuccess(songListBeans);
-                }
-            }
-        },500);
-    }
-
-    @Override
-    public void networkError() {
-        if(isAttachView()){
-            getMvpView().showNetError();
-        }
-    }
 }

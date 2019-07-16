@@ -21,6 +21,8 @@ import android.widget.TextView;
 
 import com.example.musicplayer.R;
 import com.example.musicplayer.adapter.SearchContentAdapter;
+import com.example.musicplayer.base.fragment.BaseLoadingFragment;
+import com.example.musicplayer.base.fragment.BaseMvpFragment;
 import com.example.musicplayer.callback.*;
 import com.example.musicplayer.app.BaseUri;
 import com.example.musicplayer.app.BroadcastName;
@@ -43,32 +45,35 @@ import com.wang.avi.AVLoadingIndicatorView;
 import java.util.ArrayList;
 import java.util.List;
 
+import butterknife.BindView;
+
 /**
  * Created by 残渊 on 2018/11/21.
  */
 
-public class SearchContentFragment extends Fragment implements ISearchContentContract.View {
+public class SearchContentFragment extends BaseLoadingFragment<SearchContentPresenter> implements ISearchContentContract.View {
     private static final String TAG = "SearchContentFragment";
     public static final String TYPE_KEY = "type";
     public static final String SEEK_KEY = "seek";
     public static final String IS_ONLINE = "online";
     private int mOffset = 1; //用于翻页搜索
 
-    private String mAlbumName, mSingerName, mAlbumPic, mPublicTime;
+
+
     private SongFinishReceiver songFinishReceiver;
     private SearchContentPresenter mPresenter;
-    private LRecyclerView mRecycler;
+
     private LinearLayoutManager manager;
     private SearchContentAdapter mAdapter;
     private ArrayList<SearchSong.DataBean.ListBean> mSongList = new ArrayList<>();
     private List<Album.DataBean.ListBean> mAlbumList;
     private IntentFilter intentFilter;
-
     private LRecyclerViewAdapter mLRecyclerViewAdapter;//下拉刷新
-    private AVLoadingIndicatorView mLoading;
-    private TextView mLoadingTv;
-    private ImageView mBackgroundIv;
-    private ImageView mNetworkErrorIv;
+
+    @BindView(R.id.normalView)
+    LRecyclerView mRecycler;
+    @BindView(R.id.iv_background)
+    ImageView mBackgroundIv;
 
     private Bundle mBundle;
     private String mSeek;
@@ -89,31 +94,40 @@ public class SearchContentFragment extends Fragment implements ISearchContentCon
     };
 
     @Override
-    public View onCreateView(LayoutInflater inflater, ViewGroup container,
-                             Bundle savedInstanceState) {
-        View view = inflater.inflate(R.layout.fragment_search_content, container, false);
+    protected void loadData() {
+        if (mType.equals("song")) {
+            mPresenter.search(mSeek, 1);
+        } else if (mType.equals("album")) {
+            mPresenter.searchAlbum(mSeek, 1);
+        }
+        searchMore();
+    }
+
+    @Override
+    public void reload() {
+        super.reload();
+        if (mType.equals("song")) {
+            mPresenter.search(mSeek, 1);
+        } else if (mType.equals("album")) {
+            mPresenter.searchAlbum(mSeek, 1);
+        }
+    }
+
+    @Override
+    protected int getLayoutId() {
+        return R.layout.fragment_search_content;
+    }
+
+    @Override
+    protected void initView() {
+        super.initView();
         mBundle = getArguments();
         if (mBundle != null) {
             mSeek = mBundle.getString(SEEK_KEY);
             mType = mBundle.getString(TYPE_KEY);
         }
-
-        mRecycler = view.findViewById(R.id.normalView);
-        mLoading = view.findViewById(R.id.avi);
-        mLoadingTv = view.findViewById(R.id.tv_loading);
-        mBackgroundIv = view.findViewById(R.id.iv_background);
-        mNetworkErrorIv = view.findViewById(R.id.iv_network_error);
-        mPresenter = new SearchContentPresenter();
-        mPresenter.attachView(this);
-        if (mType.equals("song")) {
-            mPresenter.search(mSeek, 1);
-        } else if (mType.equals("album")) {
-            mPresenter.searchAlbum(mSeek, 1);
-            mRecycler.setBackgroundResource(R.color.translucent);
-        }
-        searchMore();
-        return view;
     }
+
 
     @Override
     public void onActivityCreated(Bundle savedInstanceState) {
@@ -136,31 +150,26 @@ public class SearchContentFragment extends Fragment implements ISearchContentCon
     }
 
     @Override
+    protected SearchContentPresenter getPresenter() {
+        mPresenter = new SearchContentPresenter();
+        return mPresenter ;
+    }
+
+    @Override
     public void onDestroy() {
         super.onDestroy();
         getActivity().unbindService(connection);
         getActivity().unregisterReceiver(songFinishReceiver);
     }
-    @Override
-    public void onDestroyView(){
-        Log.d(TAG, "onDestroyView: true");
-        RxApiManager.get().cancel(Constant.SEARCH_SONG);
-        RxApiManager.get().cancel(Constant.SEARCH_ALBUM);
-        RxApiManager.get().cancel(Constant.SEARCH_ALBUM_MORE);
-        RxApiManager.get().cancel(Constant.SEARCH_SONG_MORE);
-        super.onDestroyView();
-    }
 
 
     @Override
     public void setSongsList(final ArrayList<SearchSong.DataBean.ListBean> songListBeans) {
-        Log.d(TAG, "setSongsList: "+songListBeans.get(0).getSongname());
         mSongList.addAll(songListBeans);
         mAdapter = new SearchContentAdapter(mSongList, mSeek, getActivity(), Constant.TYPE_SONG);
         mLRecyclerViewAdapter = new LRecyclerViewAdapter(mAdapter);
         mRecycler.setLayoutManager(manager);
         mRecycler.setAdapter(mLRecyclerViewAdapter);
-
 
         mAdapter.setItemClick(new OnItemClickListener() {
             @Override
@@ -184,7 +193,6 @@ public class SearchContentFragment extends Fragment implements ISearchContentCon
 
     @Override
     public void searchMoreSuccess(ArrayList<SearchSong.DataBean.ListBean> songListBeans) {
-        Log.d(TAG, "searchMoreSuccess: success=" + songListBeans.size());
         mSongList.addAll(songListBeans);
         mAdapter.notifyDataSetChanged();
         mRecycler.refreshComplete(Constant.OFFSET);
@@ -212,15 +220,10 @@ public class SearchContentFragment extends Fragment implements ISearchContentCon
             }
         });
         //设置底部加载颜色
-        mRecycler.setFooterViewColor(R.color.colorAccent, R.color.musicStyle_low, R.color.translucent);
+        mRecycler.setFooterViewColor(R.color.colorAccent, R.color.musicStyle_low, R.color.transparent);
         //设置底部加载文字提示
         mRecycler.setFooterViewHint("拼命加载中", "已经全部为你呈现了", "网络不给力啊，点击再试一次吧");
 
-    }
-
-    @Override
-    public void showError() {
-        CommonUtil.showToast(getActivity(), "连接超时");
     }
 
     @Override
@@ -242,7 +245,6 @@ public class SearchContentFragment extends Fragment implements ISearchContentCon
         mLRecyclerViewAdapter = new LRecyclerViewAdapter(mAdapter);
         mRecycler.setLayoutManager(manager);
         mRecycler.setAdapter(mLRecyclerViewAdapter);
-
         mAdapter.setAlbumClick(new OnAlbumItemClickListener() {
             @Override
             public void onClick(int position) {
@@ -263,27 +265,6 @@ public class SearchContentFragment extends Fragment implements ISearchContentCon
         CommonUtil.showToast(getActivity(), "获取专辑信息失败");
     }
 
-    @Override
-    public void showLoading() {
-        mLoading.show();
-    }
-
-    @Override
-    public void hideLoading() {
-        mRecycler.setVisibility(View.VISIBLE);
-        mLoading.hide();
-        mLoadingTv.setVisibility(View.GONE);
-        mBackgroundIv.setVisibility(View.GONE);
-        mNetworkErrorIv.setVisibility(View.GONE);
-    }
-
-    @Override
-    public void showNetError() {
-        mRecycler.setVisibility(View.GONE);
-        mLoading.setVisibility(View.GONE);
-        mLoadingTv.setVisibility(View.GONE);
-        mNetworkErrorIv.setVisibility(View.VISIBLE);
-    }
 
     /**
      * 构造带参数的fragment
@@ -328,10 +309,10 @@ public class SearchContentFragment extends Fragment implements ISearchContentCon
 
     //获取歌手，因为歌手可能有很多个
     private String getSinger( SearchSong.DataBean.ListBean dataBean){
-        String singer = dataBean.getSinger().get(0).getName();
+        StringBuilder singer = new StringBuilder(dataBean.getSinger().get(0).getName());
         for (int i = 1; i < dataBean.getSinger().size(); i++) {
-            singer+="、"+dataBean.getSinger().get(i).getName();
+            singer.append("、").append(dataBean.getSinger().get(i).getName());
         }
-        return singer;
+        return singer.toString();
     }
 }

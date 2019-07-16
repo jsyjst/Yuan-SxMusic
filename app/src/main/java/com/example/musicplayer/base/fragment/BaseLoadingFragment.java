@@ -26,10 +26,10 @@ import static com.example.musicplayer.app.Constant.NORMAL_STATE;
 public abstract class BaseLoadingFragment<T extends IPresenter> extends BaseMvpFragment<T> {
     private View mNormalView;  //正常布局
     private View mErrorView; //错误布局
-    private AVLoadingIndicatorView mLoadingView;  //加载布局
-    private View mLoadingText; //加载文字
+    private View mLoadingView;//加载布局
+    private AVLoadingIndicatorView avLoadingView;
 
-    private int mCurrentState;//当前布局状态
+    private int mCurrentState = NORMAL_STATE;//当前布局状态
 
     @Override
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
@@ -48,10 +48,14 @@ public abstract class BaseLoadingFragment<T extends IPresenter> extends BaseMvpF
         View.inflate(mActivity,R.layout.loading_view,parentPanel);//加载loading布局
 
         mLoadingView = parentPanel.findViewById(R.id.loadingView);
-        mLoadingText = parentPanel.findViewById(R.id.loadingText);
+        avLoadingView = parentPanel.findViewById(R.id.avLoading);
         mErrorView = parentPanel.findViewById(R.id.errorView);
         TextView reloadBtn = parentPanel.findViewById(R.id.reloadBtn);
         reloadBtn.setOnClickListener(view1 -> reload()); //重新加载
+
+        mNormalView.setVisibility(View.VISIBLE);
+        mErrorView.setVisibility(View.GONE);
+        mLoadingView.setVisibility(View.GONE);
     }
 
     @Override
@@ -67,7 +71,7 @@ public abstract class BaseLoadingFragment<T extends IPresenter> extends BaseMvpF
     public void showErrorView() {
         super.showErrorView();
         if(mCurrentState == ERROR_STATE) return;
-        showViewByState(mCurrentState);
+        hideViewByState(mCurrentState);
         mCurrentState = ERROR_STATE;
         showViewByState(mCurrentState);
     }
@@ -76,7 +80,7 @@ public abstract class BaseLoadingFragment<T extends IPresenter> extends BaseMvpF
     public void showLoading() {
         super.showLoading();
         if(mCurrentState == LOADING_STATE) return;
-        showViewByState(mCurrentState);
+        hideViewByState(mCurrentState);
         mCurrentState = LOADING_STATE;
         showViewByState(mCurrentState);
     }
@@ -86,9 +90,8 @@ public abstract class BaseLoadingFragment<T extends IPresenter> extends BaseMvpF
             if(mNormalView == null) return;
             mNormalView.setVisibility(View.GONE);
         }else if(state == LOADING_STATE){
-            if(mLoadingView == null||mLoadingText == null) return;
-             mLoadingView.hide();
-             mLoadingText.setVisibility(View.GONE);
+            if(mLoadingView == null||avLoadingView == null) return;
+             mLoadingView.setVisibility(View.GONE);
         }else {
             if(mErrorView == null ) return;
             mErrorView.setVisibility(View.GONE);
@@ -99,12 +102,14 @@ public abstract class BaseLoadingFragment<T extends IPresenter> extends BaseMvpF
             if(mNormalView == null) return;
             mNormalView.setVisibility(View.VISIBLE);
         }else if(state == LOADING_STATE){
-            if(mLoadingView == null||mLoadingText == null) return;
-            mLoadingView.show();
-            mLoadingText.setVisibility(View.VISIBLE);
+            if(mLoadingView == null||avLoadingView == null) return;
+            mLoadingView.setVisibility(View.VISIBLE);
+            avLoadingView.show();
         }else {
             if(mErrorView == null ) return;
             mErrorView.setVisibility(View.VISIBLE);
         }
     }
+
+
 }

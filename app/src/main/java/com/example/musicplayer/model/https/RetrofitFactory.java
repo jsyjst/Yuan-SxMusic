@@ -59,7 +59,7 @@ public class RetrofitFactory {
     private synchronized static OkHttpClient getOkHttpClient(){
         if(sOkHttpClient == null){
             sOkHttpClient = new OkHttpClient.Builder()
-                    .connectTimeout(10, TimeUnit.SECONDS)
+                    .connectTimeout(100, TimeUnit.SECONDS)
                     .build();
         }
         return sOkHttpClient;

@@ -2,7 +2,8 @@ package com.example.musicplayer.presenter;
 
 import android.os.Handler;
 
-import com.example.musicplayer.base.BasePresenter;
+
+import com.example.musicplayer.base.presenter.BasePresenter;
 import com.example.musicplayer.contract.IAlbumSongContract;
 import com.example.musicplayer.entiy.AlbumSong;
 import com.example.musicplayer.model.AlbumSongModel;
@@ -21,12 +22,6 @@ public class AlbumSongPresenter extends BasePresenter<IAlbumSongContract.View> i
 
     private final static String TAG = "AlbumSongPresenter";
 
-    private AlbumSongModel mModel;
-    private Handler mHandler = new Handler();
-
-    public AlbumSongPresenter() {
-        mModel = new AlbumSongModel(this);
-    }
 
     @Override
     public void getAlbumDetail(String id, int type) {

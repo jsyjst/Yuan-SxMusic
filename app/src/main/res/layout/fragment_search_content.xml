@@ -12,14 +12,15 @@
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             android:layout_marginBottom="65dp"
-            android:src="@color/translucent"/>
+            android:background="@color/translucent"
+            />
 
         <com.github.jdsjlzx.recyclerview.LRecyclerView
             android:id="@+id/normalView"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             android:layout_marginBottom="65dp"
-            android:visibility="gone">
+            android:overScrollMode="never">
         </com.github.jdsjlzx.recyclerview.LRecyclerView>
 
 

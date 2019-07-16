@@ -1,5 +1,7 @@
 package com.example.musicplayer.contract;
 
+import com.example.musicplayer.base.presenter.IPresenter;
+import com.example.musicplayer.base.view.BaseView;
 import com.example.musicplayer.entiy.AlbumSong;
 
 import java.util.ArrayList;
@@ -15,7 +17,7 @@ public interface IAlbumSongContract {
         void getAlbumDetail(String id,int type); //获取专辑的更多信息
         void insertAllAlbumSong(ArrayList<AlbumSong.DataBean.GetSongInfoBean> songList); //将专辑歌曲添加到数据库
     }
-    interface View{
+    interface View extends BaseView {
         void setAlbumSongList(List<AlbumSong.DataBean.GetSongInfoBean> songList); //成功获取专辑歌曲后填充列表
         void showAlbumSongError();//获取专辑失败
         void showAlbumMessage(String name,String language,String company,String albumType,String desc); //展示专辑详细
@@ -23,7 +25,7 @@ public interface IAlbumSongContract {
         void hideLoading(); //隐藏进度
         void showNetError(); //显示网络错误
     }
-    interface Presenter{
+    interface Presenter extends IPresenter<BaseView> {
         void getAlbumDetail(String id,int type); //获取专辑的更多信息
         void getAlbumDetailSuccess(int type,List<AlbumSong.DataBean.GetSongInfoBean>songList,
                                    String name,String language,String company,String albumType,String desc); //成功获取专辑信息

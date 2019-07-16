@@ -105,10 +105,10 @@ public class SearchContentAdapter extends RecyclerView.Adapter<RecyclerView.View
             if(songListBean.getSongmid().equals(FileHelper.getSong().getSongId())){
                 songHolder.playLine.setVisibility(View.VISIBLE);
                 mLastPosition =position;
-                songHolder.mItemView.setBackgroundResource(R.color.click);
+                songHolder.mItemView.setBackgroundResource(R.color.translucent);
             }else {
                 songHolder.playLine.setVisibility(View.INVISIBLE);
-                songHolder.mItemView.setBackgroundResource(R.color.translucent);
+                songHolder.mItemView.setBackgroundResource(R.color.transparent);
             }
             songHolder.mItemView.setOnRippleCompleteListener(new RippleView.OnRippleCompleteListener() {
                 @Override

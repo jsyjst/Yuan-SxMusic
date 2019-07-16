@@ -4,6 +4,7 @@ import android.provider.ContactsContract;
 
 import com.example.musicplayer.base.view.BaseView;
 import com.example.musicplayer.model.DataModel;
+import com.example.musicplayer.model.db.DbHelperImpl;
 import com.example.musicplayer.model.https.NetworkHelperImpl;
 import com.example.musicplayer.model.https.RetrofitFactory;
 
@@ -26,7 +27,7 @@ public class BasePresenter<T extends BaseView> implements IPresenter<T>{
     //得到model
     public BasePresenter(){
         if(mModel == null){
-            mModel = new DataModel(new NetworkHelperImpl(RetrofitFactory.createRequest()));
+            mModel = new DataModel(new NetworkHelperImpl(RetrofitFactory.createRequest()),new DbHelperImpl());
         }
     }
     private CompositeDisposable mCompositeDisposable;

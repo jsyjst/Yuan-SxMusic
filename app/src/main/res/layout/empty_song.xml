@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     >
@@ -7,17 +7,18 @@
     <ImageView
         android:id="@+id/iv_empty_song"
         android:layout_centerInParent="true"
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
+        android:layout_width="@dimen/dp_100"
+        android:layout_height="@dimen/dp_100"
         android:src="@drawable/song_empty"
         android:scaleType="centerCrop"/>
 
     <TextView
         android:layout_marginTop="20dp"
-        android:layout_width="wrap_content"
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_gravity="center"
+        android:layout_below="@+id/iv_empty_song"
+        android:gravity="center"
         android:text="本地音乐为空，试试点击右上角导入本地歌曲"
         android:textColor="@color/player"/>
 
-</FrameLayout>
+</RelativeLayout>

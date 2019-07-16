@@ -4,8 +4,12 @@ import com.example.musicplayer.entiy.Album;
 import com.example.musicplayer.entiy.AlbumSong;
 import com.example.musicplayer.entiy.SearchSong;
 import com.example.musicplayer.entiy.SingerImg;
+import com.example.musicplayer.model.db.DbHelper;
+import com.example.musicplayer.model.db.DbHelperImpl;
 import com.example.musicplayer.model.https.NetworkHelper;
 import com.example.musicplayer.model.https.NetworkHelperImpl;
+
+import java.util.ArrayList;
 
 import io.reactivex.Observable;
 
@@ -17,11 +21,13 @@ import io.reactivex.Observable;
  * </pre>
  */
 
-public class DataModel implements NetworkHelper {
+public class DataModel implements NetworkHelper, DbHelper {
     private NetworkHelperImpl mNetworkHelper;
+    private DbHelperImpl mDbHelper;
 
-    public DataModel(NetworkHelperImpl networkHelper){
+    public DataModel(NetworkHelperImpl networkHelper,DbHelperImpl dbHelper){
         mNetworkHelper = networkHelper;
+        mDbHelper = dbHelper;
     }
 
     @Override
@@ -52,5 +58,10 @@ public class DataModel implements NetworkHelper {
     @Override
     public Observable<SingerImg> getSingerImg(String singer) {
         return mNetworkHelper.getSingerImg(singer);
+    }
+
+    @Override
+    public void insertAllAlbumSong(ArrayList<AlbumSong.DataBean.GetSongInfoBean> songList) {
+         mDbHelper.insertAllAlbumSong(songList);
     }
 }

@@ -16,14 +16,16 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
+import android.widget.ScrollView;
 import android.widget.TextView;
 
 import com.example.musicplayer.R;
 import com.example.musicplayer.adapter.AlbumSongAdapter;
-import com.example.musicplayer.callback.OnItemClickListener;
 import com.example.musicplayer.app.BaseUri;
 import com.example.musicplayer.app.BroadcastName;
 import com.example.musicplayer.app.Constant;
+import com.example.musicplayer.base.fragment.BaseMvpFragment;
+import com.example.musicplayer.callback.OnItemClickListener;
 import com.example.musicplayer.contract.IAlbumSongContract;
 import com.example.musicplayer.entiy.AlbumSong;
 import com.example.musicplayer.entiy.Song;
@@ -31,7 +33,6 @@ import com.example.musicplayer.presenter.AlbumSongPresenter;
 import com.example.musicplayer.service.PlayerService;
 import com.example.musicplayer.util.CommonUtil;
 import com.example.musicplayer.util.FileHelper;
-import com.example.musicplayer.util.RxApiManager;
 import com.github.florent37.materialviewpager.MaterialViewPagerHelper;
 import com.github.florent37.materialviewpager.header.MaterialViewPagerHeaderDecorator;
 import com.wang.avi.AVLoadingIndicatorView;
@@ -40,12 +41,13 @@ import org.litepal.LitePal;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 
 /**
  * Created by 残渊 on 2018/11/25.
  */
 
-public class AlbumSongFragment extends Fragment implements IAlbumSongContract.View{
+public class AlbumSongFragment extends BaseMvpFragment<AlbumSongPresenter> implements IAlbumSongContract.View{
     private static final String TYPE_KEY = "type_key";
     public static final int ALBUM_SONG = 0;
     public static final int ALBUM_INFORATION = 1;
@@ -89,17 +91,27 @@ public class AlbumSongFragment extends Fragment implements IAlbumSongContract.Vi
 
         }
     };
+
+
     @Override
-    public View onCreateView(LayoutInflater inflater, ViewGroup container,
-                             Bundle savedInstanceState) {
+    protected void loadData() {
+        mPresenter =new AlbumSongPresenter();
+        mPresenter.attachView(this);
+        mPresenter.getAlbumDetail(mId,mType);
+    }
+
+    @Override
+    protected int getLayoutId() {
+        return 0;
+    }
+
+    @Override
+    public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         getBundle();
         View view = null;
         if (mType == ALBUM_SONG) {
             view = inflater.inflate(R.layout.fragment_album_recycler, container, false);
             mRecycle = view.findViewById(R.id.normalView);
-            mLoading = view.findViewById(R.id.avi);
-            mLoadingTv = view.findViewById(R.id.tv_loading);
-            mNetworkErrorIv = view.findViewById(R.id.iv_network_error);
             LitePal.getDatabase();
         } else {
             view = inflater.inflate(R.layout.fragment_album_song, container, false);
@@ -110,8 +122,10 @@ public class AlbumSongFragment extends Fragment implements IAlbumSongContract.Vi
             mCompany = view.findViewById(R.id.tv_company);
             mPublicTimeTv = view.findViewById(R.id.tv_public_time);
             mTypeTv = view.findViewById(R.id.tv_album_type);
-
         }
+        mLoading = view.findViewById(R.id.avi);
+        mLoadingTv = view.findViewById(R.id.tv_loading);
+        mNetworkErrorIv = view.findViewById(R.id.iv_network_error);
 
         return view;
     }
@@ -131,19 +145,16 @@ public class AlbumSongFragment extends Fragment implements IAlbumSongContract.Vi
             MaterialViewPagerHelper.registerScrollView(getActivity(), mScrollView);
         }
 
-        mPresenter =new AlbumSongPresenter();
-        mPresenter.attachView(this);
-        mPresenter.getAlbumDetail(mId,mType);
+
     }
 
     @Override
     public void onDestroyView(){
-        RxApiManager.get().cancel(Constant.ALBUM);
         if(albumSongChangeReceiver!=null){
-            getActivity().unregisterReceiver(albumSongChangeReceiver);
+            Objects.requireNonNull(getActivity()).unregisterReceiver(albumSongChangeReceiver);
         }
         if(playIntent!=null){
-            getActivity().unbindService(connection);
+            Objects.requireNonNull(getActivity()).unbindService(connection);
         }
         super.onDestroyView();
     }
@@ -222,7 +233,11 @@ public class AlbumSongFragment extends Fragment implements IAlbumSongContract.Vi
     public void hideLoading() {
         mLoading.hide();
         mLoadingTv.setVisibility(View.GONE);
-        mRecycle.setVisibility(View.VISIBLE);
+        if(mType==ALBUM_SONG){
+            mRecycle.setVisibility(View.VISIBLE);
+        }else {
+            mScrollView.setVisibility(View.VISIBLE);
+        }
         mNetworkErrorIv.setVisibility(View.GONE);
     }
 
@@ -231,6 +246,11 @@ public class AlbumSongFragment extends Fragment implements IAlbumSongContract.Vi
         mLoadingTv.setVisibility(View.GONE);
         mLoading.hide();
         mNetworkErrorIv.setVisibility(View.VISIBLE);
+    }
+
+    @Override
+    protected AlbumSongPresenter getPresenter() {
+        return null;
     }
 
     class AlbumSongChangeReceiver extends BroadcastReceiver {
@@ -243,10 +263,10 @@ public class AlbumSongFragment extends Fragment implements IAlbumSongContract.Vi
 
     //获取歌手，因为歌手可能有很多个
     private String getSinger(AlbumSong.DataBean.GetSongInfoBean dataBean){
-        String singer = dataBean.getSinger().get(0).getName();
+        StringBuilder singer = new StringBuilder(dataBean.getSinger().get(0).getName());
         for (int i = 1; i < dataBean.getSinger().size(); i++) {
-            singer+="、"+dataBean.getSinger().get(i).getName();
+            singer.append("、").append(dataBean.getSinger().get(i).getName());
         }
-        return singer;
+        return singer.toString();
     }
 }

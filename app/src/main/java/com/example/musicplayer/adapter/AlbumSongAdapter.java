@@ -58,11 +58,11 @@ public class AlbumSongAdapter extends RecyclerView.Adapter<RecyclerView.ViewHold
             ViewHolder holder = (ViewHolder) viewHolder;
             AlbumSong.DataBean.GetSongInfoBean songsBean = mSongsBeanList.get(position);
             //设置歌手，因为歌手可能有两个
-            String singer = songsBean.getSinger().get(0).getName();
+            StringBuilder singer = new StringBuilder(songsBean.getSinger().get(0).getName());
             for (int i = 1; i < songsBean.getSinger().size(); i++) {
-                singer+="、"+songsBean.getSinger().get(i).getName();
+                singer.append("、").append(songsBean.getSinger().get(i).getName());
             }
-            holder.artistTv.setText(singer);
+            holder.artistTv.setText(singer.toString());
             holder.titleTv.setText(songsBean.getSongname());
             holder.mItemView.setBackgroundResource(R.color.translucent);
             //根据点击显示

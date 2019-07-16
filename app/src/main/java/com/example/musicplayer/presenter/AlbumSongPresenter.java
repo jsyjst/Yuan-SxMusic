@@ -1,15 +1,17 @@
 package com.example.musicplayer.presenter;
 
-import android.os.Handler;
+import android.util.Log;
 
-
+import com.example.musicplayer.base.observer.BaseObserver;
 import com.example.musicplayer.base.presenter.BasePresenter;
 import com.example.musicplayer.contract.IAlbumSongContract;
 import com.example.musicplayer.entiy.AlbumSong;
-import com.example.musicplayer.model.AlbumSongModel;
 
+import java.net.UnknownHostException;
 import java.util.ArrayList;
-import java.util.List;
+
+import io.reactivex.android.schedulers.AndroidSchedulers;
+import io.reactivex.schedulers.Schedulers;
 
 import static com.example.musicplayer.view.AlbumSongFragment.ALBUM_SONG;
 
@@ -25,63 +27,52 @@ public class AlbumSongPresenter extends BasePresenter<IAlbumSongContract.View> i
 
     @Override
     public void getAlbumDetail(String id, int type) {
-        mModel.getAlbumDetail(id, type);
-        if (type == ALBUM_SONG) {
-            if (isAttachView()) {
-                getMvpView().showLoading();
-            }
-        }
-    }
+        addRxSubscribe(
+                mModel.getAlbumSong(id)
+                        .subscribeOn(Schedulers.io()).observeOn(AndroidSchedulers.mainThread())
+                        .subscribeWith(new BaseObserver<AlbumSong>(mView) {
+                            @Override
+                            public void onStart() {
+                                mView.showLoading();
+                            }
 
-    @Override
-    public void getAlbumDetailSuccess(final int type, final List<AlbumSong.DataBean.GetSongInfoBean> songList,
-                                      String name,String language,String company,String albumType,String desc) {
-        mHandler.postDelayed(new Runnable() {
-            @Override
-            public void run() {
-                if (isAttachView()) {
-                    if (type == ALBUM_SONG) {
-                        getMvpView().setAlbumSongList(songList);
-                        getMvpView().hideLoading();
-                    } else {
-                        getMvpView().showAlbumMessage(name, language, company, albumType,desc);
-                    }
+                            @Override
+                            public void onNext(AlbumSong albumSong) {
+                                super.onNext(albumSong);
+                                mView.hideLoading();
+                                if (albumSong.getCode() == 200) {
+                                    if (type == ALBUM_SONG) {
+                                        mView.setAlbumSongList(albumSong.getData().getGetSongInfo());
+                                    } else {
+                                        mView.showAlbumMessage(
+                                                albumSong.getData().getGetSongInfo().get(0).getAlbumname(),
+                                                albumSong.getData().getLanguage(),
+                                                albumSong.getData().getGetCompanyInfo().getFcompany_name(),
+                                                albumSong.getData().getAlbumtype(),
+                                                albumSong.getData().getGetAlbumDesc().getFalbum_desc());
+                                    }
+                                } else {
+                                    mView.showAlbumSongError();
+                                }
+                            }
 
-                }
-            }
-        }, 1000);
-
-    }
-
-    @Override
-    public void getAlbumDetailError() {
-        if (isAttachView()) {
-            getMvpView().showAlbumSongError();
-        }
-    }
-
-    @Override
-    public void getAlbumError() {
-        if (isAttachView()) {
-            getMvpView().showAlbumSongError();
-        }
+                            @Override
+                            public void onError(Throwable e) {
+                                e.printStackTrace();
+                                Log.d(TAG, "onError: " + e.toString());
+                                mView.hideLoading();
+                                if (e instanceof UnknownHostException && type == ALBUM_SONG) {
+                                    mView.showNetError();
+                                } else {
+                                    mView.showAlbumSongError();
+                                }
+                            }
+                        })
+        );
     }
 
     @Override
     public void insertAllAlbumSong(ArrayList<AlbumSong.DataBean.GetSongInfoBean> songList) {
         mModel.insertAllAlbumSong(songList);
-    }
-
-    @Override
-    public void showNetError() {
-        mHandler.postDelayed(new Runnable() {
-            @Override
-            public void run() {
-                if (isAttachView()) {
-                    getMvpView().showNetError();
-                }
-            }
-        }, 1000);
-
     }
 }

@@ -5,6 +5,7 @@ import com.example.musicplayer.entiy.AlbumSong;
 import com.example.musicplayer.entiy.LocalSong;
 import com.example.musicplayer.entiy.SearchSong;
 import com.example.musicplayer.entiy.SingerImg;
+import com.example.musicplayer.entiy.Song;
 import com.example.musicplayer.model.db.DbHelper;
 import com.example.musicplayer.model.db.DbHelperImpl;
 import com.example.musicplayer.model.https.NetworkHelper;
@@ -75,5 +76,20 @@ public class DataModel implements NetworkHelper, DbHelper {
     @Override
     public boolean saveSong(List<LocalSong> localSongs) {
         return mDbHelper.saveSong(localSongs);
+    }
+
+    @Override
+    public boolean queryLove(String songId) {
+        return mDbHelper.queryLove(songId);
+    }
+
+    @Override
+    public boolean saveToLove(Song song) {
+        return mDbHelper.saveToLove(song);
+    }
+
+    @Override
+    public boolean deleteFromLove(String songId) {
+        return mDbHelper.deleteFromLove(songId);
     }
 }

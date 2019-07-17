@@ -1,112 +1,109 @@
 package com.example.musicplayer.presenter;
 
-import com.example.musicplayer.base.BasePresenter;
+
 import com.example.musicplayer.app.BaseUri;
+import com.example.musicplayer.base.observer.BaseObserver;
+import com.example.musicplayer.base.presenter.BasePresenter;
 import com.example.musicplayer.contract.IPlayContract;
 import com.example.musicplayer.entiy.SearchSong;
+import com.example.musicplayer.entiy.SingerImg;
 import com.example.musicplayer.entiy.Song;
-import com.example.musicplayer.model.PlayModel;
+import com.example.musicplayer.model.https.RetrofitFactory;
 
 import java.util.List;
+
+import io.reactivex.ObservableSource;
+import io.reactivex.android.schedulers.AndroidSchedulers;
+import io.reactivex.functions.Function;
+import io.reactivex.schedulers.Schedulers;
 
 /**
  * Created by 残渊 on 2018/10/26.
  */
 
 public class PlayPresenter extends BasePresenter<IPlayContract.View> implements IPlayContract.Presenter {
-    private static final String TAG = "PlayPresenter";
-    private PlayModel mModel;
 
-    public PlayPresenter(){
-        mModel=new PlayModel(this);
-    }
 
     @Override
-    public void getSingerImg(String singer, String song,long duration) {
-        mModel.getSingerImg(singer,song,duration);
+    public void getSingerImg(String singer, String song, long duration) {
+        addRxSubscribe(
+                RetrofitFactory.createRequestOfSinger().getSingerImg(singer)
+                        .subscribeOn(Schedulers.io()).observeOn(AndroidSchedulers.mainThread())
+                        .doOnNext(singerImg -> mView.setSingerImg(singerImg.getResult().getArtists().get(0).getImg1v1Url()))
+                        .observeOn(Schedulers.io())
+                        .flatMap((Function<SingerImg, ObservableSource<SearchSong>>) singerImg -> RetrofitFactory.createRequest().search(song))
+                        .observeOn(AndroidSchedulers.mainThread())
+                        .subscribeWith(new BaseObserver<SearchSong>(mView) {
+                            @Override
+                            public void onNext(SearchSong value) {
+                                super.onNext(value);
+                                if (value.getCode() == 200) {
+                                    getSongLrcSuccess(value.getData().getList(),duration);
+                                } else {
+                                    mView.showLrcMessage(null, null);
+                                }
+                            }
+
+                            @Override
+                            public void onError(Throwable e) {
+                                super.onError(e);
+                                mView.showLrcMessage(null,null);
+                            }
+                        })
+        );
     }
 
     @Override
     public void getLrcUrl(String song, long duration) {
-        mModel.getLrcUrl(song,duration);
+        addRxSubscribe(
+                mModel.search(song)
+                        .subscribeOn(Schedulers.io())
+                        .observeOn(AndroidSchedulers.mainThread())
+                        .subscribeWith(new BaseObserver<SearchSong>(mView){
+                            @Override
+                            public void onNext(SearchSong value) {
+                                super.onNext(value);
+                                if (value.getCode() == 200) {
+                                    getSongLrcSuccess(value.getData().getList(),duration);
+                                } else {
+                                    mView.showLrcMessage(null,null);
+                                }
+                            }
+                        })
+        );
     }
 
-    @Override
-    public void getSingerImgSuccess(String ImgUrl) {
-        if(isAttachView()){
-            getMvpView().setSingerImg(ImgUrl);
-        }
-    }
-
-    @Override
-    public void getSongLrcSuccess(List<SearchSong.DataBean.ListBean> dataBeans, long duration) {
-        if(isAttachView()){
-            boolean isLrc =false;
-            for(SearchSong.DataBean.ListBean dataBean : dataBeans){
-                if(dataBean.getPubtime() == duration){
-                    isLrc = true;
-                    getMvpView().showLrcMessage(BaseUri.LRC_URL+dataBean.getSongmid(),dataBean.getSongmid());
-                    break;
-                }
-            }
-            if(!isLrc) getMvpView().showLrcMessage(BaseUri.LRC_URL+dataBeans.get(0).getSongmid(),
-                    dataBeans.get(0).getSongmid());
-        }
-    }
-
-
-    @Override
-    public void getSongLrcFail() {
-        if(isAttachView()){
-            getMvpView().showLrcMessage(null,null);
-        }
-    }
-
-    @Override
-    public void getSingerImgFail() {
-        if(isAttachView()){
-            getMvpView().setImgFail("获取歌手照片失败");
-        }
-    }
-
-    @Override
-    public void showNetWorkError() {
-
-    }
 
     @Override
     public void queryLove(String songId) {
-        mModel.queryLove(songId);
+        mView.showLove(mModel.queryLove(songId));
     }
 
     @Override
     public void saveToLove(Song song) {
-        mModel.saveToLove(song);
+        if(mModel.saveToLove(song)){
+            mView.saveToLoveSuccess();
+        }
     }
 
     @Override
     public void deleteFromLove(String songId) {
-        mModel.deleteFromLove(songId);
-    }
-
-    @Override
-    public void saveToLoveSuccess() {
-        if(isAttachView()){
-            getMvpView().saveToLoveSuccess();
+        if(mModel.deleteFromLove(songId)){
+            mView.sendUpdateCollection();
         }
     }
 
-    @Override
-    public void showLove(boolean love) {
-        if(isAttachView()){
-            getMvpView().showLove(love);
-        }
-    }
 
-    @Override
-    public void deleteSuccess() {
-        if(isAttachView()){
-            getMvpView().sendUpdateCollection();
+    private void getSongLrcSuccess(List<SearchSong.DataBean.ListBean> dataBeans, long duration) {
+        boolean isLrc =false;
+        for(SearchSong.DataBean.ListBean dataBean : dataBeans){
+            if(dataBean.getPubtime() == duration){
+                isLrc = true;
+                mView.showLrcMessage(BaseUri.LRC_URL+dataBean.getSongmid(),dataBean.getSongmid());
+                break;
+            }
         }
+        if(!isLrc) mView.showLrcMessage(BaseUri.LRC_URL+dataBeans.get(0).getSongmid(),
+                dataBeans.get(0).getSongmid());
     }
 }

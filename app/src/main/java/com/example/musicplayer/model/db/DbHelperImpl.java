@@ -7,7 +7,9 @@ import com.example.musicplayer.app.App;
 import com.example.musicplayer.app.BaseUri;
 import com.example.musicplayer.entiy.AlbumSong;
 import com.example.musicplayer.entiy.LocalSong;
+import com.example.musicplayer.entiy.Love;
 import com.example.musicplayer.entiy.OnlineSong;
+import com.example.musicplayer.entiy.Song;
 
 import org.litepal.LitePal;
 import org.litepal.crud.callback.SaveCallback;
@@ -107,5 +109,29 @@ public class DbHelperImpl implements DbHelper {
             });
         }
         return isSave[0];
+    }
+
+    @Override
+    public boolean queryLove(String songId) {
+         List<Love> love=LitePal.where("songId=?",songId).find(Love.class);
+        return love.size() != 0;
+    }
+
+    @Override
+    public boolean saveToLove(Song song) {
+        Love love =new Love();
+        love.setName(song.getSongName());
+        love.setSinger(song.getSinger());
+        love.setUrl(song.getUrl());
+        love.setPic(song.getImgUrl());
+        love.setDuration(song.getDuration());
+        love.setSongId(song.getSongId());
+        love.setOnline(song.isOnline());
+        return love.save();
+    }
+
+    @Override
+    public boolean deleteFromLove(String songId) {
+        return LitePal.deleteAll(Love.class,"songId=?",songId) !=0;
     }
 }

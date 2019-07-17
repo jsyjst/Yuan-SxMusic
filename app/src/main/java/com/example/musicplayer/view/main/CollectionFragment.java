@@ -1,4 +1,4 @@
-package com.example.musicplayer.view;
+package com.example.musicplayer.view.main;
 
 
 import android.content.BroadcastReceiver;

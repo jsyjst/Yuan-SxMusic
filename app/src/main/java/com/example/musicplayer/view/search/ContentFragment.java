@@ -1,4 +1,4 @@
-package com.example.musicplayer.view;
+package com.example.musicplayer.view.search;
 
 import android.content.res.Resources;
 import android.os.Bundle;

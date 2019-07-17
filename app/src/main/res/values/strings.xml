@@ -38,4 +38,6 @@
     <string name="error_view_network">网络不给力</string>
     <string name="error_view_retry">重试</string>
 
+    <string name="empty_text">本地音乐为空，试试点击右上角导入本地歌曲</string>
+
 </resources>

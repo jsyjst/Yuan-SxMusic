@@ -2,6 +2,7 @@ package com.example.musicplayer.model;
 
 import com.example.musicplayer.entiy.Album;
 import com.example.musicplayer.entiy.AlbumSong;
+import com.example.musicplayer.entiy.LocalSong;
 import com.example.musicplayer.entiy.SearchSong;
 import com.example.musicplayer.entiy.SingerImg;
 import com.example.musicplayer.model.db.DbHelper;
@@ -10,6 +11,7 @@ import com.example.musicplayer.model.https.NetworkHelper;
 import com.example.musicplayer.model.https.NetworkHelperImpl;
 
 import java.util.ArrayList;
+import java.util.List;
 
 import io.reactivex.Observable;
 
@@ -63,5 +65,15 @@ public class DataModel implements NetworkHelper, DbHelper {
     @Override
     public void insertAllAlbumSong(ArrayList<AlbumSong.DataBean.GetSongInfoBean> songList) {
          mDbHelper.insertAllAlbumSong(songList);
+    }
+
+    @Override
+    public List<LocalSong> getLocalMp3Info() {
+        return mDbHelper.getLocalMp3Info();
+    }
+
+    @Override
+    public boolean saveSong(List<LocalSong> localSongs) {
+        return mDbHelper.saveSong(localSongs);
     }
 }

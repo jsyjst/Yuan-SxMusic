@@ -6,19 +6,20 @@
 
     <ImageView
         android:id="@+id/iv_empty_song"
+        android:layout_width="@dimen/dp_120"
+        android:layout_height="@dimen/dp_120"
         android:layout_centerInParent="true"
-        android:layout_width="@dimen/dp_100"
-        android:layout_height="@dimen/dp_100"
-        android:src="@drawable/song_empty"
-        android:scaleType="centerCrop"/>
+        android:scaleType="centerCrop"
+        android:src="@drawable/song_empty" />
 
     <TextView
-        android:layout_marginTop="20dp"
+        android:layout_marginTop="@dimen/dp_20"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_below="@+id/iv_empty_song"
         android:gravity="center"
-        android:text="本地音乐为空，试试点击右上角导入本地歌曲"
-        android:textColor="@color/player"/>
+        android:textSize="@dimen/sp_16"
+        android:text="@string/empty_text"
+        android:textColor="@color/white"/>
 
 </RelativeLayout>

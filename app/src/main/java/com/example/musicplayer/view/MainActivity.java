@@ -35,6 +35,8 @@ import com.example.musicplayer.service.PlayerService;
 import com.example.musicplayer.util.CommonUtil;
 import com.example.musicplayer.util.FileHelper;
 import com.example.musicplayer.util.RxApiManager;
+import com.example.musicplayer.view.main.MainFragment;
+import com.example.musicplayer.view.search.SearchContentFragment;
 
 import org.litepal.LitePal;
 

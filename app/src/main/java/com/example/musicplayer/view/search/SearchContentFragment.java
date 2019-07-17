@@ -1,4 +1,4 @@
-package com.example.musicplayer.view;
+package com.example.musicplayer.view.search;
 
 import android.content.BroadcastReceiver;
 import android.content.ComponentName;
@@ -13,16 +13,11 @@ import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentTransaction;
 import android.support.v7.widget.LinearLayoutManager;
 import android.util.Log;
-import android.view.LayoutInflater;
-import android.view.View;
-import android.view.ViewGroup;
 import android.widget.ImageView;
-import android.widget.TextView;
 
 import com.example.musicplayer.R;
 import com.example.musicplayer.adapter.SearchContentAdapter;
 import com.example.musicplayer.base.fragment.BaseLoadingFragment;
-import com.example.musicplayer.base.fragment.BaseMvpFragment;
 import com.example.musicplayer.callback.*;
 import com.example.musicplayer.app.BaseUri;
 import com.example.musicplayer.app.BroadcastName;
@@ -35,12 +30,10 @@ import com.example.musicplayer.presenter.SearchContentPresenter;
 import com.example.musicplayer.service.PlayerService;
 import com.example.musicplayer.util.CommonUtil;
 import com.example.musicplayer.util.FileHelper;
-import com.example.musicplayer.util.RxApiManager;
 import com.github.jdsjlzx.interfaces.OnLoadMoreListener;
 import com.github.jdsjlzx.interfaces.OnNetWorkErrorListener;
 import com.github.jdsjlzx.recyclerview.LRecyclerView;
 import com.github.jdsjlzx.recyclerview.LRecyclerViewAdapter;
-import com.wang.avi.AVLoadingIndicatorView;
 
 import java.util.ArrayList;
 import java.util.List;

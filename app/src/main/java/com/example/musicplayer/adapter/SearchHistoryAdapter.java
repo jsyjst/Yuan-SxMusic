@@ -26,7 +26,7 @@ public class SearchHistoryAdapter extends RecyclerView.Adapter<RecyclerView.View
     private List<SearchHistory> mSearchHistoryList;
     private static final int mHistoryType =0;
     private static final int mFooterType = 1;
-    private static OnItemClickListener mOnItemClcikListener;
+    private static OnItemClickListener mOnItemClickListener;
     private static OnDeleteClickListener mOnDeleteClickListener;
     private static OnFooterClickListener mFooterClickListener;
 
@@ -66,7 +66,7 @@ public class SearchHistoryAdapter extends RecyclerView.Adapter<RecyclerView.View
             historyHolder.mItemView.setOnRippleCompleteListener(new RippleView.OnRippleCompleteListener() {
                 @Override
                 public void onComplete(RippleView rippleView) {
-                    mOnItemClcikListener.onClick(position);
+                    mOnItemClickListener.onClick(position);
                 }
             });
         }else{
@@ -111,13 +111,13 @@ public class SearchHistoryAdapter extends RecyclerView.Adapter<RecyclerView.View
         }
     }
 
-    public static void setOnItemClcikListener(OnItemClickListener onItemClcikListener){
-        mOnItemClcikListener =onItemClcikListener;
+    public  void setOnItemClickListener(OnItemClickListener onItemClcikListener){
+        mOnItemClickListener =onItemClcikListener;
     }
-    public static void setOnDeleteClickListener(OnDeleteClickListener onDeleteClickListener){
+    public  void setOnDeleteClickListener(OnDeleteClickListener onDeleteClickListener){
         mOnDeleteClickListener =onDeleteClickListener;
     }
-    public static void setFooterClickListener(OnFooterClickListener onFooterClickListener){
+    public  void setFooterClickListener(OnFooterClickListener onFooterClickListener){
         mFooterClickListener =onFooterClickListener;
     }
 }

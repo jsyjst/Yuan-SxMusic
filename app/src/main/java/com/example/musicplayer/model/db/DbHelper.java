@@ -1,8 +1,10 @@
 package com.example.musicplayer.model.db;
 
 import com.example.musicplayer.entiy.AlbumSong;
+import com.example.musicplayer.entiy.LocalSong;
 
 import java.util.ArrayList;
+import java.util.List;
 
 /**
  * <pre>
@@ -18,5 +20,7 @@ public interface DbHelper {
      * @param songList 专辑列表
      */
     void insertAllAlbumSong(ArrayList<AlbumSong.DataBean.GetSongInfoBean> songList);
+    List<LocalSong> getLocalMp3Info();  //得到本地列表
+    boolean saveSong(List<LocalSong> localSongs);//将本地音乐放到数据库中
 
 }

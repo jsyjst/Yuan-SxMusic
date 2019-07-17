@@ -13,7 +13,7 @@ import java.util.ArrayList;
 import io.reactivex.android.schedulers.AndroidSchedulers;
 import io.reactivex.schedulers.Schedulers;
 
-import static com.example.musicplayer.view.AlbumSongFragment.ALBUM_SONG;
+import static com.example.musicplayer.view.search.AlbumSongFragment.ALBUM_SONG;
 
 
 /**

@@ -1,4 +1,4 @@
-package com.example.musicplayer.view;
+package com.example.musicplayer.view.search;
 
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
@@ -81,10 +81,10 @@ public class SearchHistoryFragment extends Fragment {
                 mAdapter.notifyDataSetChanged();
             }
         });
-        mAdapter.setOnItemClcikListener(new OnItemClickListener() {
+        mAdapter.setOnItemClickListener(new OnItemClickListener() {
             @Override
             public void onClick(int position) {
-                ((SearchFragment)(getParentFragment())).setSeekEdit(mSearchHistoryList.get(position).getHistory());
+                ((AlbumContentFragment.SearchFragment)(getParentFragment())).setSeekEdit(mSearchHistoryList.get(position).getHistory());
             }
         });
     }

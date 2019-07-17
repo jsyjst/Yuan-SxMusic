@@ -1,4 +1,4 @@
-package com.example.musicplayer.view;
+package com.example.musicplayer.view.main;
 
 
 import android.content.BroadcastReceiver;
@@ -24,6 +24,7 @@ import com.example.musicplayer.entiy.AlbumCollection;
 import com.example.musicplayer.entiy.HistorySong;
 import com.example.musicplayer.entiy.LocalSong;
 import com.example.musicplayer.entiy.Love;
+import com.example.musicplayer.view.search.AlbumContentFragment;
 import com.example.musicplayer.widget.MyListView;
 
 import org.litepal.LitePal;
@@ -123,7 +124,7 @@ public class MainFragment extends Fragment {
         mSeekBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                replaceFragment(new SearchFragment());
+                replaceFragment(new AlbumContentFragment.SearchFragment());
             }
         });
 

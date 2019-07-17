@@ -15,13 +15,14 @@
         />
     <TextView
         android:id="@+id/reloadBtn"
-        android:layout_width="@dimen/dp_180"
+        android:layout_width="@dimen/dp_200"
         android:layout_height="wrap_content"
         android:background="@drawable/bg_reload"
         android:layout_below="@id/networkErrorImg"
         android:layout_marginTop="@dimen/dp_20"
         android:layout_centerHorizontal="true"
         android:textColor="@color/white"
+        android:textSize="@dimen/sp_16"
         android:text="@string/reload"
         android:gravity="center"
         android:paddingTop="@dimen/dp_5"

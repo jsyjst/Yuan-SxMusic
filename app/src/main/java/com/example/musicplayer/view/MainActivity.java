@@ -4,18 +4,14 @@ package com.example.musicplayer.view;
 import android.animation.ObjectAnimator;
 import android.animation.ValueAnimator;
 import android.app.ActivityOptions;
-import android.content.BroadcastReceiver;
 import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
-import android.content.IntentFilter;
 import android.content.ServiceConnection;
 import android.media.MediaPlayer;
-import android.os.Bundle;
 import android.os.IBinder;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentTransaction;
-import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.view.View;
 import android.view.animation.LinearInterpolator;
@@ -28,43 +24,53 @@ import com.andexert.library.RippleView;
 import com.bumptech.glide.Glide;
 import com.bumptech.glide.request.RequestOptions;
 import com.example.musicplayer.R;
-import com.example.musicplayer.app.BroadcastName;
 import com.example.musicplayer.app.Constant;
+import com.example.musicplayer.base.activity.BaseActivity;
 import com.example.musicplayer.entiy.Song;
+import com.example.musicplayer.event.OnlineSongErrorEvent;
+import com.example.musicplayer.event.SongStatusEvent;
 import com.example.musicplayer.service.PlayerService;
 import com.example.musicplayer.util.CommonUtil;
 import com.example.musicplayer.util.FileHelper;
-import com.example.musicplayer.util.RxApiManager;
 import com.example.musicplayer.view.main.MainFragment;
 import com.example.musicplayer.view.search.SearchContentFragment;
 
+import org.greenrobot.eventbus.EventBus;
+import org.greenrobot.eventbus.Subscribe;
+import org.greenrobot.eventbus.ThreadMode;
 import org.litepal.LitePal;
 
+import butterknife.BindView;
 import de.hdodenhof.circleimageview.CircleImageView;
 
-public class MainActivity extends AppCompatActivity {
+public class MainActivity extends BaseActivity {
     private static final String TAG = "MainActivity";
+    @BindView(R.id.sb_progress)
+    SeekBar mSeekBar;
+    @BindView(R.id.tv_song_name)
+    TextView mSongNameTv;
+    @BindView(R.id.tv_singer)
+    TextView mSingerTv;
+    @BindView(R.id.song_next)
+    RippleView mNextIv;
+    @BindView(R.id.btn_player)
+    Button mPlayerBtn;
+    @BindView(R.id.circle_img)
+    CircleImageView mCoverIv;
+    @BindView(R.id.linear_player)
+    LinearLayout mLinear;
 
     private boolean isChange; //拖动进度条
     private boolean isSeek;//标记是否在暂停的时候拖动进度条
     private boolean flag; //用做暂停的标记
     private int time;   //记录暂停的时间
-    private Button mPlayerBtn;
-    private RippleView mNextIv;
-    private TextView mSongNameTv;
-    private TextView mSingerTv;
-    private CircleImageView mCoverIv;//封面
+
+
     private ObjectAnimator mCircleAnimator;//动画
     private Song mSong;
-    private FragmentTransaction transaction;
-    private LinearLayout mLinear;
     private MediaPlayer mMediaPlayer;
-    private SeekBar mSeekBar;
     private Thread mSeekBarThread;
     private PlayerService.PlayStatusBinder mPlayStatusBinder;
-    //注册广播
-    private IntentFilter intentFilter;
-    private SongChangeReceiver songChangeReceiver;
     private ServiceConnection connection = new ServiceConnection() {
         @Override
         public void onServiceConnected(ComponentName name, IBinder service) {
@@ -79,48 +85,31 @@ public class MainActivity extends AppCompatActivity {
     };
 
     @Override
-    protected void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_main);
-        intentFilter = new IntentFilter();
-        intentFilter.addAction(BroadcastName.SONG_CHANGE);
-        intentFilter.addAction(BroadcastName.SONG_PAUSE);
-        intentFilter.addAction(BroadcastName.SONG_RESUME);
-        intentFilter.addAction(BroadcastName.ONLINE_SONG);
-        intentFilter.addAction(BroadcastName.ONLINE_SONG_ERROR);
-        intentFilter.addAction(BroadcastName.ONLINE_ALBUM_SONG_Change);
-        songChangeReceiver = new SongChangeReceiver();
-        registerReceiver(songChangeReceiver, intentFilter);
+    public void onDestroy() {
+        super.onDestroy();
+        unbindService(connection);
+        EventBus.getDefault().unregister(this);
+        if (mSeekBarThread != null || mSeekBarThread.isAlive()) mSeekBarThread.interrupt();
+        Song song = FileHelper.getSong();
+        song.setCurrentTime(mPlayStatusBinder.getCurrentTime());
+        FileHelper.saveSong(song);
+
+
+    }
+
+
+    @Override
+    protected int getLayoutId() {
+        return R.layout.activity_main;
+    }
+
+    @Override
+    protected void initView() {
+        EventBus.getDefault().register(this);
         LitePal.getDatabase();
         //启动服务
         Intent playIntent = new Intent(MainActivity.this, PlayerService.class);
         bindService(playIntent, connection, Context.BIND_AUTO_CREATE);
-        initView();
-     
-    }
-    @Override
-    public void onDestroy() {
-        unbindService(connection);
-        unregisterReceiver(songChangeReceiver);
-        if (mSeekBarThread != null||mSeekBarThread.isAlive()) mSeekBarThread.interrupt();
-        Song song = FileHelper.getSong();
-        song.setCurrentTime(mPlayStatusBinder.getCurrentTime());
-        FileHelper.saveSong(song);
-        RxApiManager.get().cancelAll();
-        super.onDestroy();
-
-    }
-
-
-    private void initView() {
-        mSong = FileHelper.getSong();
-        mSongNameTv = findViewById(R.id.tv_song_name);
-        mSingerTv = findViewById(R.id.tv_singer);
-        mLinear = findViewById(R.id.linear_player);
-        mSeekBar = findViewById(R.id.sb_progress);
-        mNextIv = findViewById(R.id.song_next);
-        mCoverIv = findViewById(R.id.circle_img);
-        mPlayerBtn = findViewById(R.id.btn_player);
         //设置属性动画
         mCircleAnimator = ObjectAnimator.ofFloat(mCoverIv, "rotation", 0.0f, 360.0f);
         mCircleAnimator.setDuration(30000);
@@ -129,8 +118,9 @@ public class MainActivity extends AppCompatActivity {
         mCircleAnimator.setRepeatMode(ValueAnimator.RESTART);
 
 
+        mSong = FileHelper.getSong();
         if (mSong.getSongName() != null) {
-            Log.d(TAG, "initView: "+mSong.toString());
+            Log.d(TAG, "initView: " + mSong.toString());
             mLinear.setVisibility(View.VISIBLE);
             mSongNameTv.setText(mSong.getSongName());
             mSingerTv.setText(mSong.getSinger());
@@ -145,8 +135,6 @@ public class MainActivity extends AppCompatActivity {
                         .apply(RequestOptions.errorOf(R.drawable.welcome))
                         .into(mCoverIv);
             }
-            onClick();
-
         } else {
             mSongNameTv.setText("心渊音乐");
             mSingerTv.setText("袁健策 3117004905");
@@ -163,12 +151,54 @@ public class MainActivity extends AppCompatActivity {
         addMainFragment();
     }
 
-    private void onClick() {
+    @Subscribe(threadMode = ThreadMode.MAIN)
+    public void onOnlineSongErrorEvent(OnlineSongErrorEvent event){
+        showToast("抱歉该歌曲暂没有版权，搜搜其他歌曲吧");
+    }
+
+    @Subscribe(threadMode = ThreadMode.MAIN)
+    public void onSongStatusEvent(SongStatusEvent event){
+        int status = event.getSongStatus();
+        if(status == Constant.SONG_RESUME){
+            mPlayerBtn.setSelected(true);
+            mCircleAnimator.resume();
+            seekBarStart();
+        }else if(status == Constant.SONG_PAUSE){
+            mPlayerBtn.setSelected(false);
+            mCircleAnimator.pause();
+        } else if(status == Constant.SONG_CHANGE){
+            mSong = FileHelper.getSong();
+            mSongNameTv.setText(mSong.getSongName());
+            mSingerTv.setText(mSong.getSinger());
+            mSeekBar.setMax((int) mSong.getDuration());
+            mPlayerBtn.setSelected(true);
+            mCircleAnimator.start();
+            seekBarStart();
+            if (!mSong.isOnline()) {
+                CommonUtil.setSingerImg(MainActivity.this, mSong.getSinger(), mCoverIv);
+            } else {
+                Glide.with(MainActivity.this)
+                        .load(mSong.getImgUrl())
+                        .apply(RequestOptions.placeholderOf(R.drawable.welcome))
+                        .apply(RequestOptions.errorOf(R.drawable.welcome))
+                        .into(mCoverIv);
+            }
+        }
+
+    }
+
+
+    @Override
+    protected void initData() {
+
+    }
+
+    @Override
+    protected void onClick() {
         //进度条的监听事件
         mSeekBar.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
             @Override
             public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
-
             }
 
             @Override
@@ -204,15 +234,15 @@ public class MainActivity extends AppCompatActivity {
                     flag = false;
                     if (isSeek) {
                         mMediaPlayer.seekTo(time);
-                    } else {
-                        isSeek = false;
                     }
                 } else {
                     if (FileHelper.getSong().isOnline()) {
+                        Log.d(TAG, "onClick: "+mSong.getCurrentTime());
                         mPlayStatusBinder.playOnline();
                     } else {
                         mPlayStatusBinder.play(FileHelper.getSong().getListType());
                     }
+                    mMediaPlayer = mPlayStatusBinder.getMediaPlayer();
                     mMediaPlayer.seekTo((int) mSong.getCurrentTime());
                 }
             }
@@ -240,7 +270,7 @@ public class MainActivity extends AppCompatActivity {
                     Song song = FileHelper.getSong();
                     song.setCurrentTime(mPlayStatusBinder.getCurrentTime());
                     FileHelper.saveSong(song);
-                    toPlayActivityIntent.putExtra(Constant.PLAYER_STATUS, Constant.PLAY);
+                    toPlayActivityIntent.putExtra(Constant.PLAYER_STATUS, Constant.SONG_PLAY);
                 } else {
                     //暂停情况
                     Song song = FileHelper.getSong();
@@ -259,11 +289,10 @@ public class MainActivity extends AppCompatActivity {
     private void addMainFragment() {
         MainFragment mainFragment = new MainFragment();
         FragmentManager fragmentManager = getSupportFragmentManager();
-        transaction = fragmentManager.beginTransaction();
+        FragmentTransaction transaction = fragmentManager.beginTransaction();
         transaction.add(R.id.fragment_container, mainFragment);
         transaction.commit();
     }
-
 
 
     private void seekBarStart() {
@@ -283,42 +312,6 @@ public class MainActivity extends AppCompatActivity {
                         e.printStackTrace();
                     }
                 }
-            }
-        }
-    }
-    class SongChangeReceiver extends BroadcastReceiver {
-        @Override
-        public void onReceive(Context context, Intent intent) {
-            String action = intent.getAction();
-            mSong = FileHelper.getSong();
-            onClick();
-            if (action.equals(BroadcastName.ONLINE_SONG_ERROR)) {
-                CommonUtil.showToast(MainActivity.this, "抱歉，该歌曲暂无版权，搜搜其他歌曲吧");
-            } else if (action.equals(BroadcastName.SONG_PAUSE)) {
-                mPlayerBtn.setSelected(false);
-                mCircleAnimator.pause();
-            } else if (action.equals(BroadcastName.SONG_RESUME)) {
-                mPlayerBtn.setSelected(true);
-                mCircleAnimator.resume();
-                seekBarStart();
-            } else if (action.equals(BroadcastName.SONG_CHANGE)) {
-                mSong = FileHelper.getSong();
-                mSongNameTv.setText(mSong.getSongName());
-                mSingerTv.setText(mSong.getSinger());
-                Log.d(TAG, "onReceive: " + mSong.getDuration());
-                mSeekBar.setMax((int) mSong.getDuration());
-                mPlayerBtn.setSelected(true);
-                mCircleAnimator.start();
-                seekBarStart();
-            }
-            if (!mSong.isOnline()) {
-                CommonUtil.setSingerImg(MainActivity.this, mSong.getSinger(), mCoverIv);
-            } else {
-                Glide.with(MainActivity.this)
-                        .load(mSong.getImgUrl())
-                        .apply(RequestOptions.placeholderOf(R.drawable.welcome))
-                        .apply(RequestOptions.errorOf(R.drawable.welcome))
-                        .into(mCoverIv);
             }
         }
     }

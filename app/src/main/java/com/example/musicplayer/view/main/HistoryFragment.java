@@ -1,10 +1,8 @@
 package com.example.musicplayer.view.main;
 
-import android.content.BroadcastReceiver;
 import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
-import android.content.IntentFilter;
 import android.content.ServiceConnection;
 import android.os.Bundle;
 import android.os.IBinder;
@@ -21,15 +19,16 @@ import android.widget.TextView;
 
 import com.example.musicplayer.R;
 import com.example.musicplayer.adapter.HistoryAdapter;
-
-import com.example.musicplayer.callback.OnItemClickListener;
-import com.example.musicplayer.app.BroadcastName;
 import com.example.musicplayer.app.Constant;
 import com.example.musicplayer.entiy.HistorySong;
 import com.example.musicplayer.entiy.Song;
+import com.example.musicplayer.event.SongHistoryEvent;
 import com.example.musicplayer.service.PlayerService;
 import com.example.musicplayer.util.FileHelper;
 
+import org.greenrobot.eventbus.EventBus;
+import org.greenrobot.eventbus.Subscribe;
+import org.greenrobot.eventbus.ThreadMode;
 import org.litepal.LitePal;
 
 import java.util.ArrayList;
@@ -50,9 +49,6 @@ public class HistoryFragment extends Fragment {
     private RelativeLayout mEmptyRelative;
     private List<HistorySong> mHistoryList;
     private TextView mTitleTv;
-    //注册广播
-    private IntentFilter intentFilter;
-    private SongChangeReceiver songChangeReceiver;
 
     private PlayerService.PlayStatusBinder mPlayStatusBinder;
     private ServiceConnection connection = new ServiceConnection() {
@@ -72,6 +68,7 @@ public class HistoryFragment extends Fragment {
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_love_music, container, false);
+        EventBus.getDefault().register(this);
         mRecycler = view.findViewById(R.id.recycler_love_songs);
         mBackIv = view.findViewById(R.id.iv_back);
         mEmptyRelative = view.findViewById(R.id.relative_empty);
@@ -87,11 +84,6 @@ public class HistoryFragment extends Fragment {
         //启动服务
         Intent playIntent = new Intent(getActivity(), PlayerService.class);
         getActivity().bindService(playIntent, connection, Context.BIND_AUTO_CREATE);
-        //注册广播
-        intentFilter = new IntentFilter();
-        intentFilter.addAction(BroadcastName.SONG_CHANGE);
-        songChangeReceiver = new SongChangeReceiver();
-        getActivity().registerReceiver(songChangeReceiver, intentFilter);
         showSongList();
         onClick();
     }
@@ -99,7 +91,12 @@ public class HistoryFragment extends Fragment {
     public void onDestroy(){
         super.onDestroy();
         getActivity().unbindService(connection);
-        getActivity().unregisterReceiver(songChangeReceiver);
+        EventBus.getDefault().unregister(this);
+    }
+
+    @Subscribe(threadMode = ThreadMode.MAIN )
+    public void onMessageEvent(SongHistoryEvent event){
+        mAdapter.notifyDataSetChanged();
     }
 
     private void showSongList() {
@@ -111,31 +108,23 @@ public class HistoryFragment extends Fragment {
     }
 
     private void onClick() {
-        mAdapter.setOnItemClickListener(new OnItemClickListener() {
-            @Override
-            public void onClick(int position) {
-                HistorySong history = mHistoryList.get(position);
-                Song song = new Song();
-                song.setSongId(history.getSongId());
-                song.setSongName(history.getName());
-                song.setSinger(history.getSinger());
-                song.setOnline(history.isOnline());
-                song.setUrl(history.getUrl());
-                song.setImgUrl(history.getPic());
-                song.setCurrent(position);
-                song.setDuration(history.getDuration());
-                song.setListType(Constant.LIST_TYPE_HISTORY);
-                FileHelper.saveSong(song);
+        mAdapter.setOnItemClickListener(position -> {
+            HistorySong history = mHistoryList.get(position);
+            Song song = new Song();
+            song.setSongId(history.getSongId());
+            song.setSongName(history.getName());
+            song.setSinger(history.getSinger());
+            song.setOnline(history.isOnline());
+            song.setUrl(history.getUrl());
+            song.setImgUrl(history.getPic());
+            song.setCurrent(position);
+            song.setDuration(history.getDuration());
+            song.setListType(Constant.LIST_TYPE_HISTORY);
+            FileHelper.saveSong(song);
 
-                mPlayStatusBinder.play(Constant.LIST_TYPE_HISTORY);
-            }
+            mPlayStatusBinder.play(Constant.LIST_TYPE_HISTORY);
         });
-        mBackIv.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                getActivity().getSupportFragmentManager().popBackStack();
-            }
-        });
+        mBackIv.setOnClickListener(v -> getActivity().getSupportFragmentManager().popBackStack());
     }
     private List<HistorySong> orderList(List<HistorySong> tempList){
         List<HistorySong> historyList=new ArrayList<>();
@@ -144,12 +133,5 @@ public class HistoryFragment extends Fragment {
             historyList.add(tempList.get(i));
         }
         return historyList;
-    }
-
-    private class SongChangeReceiver extends BroadcastReceiver {
-        @Override
-        public void onReceive(Context context, Intent intent) {
-            mAdapter.notifyDataSetChanged();
-        }
     }
 }

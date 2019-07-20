@@ -13,7 +13,6 @@ import java.util.List;
 public interface ILocalContract {
     interface View extends BaseView {
         void showMusicList(List<LocalSong> mp3InfoList); //显示本地音乐
-        void saveLocalSuccess();//成功保存到数据库中
     }
     interface Presenter extends IPresenter<View> {
         void getLocalMp3Info(); //得到本地音乐列表

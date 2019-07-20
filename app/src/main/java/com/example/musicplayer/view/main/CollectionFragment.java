@@ -1,11 +1,9 @@
 package com.example.musicplayer.view.main;
 
 
-import android.content.BroadcastReceiver;
 import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
-import android.content.IntentFilter;
 import android.content.ServiceConnection;
 import android.os.Bundle;
 import android.os.IBinder;
@@ -16,19 +14,20 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
-import android.widget.LinearLayout;
-import android.widget.RelativeLayout;
 
 import com.example.musicplayer.R;
 import com.example.musicplayer.adapter.LoveSongAdapter;
-import com.example.musicplayer.callback.OnItemClickListener;
-import com.example.musicplayer.app.BroadcastName;
 import com.example.musicplayer.app.Constant;
+import com.example.musicplayer.callback.OnItemClickListener;
 import com.example.musicplayer.entiy.Love;
 import com.example.musicplayer.entiy.Song;
+import com.example.musicplayer.event.SongCollectionEvent;
 import com.example.musicplayer.service.PlayerService;
 import com.example.musicplayer.util.FileHelper;
 
+import org.greenrobot.eventbus.EventBus;
+import org.greenrobot.eventbus.Subscribe;
+import org.greenrobot.eventbus.ThreadMode;
 import org.litepal.LitePal;
 
 import java.util.ArrayList;
@@ -45,12 +44,7 @@ public class CollectionFragment extends Fragment {
     private ImageView mBackIv;
     private LinearLayoutManager mManager;
     private LoveSongAdapter mAdapter;
-    private LinearLayout mSongListLinear;
-    private RelativeLayout mEmptyRelative;
     private List<Love> mLoveList;
-    //注册广播
-    private IntentFilter intentFilter;
-    private SongChangeReceiver songChangeReceiver;
 
     private PlayerService.PlayStatusBinder mPlayStatusBinder;
     private ServiceConnection connection = new ServiceConnection() {
@@ -69,10 +63,10 @@ public class CollectionFragment extends Fragment {
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         View mView = inflater.inflate(R.layout.fragment_love_music, container, false);
+        EventBus.getDefault().register(this); //注册事件订阅者
         mRecycler = mView.findViewById(R.id.recycler_love_songs);
         mBackIv = mView.findViewById(R.id.iv_back);
-        mEmptyRelative = mView.findViewById(R.id.relative_empty);
-        mSongListLinear = mView.findViewById(R.id.linear_song_list);
+        mLoveList = new ArrayList<>();
         return mView;
     }
 
@@ -82,32 +76,35 @@ public class CollectionFragment extends Fragment {
         //启动服务
         Intent playIntent = new Intent(getActivity(), PlayerService.class);
         getActivity().bindService(playIntent, connection, Context.BIND_AUTO_CREATE);
-        //注册广播
-        intentFilter = new IntentFilter();
-        intentFilter.addAction(BroadcastName.LOVE_SONG_CHANGE);
-        intentFilter.addAction(BroadcastName.LOVE_SONG_CANCEL);
-        songChangeReceiver = new SongChangeReceiver();
-        getActivity().registerReceiver(songChangeReceiver, intentFilter);
         showSongList();
         onClick();
     }
     @Override
     public void onDestroy(){
         super.onDestroy();
+        EventBus.getDefault().unregister(this);
         getActivity().unbindService(connection);
-        getActivity().unregisterReceiver(songChangeReceiver);
+    }
+
+    @Subscribe(threadMode = ThreadMode.MAIN )
+    public void onMessageEvent(SongCollectionEvent songCollectionEvent){
+        mLoveList.clear();
+        mLoveList.addAll(orderList(LitePal.findAll(Love.class)));
+        mAdapter.notifyDataSetChanged();
+        if(songCollectionEvent.isLove()){//定位歌曲
+            if (FileHelper.getSong() != null) {
+                mManager.scrollToPositionWithOffset(FileHelper.getSong().getCurrent() + 4, mRecycler.getHeight());
+            }
+        }
     }
 
     private void showSongList() {
         mRecycler.setHasFixedSize(true);
-        mLoveList = orderList(LitePal.findAll(Love.class));
+        mLoveList.addAll(orderList(LitePal.findAll(Love.class)));
         mAdapter = new LoveSongAdapter(getActivity(), mLoveList);
         mManager = new LinearLayoutManager(getActivity());
         mRecycler.setLayoutManager(mManager);
         mRecycler.setAdapter(mAdapter);
-    }
-
-    private void onClick() {
         mAdapter.setOnItemClickListener(new OnItemClickListener() {
             @Override
             public void onClick(int position) {
@@ -127,12 +124,10 @@ public class CollectionFragment extends Fragment {
                 mPlayStatusBinder.play(Constant.LIST_TYPE_LOVE);
             }
         });
-        mBackIv.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                getActivity().getSupportFragmentManager().popBackStack();
-            }
-        });
+    }
+
+    private void onClick() {
+        mBackIv.setOnClickListener(v -> getActivity().getSupportFragmentManager().popBackStack());
     }
     private List<Love> orderList(List<Love> tempList){
         List<Love> loveList=new ArrayList<>();
@@ -141,20 +136,5 @@ public class CollectionFragment extends Fragment {
             loveList.add(tempList.get(i));
         }
         return loveList;
-    }
-
-    private class SongChangeReceiver extends BroadcastReceiver {
-        @Override
-        public void onReceive(Context context, Intent intent) {
-            String action = intent.getAction();
-            if (action.equals(BroadcastName.LOVE_SONG_CHANGE)) {
-                mAdapter.notifyDataSetChanged();
-                if (FileHelper.getSong() != null) {
-                    mManager.scrollToPositionWithOffset(FileHelper.getSong().getCurrent() + 4, mRecycler.getHeight());
-                }
-            }else if(action.equals(BroadcastName.LOVE_SONG_CANCEL)){
-                showSongList();
-            }
-        }
     }
 }

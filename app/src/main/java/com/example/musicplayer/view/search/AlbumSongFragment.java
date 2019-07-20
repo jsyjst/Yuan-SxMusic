@@ -1,10 +1,8 @@
 package com.example.musicplayer.view.search;
 
-import android.content.BroadcastReceiver;
 import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
-import android.content.IntentFilter;
 import android.content.ServiceConnection;
 import android.os.Bundle;
 import android.os.IBinder;
@@ -21,13 +19,12 @@ import android.widget.TextView;
 import com.example.musicplayer.R;
 import com.example.musicplayer.adapter.AlbumSongAdapter;
 import com.example.musicplayer.app.BaseUri;
-import com.example.musicplayer.app.BroadcastName;
 import com.example.musicplayer.app.Constant;
 import com.example.musicplayer.base.fragment.BaseMvpFragment;
-import com.example.musicplayer.callback.OnItemClickListener;
 import com.example.musicplayer.contract.IAlbumSongContract;
 import com.example.musicplayer.entiy.AlbumSong;
 import com.example.musicplayer.entiy.Song;
+import com.example.musicplayer.event.SongAlbumEvent;
 import com.example.musicplayer.presenter.AlbumSongPresenter;
 import com.example.musicplayer.service.PlayerService;
 import com.example.musicplayer.util.CommonUtil;
@@ -36,9 +33,11 @@ import com.github.florent37.materialviewpager.MaterialViewPagerHelper;
 import com.github.florent37.materialviewpager.header.MaterialViewPagerHeaderDecorator;
 import com.wang.avi.AVLoadingIndicatorView;
 
+import org.greenrobot.eventbus.EventBus;
+import org.greenrobot.eventbus.Subscribe;
+import org.greenrobot.eventbus.ThreadMode;
 import org.litepal.LitePal;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 
@@ -73,9 +72,7 @@ public class AlbumSongFragment extends BaseMvpFragment<AlbumSongPresenter> imple
     private LinearLayoutManager mLinearManager;
     private AlbumSongAdapter mAdapter;
 
-    private IntentFilter intentFilter;
     private Intent playIntent;
-    private AlbumSongChangeReceiver albumSongChangeReceiver;
 
     private PlayerService.PlayStatusBinder mPlayStatusBinder;
 
@@ -107,6 +104,7 @@ public class AlbumSongFragment extends BaseMvpFragment<AlbumSongPresenter> imple
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         getBundle();
+        EventBus.getDefault().register(this);
         View view = null;
         if (mType == ALBUM_SONG) {
             view = inflater.inflate(R.layout.fragment_album_recycler, container, false);
@@ -129,17 +127,18 @@ public class AlbumSongFragment extends BaseMvpFragment<AlbumSongPresenter> imple
         return view;
     }
 
+    @Subscribe(threadMode = ThreadMode.MAIN)
+    public void onSongAlbumEvent(SongAlbumEvent event){
+        mAdapter.notifyDataSetChanged();
+    }
+
     @Override
     public void onActivityCreated(Bundle save) {
         super.onActivityCreated(save);
         if(mType==ALBUM_SONG){
-            intentFilter=new IntentFilter();
-            intentFilter.addAction(BroadcastName.ONLINE_ALBUM_SONG_Change);
-            albumSongChangeReceiver = new AlbumSongChangeReceiver();
-            getActivity().registerReceiver(albumSongChangeReceiver,intentFilter);
             //启动服务
             playIntent = new Intent(getActivity(), PlayerService.class);
-            getActivity().bindService(playIntent, connection, Context.BIND_AUTO_CREATE);
+            mActivity.bindService(playIntent, connection, Context.BIND_AUTO_CREATE);
         }else{
             MaterialViewPagerHelper.registerScrollView(getActivity(), mScrollView);
         }
@@ -149,9 +148,7 @@ public class AlbumSongFragment extends BaseMvpFragment<AlbumSongPresenter> imple
 
     @Override
     public void onDestroyView(){
-        if(albumSongChangeReceiver!=null){
-            Objects.requireNonNull(getActivity()).unregisterReceiver(albumSongChangeReceiver);
-        }
+        EventBus.getDefault().unregister(this);
         if(playIntent!=null){
             Objects.requireNonNull(getActivity()).unbindService(connection);
         }
@@ -179,32 +176,28 @@ public class AlbumSongFragment extends BaseMvpFragment<AlbumSongPresenter> imple
 
     @Override
     public void setAlbumSongList(final List<AlbumSong.DataBean.GetSongInfoBean> songList) {
-        mPresenter.insertAllAlbumSong((ArrayList<AlbumSong.DataBean.GetSongInfoBean>) songList);//存到数据库中
         mLinearManager =new LinearLayoutManager(getActivity());
         mRecycle.setLayoutManager(mLinearManager);
         mAdapter =new AlbumSongAdapter(songList);
         mRecycle.addItemDecoration(new MaterialViewPagerHeaderDecorator());
         mRecycle.setAdapter(mAdapter);
 
-        mAdapter.setSongClick(new OnItemClickListener() {
-            @Override
-            public void onClick(int position) {
-                AlbumSong.DataBean.GetSongInfoBean dataBean= songList.get(position);
-                Song song = new Song();
-                song.setSongId(dataBean.getSongmid());
-                song.setSinger(getSinger(dataBean));
-                song.setSongName(dataBean.getSongname());
-                song.setUrl(BaseUri.PLAY_URL+dataBean.getSongmid());
-                song.setImgUrl(BaseUri.PIC_URL+dataBean.getSongmid());
-                song.setCurrent(position);
-                song.setDuration(dataBean.getInterval());
-                song.setOnline(true);
-                song.setListType(Constant.LIST_TYPE_ONLINE);
-                FileHelper.saveSong(song);
+        mAdapter.setSongClick(position -> {
+            AlbumSong.DataBean.GetSongInfoBean dataBean= songList.get(position);
+            Song song = new Song();
+            song.setSongId(dataBean.getSongmid());
+            song.setSinger(getSinger(dataBean));
+            song.setSongName(dataBean.getSongname());
+            song.setUrl(BaseUri.PLAY_URL+dataBean.getSongmid());
+            song.setImgUrl(BaseUri.PIC_URL+dataBean.getSongmid());
+            song.setCurrent(position);
+            song.setDuration(dataBean.getInterval());
+            song.setOnline(true);
+            song.setListType(Constant.LIST_TYPE_ONLINE);
+            FileHelper.saveSong(song);
 
-                mPlayStatusBinder.play(Constant.LIST_TYPE_ONLINE);
+            mPlayStatusBinder.play(Constant.LIST_TYPE_ONLINE);
 
-            }
         });
     }
 
@@ -250,14 +243,6 @@ public class AlbumSongFragment extends BaseMvpFragment<AlbumSongPresenter> imple
     @Override
     protected AlbumSongPresenter getPresenter() {
         return null;
-    }
-
-    class AlbumSongChangeReceiver extends BroadcastReceiver {
-
-        @Override
-        public void onReceive(Context context, Intent intent) {
-            mAdapter.notifyDataSetChanged();
-        }
     }
 
     //获取歌手，因为歌手可能有很多个

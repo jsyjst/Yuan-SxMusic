@@ -64,7 +64,7 @@ public class DataModel implements NetworkHelper, DbHelper {
     }
 
     @Override
-    public void insertAllAlbumSong(ArrayList<AlbumSong.DataBean.GetSongInfoBean> songList) {
+    public void insertAllAlbumSong(List<AlbumSong.DataBean.GetSongInfoBean> songList) {
          mDbHelper.insertAllAlbumSong(songList);
     }
 

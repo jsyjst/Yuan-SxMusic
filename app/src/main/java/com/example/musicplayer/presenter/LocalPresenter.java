@@ -4,6 +4,9 @@ package com.example.musicplayer.presenter;
 import com.example.musicplayer.base.presenter.BasePresenter;
 import com.example.musicplayer.contract.ILocalContract;
 import com.example.musicplayer.entiy.LocalSong;
+import com.example.musicplayer.event.SongLocalSizeChangeEvent;
+
+import org.greenrobot.eventbus.EventBus;
 
 import java.util.List;
 
@@ -15,16 +18,21 @@ public class LocalPresenter extends BasePresenter<ILocalContract.View> implement
 
     @Override
     public void getLocalMp3Info() {
-        if(mModel.getLocalMp3Info().size() == 0){
+        List<LocalSong> localSongList = mModel.getLocalMp3Info();
+        if(localSongList.size() == 0){
             mView.showErrorView();
         }else {
-            mView.showMusicList(mModel.getLocalMp3Info());
+            saveSong(localSongList);
         }
 
     }
 
     @Override
     public void saveSong(List<LocalSong> localSongs) {
-        if(mModel.saveSong(localSongs)) mView.saveLocalSuccess();
+        if(mModel.saveSong(localSongs)) {
+            EventBus.getDefault().post(new SongLocalSizeChangeEvent());
+            mView.showToast("成功导入本地音乐");
+            mView.showMusicList(localSongs);
+        }
     }
 }

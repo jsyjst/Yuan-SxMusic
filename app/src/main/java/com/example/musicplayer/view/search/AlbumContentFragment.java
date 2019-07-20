@@ -1,6 +1,5 @@
 package com.example.musicplayer.view.search;
 
-import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.Drawable;
@@ -32,12 +31,14 @@ import com.bumptech.glide.request.target.SimpleTarget;
 import com.bumptech.glide.request.target.Target;
 import com.bumptech.glide.request.transition.Transition;
 import com.example.musicplayer.R;
-import com.example.musicplayer.app.BroadcastName;
+import com.example.musicplayer.app.Constant;
 import com.example.musicplayer.entiy.AlbumCollection;
 import com.example.musicplayer.entiy.SearchHistory;
+import com.example.musicplayer.event.AlbumCollectionEvent;
 import com.example.musicplayer.util.CommonUtil;
 import com.github.florent37.materialviewpager.MaterialViewPager;
 
+import org.greenrobot.eventbus.EventBus;
 import org.litepal.LitePal;
 import org.litepal.crud.callback.SaveCallback;
 import org.litepal.crud.callback.UpdateOrDeleteCallback;
@@ -207,8 +208,8 @@ public class AlbumContentFragment extends Fragment {
                     });
                 }
                 mLove = !mLove;
-                //发送收藏改变的广播通知收藏列表
-                getActivity().sendBroadcast(new Intent(BroadcastName.COLLECTION_ALBUM_CHANGE));
+                //发送收藏改变的事件
+                EventBus.getDefault().post(new AlbumCollectionEvent());
                 break;
         }
         return super.onOptionsItemSelected(item);

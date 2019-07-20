@@ -2,11 +2,9 @@ package com.example.musicplayer.view;
 
 import android.animation.AnimatorInflater;
 import android.animation.AnimatorSet;
-import android.content.BroadcastReceiver;
 import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
-import android.content.IntentFilter;
 import android.content.ServiceConnection;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
@@ -38,12 +36,13 @@ import com.bumptech.glide.request.target.Target;
 import com.bumptech.glide.request.transition.Transition;
 import com.example.musicplayer.R;
 import com.example.musicplayer.app.BaseUri;
-import com.example.musicplayer.app.BroadcastName;
 import com.example.musicplayer.app.Constant;
 import com.example.musicplayer.base.activity.BaseMvpActivity;
 import com.example.musicplayer.contract.IPlayContract;
 import com.example.musicplayer.entiy.LocalSong;
 import com.example.musicplayer.entiy.Song;
+import com.example.musicplayer.event.SongCollectionEvent;
+import com.example.musicplayer.event.SongStatusEvent;
 import com.example.musicplayer.presenter.PlayPresenter;
 import com.example.musicplayer.service.PlayerService;
 import com.example.musicplayer.util.CommonUtil;
@@ -51,10 +50,13 @@ import com.example.musicplayer.util.DisplayUtil;
 import com.example.musicplayer.util.FastBlurUtil;
 import com.example.musicplayer.util.FileHelper;
 import com.example.musicplayer.util.MediaUtil;
-import com.example.musicplayer.util.RxApiManager;
 import com.example.musicplayer.widget.BackgroundAnimationRelativeLayout;
 import com.example.musicplayer.widget.DiscView;
 import com.example.musicplayer.widget.LrcView;
+
+import org.greenrobot.eventbus.EventBus;
+import org.greenrobot.eventbus.Subscribe;
+import org.greenrobot.eventbus.ThreadMode;
 
 import java.io.BufferedOutputStream;
 import java.io.BufferedReader;
@@ -141,9 +143,6 @@ public class PlayActivity extends BaseMvpActivity<PlayPresenter> implements IPla
     private Bitmap mImgBmp;
     private List<LocalSong> mLocalSong;//用来判断是否有本地照片
     //服务
-    private Thread mSeekBarThread;
-    private IntentFilter mIntentFilter;
-    private SongChangeReceiver songChangeReceiver;
     private PlayerService.PlayStatusBinder mPlayStatusBinder;
     private ServiceConnection connection = new ServiceConnection() {
         @Override
@@ -154,7 +153,7 @@ public class PlayActivity extends BaseMvpActivity<PlayPresenter> implements IPla
             if (isOnline) {
                 mGetImgAndLrcBtn.setVisibility(View.GONE);
                 setSingerImg(FileHelper.getSong().getImgUrl());
-                if (mPlayStatus == Constant.PLAY) {
+                if (mPlayStatus == Constant.SONG_PLAY) {
                     mDisc.play();
                     mPlayBtn.setSelected(true);
                     startUpdateSeekBarProgress();
@@ -196,6 +195,7 @@ public class PlayActivity extends BaseMvpActivity<PlayPresenter> implements IPla
     @Override
     protected void initView() {
         super.initView();
+        EventBus.getDefault().register(this);
         CommonUtil.hideStatusBar(this, true);
         //设置进入退出动画
         getWindow().setEnterTransition(new Slide());
@@ -203,9 +203,6 @@ public class PlayActivity extends BaseMvpActivity<PlayPresenter> implements IPla
 
         //是否为网络歌曲
         mPlayStatus = getIntent().getIntExtra(Constant.PLAYER_STATUS, 2);
-
-        //注册广播
-        registerBroadCast();
 
         //绑定服务
         Intent playIntent = new Intent(PlayActivity.this, PlayerService.class);
@@ -241,21 +238,15 @@ public class PlayActivity extends BaseMvpActivity<PlayPresenter> implements IPla
 
         mPresenter.queryLove(mSong.getSongId()); //查找歌曲是否为我喜欢的歌曲
 
-        if (mPlayStatus == Constant.PLAY) {
+        if (mPlayStatus == Constant.SONG_PLAY) {
             mDisc.play();
             mPlayBtn.setSelected(true);
             startUpdateSeekBarProgress();
         }
     }
 
-    private void registerBroadCast(){
-        mIntentFilter = new IntentFilter();
-        mIntentFilter.addAction(BroadcastName.SONG_CHANGE);
-        mIntentFilter.addAction(BroadcastName.ONLINE_SONG);
-        mIntentFilter.addAction(BroadcastName.ONLINE_ALBUM_SONG_Change);
-        songChangeReceiver = new SongChangeReceiver();
-        registerReceiver(songChangeReceiver, mIntentFilter);
-    }
+
+
 
     private void try2UpdateMusicPicBackground(final Bitmap bitmap) {
         new Thread(new Runnable() {
@@ -499,12 +490,13 @@ public class PlayActivity extends BaseMvpActivity<PlayPresenter> implements IPla
 
     @Override
     public void saveToLoveSuccess() {
+        EventBus.getDefault().post(new SongCollectionEvent(true));
         CommonUtil.showToast(PlayActivity.this, getString(R.string.love_success));
     }
 
     @Override
     public void sendUpdateCollection() {
-        sendBroadcast(new Intent(BroadcastName.LOVE_SONG_CANCEL));
+        EventBus.getDefault().post(new SongCollectionEvent(false));
     }
 
     @Override
@@ -530,10 +522,9 @@ public class PlayActivity extends BaseMvpActivity<PlayPresenter> implements IPla
         mDiscImg.setLayoutParams(layoutParams);
     }
 
-    private class SongChangeReceiver extends BroadcastReceiver {
-
-        @Override
-        public void onReceive(Context context, Intent intent) {
+    @Subscribe(threadMode = ThreadMode.MAIN)
+    public void onSongChanageEvent(SongStatusEvent event){
+        if(event.getSongStatus() == Constant.SONG_CHANGE){
             mDisc.setVisibility(View.VISIBLE);
             mLrcView.setVisibility(View.GONE);
             Song mSong = FileHelper.getSong();
@@ -547,7 +538,6 @@ public class PlayActivity extends BaseMvpActivity<PlayPresenter> implements IPla
             mPlayStatusBinder.getMediaPlayer().setOnBufferingUpdateListener(new MediaPlayer.OnBufferingUpdateListener() {
                 @Override
                 public void onBufferingUpdate(MediaPlayer mp, int percent) {
-                    Log.d(TAG, "onBufferingUpdate: " + percent);
                     mSeekBar.setSecondaryProgress(percent * mSeekBar.getProgress());
                 }
             });
@@ -744,7 +734,7 @@ public class PlayActivity extends BaseMvpActivity<PlayPresenter> implements IPla
     public void onDestroy() {
         super.onDestroy();
         unbindService(connection);
-        unregisterReceiver(songChangeReceiver);
+        EventBus.getDefault().unregister(this);
         stopUpdateSeekBarProgress();
     }
 

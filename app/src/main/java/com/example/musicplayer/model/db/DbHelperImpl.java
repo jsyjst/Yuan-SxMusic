@@ -28,7 +28,7 @@ import java.util.List;
 public class DbHelperImpl implements DbHelper {
 
     @Override
-    public void insertAllAlbumSong(ArrayList<AlbumSong.DataBean.GetSongInfoBean> songList) {
+    public void insertAllAlbumSong(List<AlbumSong.DataBean.GetSongInfoBean> songList) {
         LitePal.deleteAll(OnlineSong.class);
         for (int i = 0; i < songList.size(); i++) {
             AlbumSong.DataBean.GetSongInfoBean song = songList.get(i);
@@ -41,7 +41,7 @@ public class DbHelperImpl implements DbHelper {
             onlineSong.setLrc(BaseUri.LRC_URL + song.getSongmid());
             onlineSong.setSongId(song.getSongmid());
             onlineSong.setDuration(song.getInterval());
-            onlineSong.saveAsync();
+            onlineSong.save();
         }
     }
 
@@ -92,7 +92,6 @@ public class DbHelperImpl implements DbHelper {
 
     @Override
     public boolean saveSong(List<LocalSong> localSongs) {
-        final boolean[] isSave = {false};
         LitePal.deleteAll(LocalSong.class);
         for (LocalSong localSong : localSongs) {
             LocalSong song = new LocalSong();
@@ -101,14 +100,9 @@ public class DbHelperImpl implements DbHelper {
             song.setUrl(localSong.getUrl());
             song.setDuration(localSong.getDuration());
             song.setSongId(localSong.getSongId());
-            song.saveAsync().listen(new SaveCallback() {
-                @Override
-                public void onFinish(boolean b) {
-                    isSave[0] = b;
-                }
-            });
+            if(!song.save()) return false;
         }
-        return isSave[0];
+        return true;
     }
 
     @Override

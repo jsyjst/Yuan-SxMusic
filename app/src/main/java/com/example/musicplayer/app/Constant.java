@@ -29,8 +29,12 @@ public class Constant {
 
     //playerStatus
     public static final String PLAYER_STATUS="PlayerStatus";
-    public static final int PLAY=1;
-    public static final int PAUSE=2;
+    public static final int SONG_PLAY = 0;
+    public static final int SONG_PAUSE= 1;
+    public static final int SONG_RESUME= 2;
+    public static final int SONG_CHANGE = 3;
+
+
 
     //TAG
     public static final String TAG_ERROR = "error";

@@ -49,6 +49,8 @@ dependencies {
     implementation rootProject.ext.dependencies["butterKnife"]
     annotationProcessor rootProject.ext.dependencies["butterKnifeCompiler"]
 
+    implementation rootProject.ext.dependencies["eventBus"]
+
     /*
     ui
      */

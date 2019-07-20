@@ -1,10 +1,8 @@
 package com.example.musicplayer.view.search;
 
-import android.content.BroadcastReceiver;
 import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
-import android.content.IntentFilter;
 import android.content.ServiceConnection;
 import android.os.Bundle;
 import android.os.IBinder;
@@ -17,15 +15,17 @@ import android.widget.ImageView;
 
 import com.example.musicplayer.R;
 import com.example.musicplayer.adapter.SearchContentAdapter;
-import com.example.musicplayer.base.fragment.BaseLoadingFragment;
-import com.example.musicplayer.callback.*;
 import com.example.musicplayer.app.BaseUri;
-import com.example.musicplayer.app.BroadcastName;
 import com.example.musicplayer.app.Constant;
+import com.example.musicplayer.base.fragment.BaseLoadingFragment;
+import com.example.musicplayer.callback.OnAlbumItemClickListener;
+import com.example.musicplayer.callback.OnItemClickListener;
 import com.example.musicplayer.contract.ISearchContentContract;
 import com.example.musicplayer.entiy.Album;
 import com.example.musicplayer.entiy.SearchSong;
 import com.example.musicplayer.entiy.Song;
+import com.example.musicplayer.event.OnlineSongChangeEvent;
+import com.example.musicplayer.event.OnlineSongErrorEvent;
 import com.example.musicplayer.presenter.SearchContentPresenter;
 import com.example.musicplayer.service.PlayerService;
 import com.example.musicplayer.util.CommonUtil;
@@ -34,6 +34,10 @@ import com.github.jdsjlzx.interfaces.OnLoadMoreListener;
 import com.github.jdsjlzx.interfaces.OnNetWorkErrorListener;
 import com.github.jdsjlzx.recyclerview.LRecyclerView;
 import com.github.jdsjlzx.recyclerview.LRecyclerViewAdapter;
+
+import org.greenrobot.eventbus.EventBus;
+import org.greenrobot.eventbus.Subscribe;
+import org.greenrobot.eventbus.ThreadMode;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -53,14 +57,12 @@ public class SearchContentFragment extends BaseLoadingFragment<SearchContentPres
 
 
 
-    private SongFinishReceiver songFinishReceiver;
     private SearchContentPresenter mPresenter;
 
     private LinearLayoutManager manager;
     private SearchContentAdapter mAdapter;
     private ArrayList<SearchSong.DataBean.ListBean> mSongList = new ArrayList<>();
     private List<Album.DataBean.ListBean> mAlbumList;
-    private IntentFilter intentFilter;
     private LRecyclerViewAdapter mLRecyclerViewAdapter;//下拉刷新
 
     @BindView(R.id.normalView)
@@ -114,32 +116,16 @@ public class SearchContentFragment extends BaseLoadingFragment<SearchContentPres
     @Override
     protected void initView() {
         super.initView();
+        EventBus.getDefault().register(this);
         mBundle = getArguments();
         if (mBundle != null) {
             mSeek = mBundle.getString(SEEK_KEY);
             mType = mBundle.getString(TYPE_KEY);
         }
-    }
-
-
-    @Override
-    public void onActivityCreated(Bundle savedInstanceState) {
-        super.onActivityCreated(savedInstanceState);
-        manager = new LinearLayoutManager(getActivity());
-
-        //注册广播
-        intentFilter = new IntentFilter();
-        intentFilter.addAction(BroadcastName.ONLINE_SONG_FINISH);
-        intentFilter.addAction(BroadcastName.ONLINE_ALBUM_SONG_Change);
-        intentFilter.addAction(BroadcastName.ONLINE_SONG_ERROR);
-        songFinishReceiver = new SongFinishReceiver();
-        getActivity().registerReceiver(songFinishReceiver, intentFilter);
-
+        manager = new LinearLayoutManager(mActivity);
         //启动服务
         Intent playIntent = new Intent(getActivity(), PlayerService.class);
-        getActivity().bindService(playIntent, connection, Context.BIND_AUTO_CREATE);
-
-
+        mActivity.bindService(playIntent, connection, Context.BIND_AUTO_CREATE);
     }
 
     @Override
@@ -148,11 +134,22 @@ public class SearchContentFragment extends BaseLoadingFragment<SearchContentPres
         return mPresenter ;
     }
 
+    @Subscribe(threadMode = ThreadMode.MAIN)
+    public void onOnlineSongChangeEvent(OnlineSongChangeEvent event){
+        if(mAdapter!= null) mAdapter.notifyDataSetChanged();
+    }
+
+    @Subscribe(threadMode = ThreadMode.MAIN)
+    public void onOnlineSongErrorEvent(OnlineSongErrorEvent event){
+        showToast("抱歉该歌曲暂没有版权，搜搜其他歌曲吧");
+    }
+
+
     @Override
     public void onDestroy() {
         super.onDestroy();
-        getActivity().unbindService(connection);
-        getActivity().unregisterReceiver(songFinishReceiver);
+        mActivity.unbindService(connection);
+        EventBus.getDefault().unregister(this);
     }
 
 
@@ -164,23 +161,20 @@ public class SearchContentFragment extends BaseLoadingFragment<SearchContentPres
         mRecycler.setLayoutManager(manager);
         mRecycler.setAdapter(mLRecyclerViewAdapter);
 
-        mAdapter.setItemClick(new OnItemClickListener() {
-            @Override
-            public void onClick(int position) {
-                SearchSong.DataBean.ListBean dataBean = mSongList.get(position);
-                Song song = new Song();
-                song.setSongId(dataBean.getSongmid());
-                song.setSinger(getSinger(dataBean));
-                song.setSongName(dataBean.getSongname());
-                song.setUrl(BaseUri.PLAY_URL+dataBean.getSongmid());
-                song.setImgUrl(BaseUri.PIC_URL+dataBean.getSongmid());
-                song.setCurrent(position);
-                song.setDuration(dataBean.getInterval());
-                song.setOnline(true);
-                FileHelper.saveSong(song);
+        SearchContentAdapter.setItemClick(position -> {
+            SearchSong.DataBean.ListBean dataBean = mSongList.get(position);
+            Song song = new Song();
+            song.setSongId(dataBean.getSongmid());
+            song.setSinger(getSinger(dataBean));
+            song.setSongName(dataBean.getSongname());
+            song.setUrl(BaseUri.PLAY_URL+dataBean.getSongmid());
+            song.setImgUrl(BaseUri.PIC_URL+dataBean.getSongmid());
+            song.setCurrent(position);
+            song.setDuration(dataBean.getInterval());
+            song.setOnline(true);
+            FileHelper.saveSong(song);
 
-                mPlayStatusBinder.playOnline();
-            }
+            mPlayStatusBinder.playOnline();
         });
     }
 
@@ -200,16 +194,13 @@ public class SearchContentFragment extends BaseLoadingFragment<SearchContentPres
     public void searchMore() {
 
         mRecycler.setPullRefreshEnabled(false);
-        mRecycler.setOnLoadMoreListener(new OnLoadMoreListener() {
-            @Override
-            public void onLoadMore() {
-                mOffset += 1;
-                Log.d(TAG, "onLoadMore: mOffset=" + mOffset);
-                if (mType.equals("song")) {
-                    mPresenter.searchMore(mSeek, mOffset);
-                } else {
-                    mPresenter.searchAlbumMore(mSeek, mOffset);
-                }
+        mRecycler.setOnLoadMoreListener(() -> {
+            mOffset += 1;
+            Log.d(TAG, "onLoadMore: mOffset=" + mOffset);
+            if (mType.equals("song")) {
+                mPresenter.searchMore(mSeek, mOffset);
+            } else {
+                mPresenter.searchAlbumMore(mSeek, mOffset);
             }
         });
         //设置底部加载颜色
@@ -221,12 +212,9 @@ public class SearchContentFragment extends BaseLoadingFragment<SearchContentPres
 
     @Override
     public void showSearcherMoreNetworkError() {
-        mRecycler.setOnNetWorkErrorListener(new OnNetWorkErrorListener() {
-            @Override
-            public void reload() {
-                mOffset += 1;
-                mPresenter.searchMore(mSeek, mOffset);
-            }
+        mRecycler.setOnNetWorkErrorListener(() -> {
+            mOffset += 1;
+            mPresenter.searchMore(mSeek, mOffset);
         });
     }
 
@@ -238,12 +226,7 @@ public class SearchContentFragment extends BaseLoadingFragment<SearchContentPres
         mLRecyclerViewAdapter = new LRecyclerViewAdapter(mAdapter);
         mRecycler.setLayoutManager(manager);
         mRecycler.setAdapter(mLRecyclerViewAdapter);
-        mAdapter.setAlbumClick(new OnAlbumItemClickListener() {
-            @Override
-            public void onClick(int position) {
-                toAlbumContentFragment(mAlbumList.get(position));
-            }
-        });
+        SearchContentAdapter.setAlbumClick(position -> toAlbumContentFragment(mAlbumList.get(position)));
     }
 
     @Override
@@ -271,20 +254,6 @@ public class SearchContentFragment extends BaseLoadingFragment<SearchContentPres
         bundle.putString(SEEK_KEY, seek);
         fragment.setArguments(bundle);
         return fragment;
-    }
-
-    class SongFinishReceiver extends BroadcastReceiver {
-
-        @Override
-        public void onReceive(Context context, Intent intent) {
-            Log.d(TAG, "onReceive: " + intent.getAction());
-            String action = intent.getAction();
-            if (action.equals(BroadcastName.ONLINE_SONG_ERROR)) {
-                CommonUtil.showToast(getActivity(), "抱歉该歌曲暂没有版权，搜搜其他歌曲吧");
-            } else {
-                mAdapter.notifyDataSetChanged();
-            }
-        }
     }
 
     public void toAlbumContentFragment(Album.DataBean.ListBean album) {

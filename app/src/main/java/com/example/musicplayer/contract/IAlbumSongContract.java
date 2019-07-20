@@ -23,7 +23,7 @@ public interface IAlbumSongContract {
     }
     interface Presenter extends IPresenter<View> {
         void getAlbumDetail(String id,int type); //获取专辑的更多信息
-        void insertAllAlbumSong(ArrayList<AlbumSong.DataBean.GetSongInfoBean> songList); //将专辑歌曲添加到数据库
+        void insertAllAlbumSong(List<AlbumSong.DataBean.GetSongInfoBean> songList); //将专辑歌曲添加到数据库
 
     }
 }

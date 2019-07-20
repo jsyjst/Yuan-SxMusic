@@ -9,6 +9,7 @@ import com.example.musicplayer.entiy.AlbumSong;
 
 import java.net.UnknownHostException;
 import java.util.ArrayList;
+import java.util.List;
 
 import io.reactivex.android.schedulers.AndroidSchedulers;
 import io.reactivex.schedulers.Schedulers;
@@ -42,7 +43,7 @@ public class AlbumSongPresenter extends BasePresenter<IAlbumSongContract.View> i
                                 mView.hideLoading();
                                 if (albumSong.getCode() == 200) {
                                     if (type == ALBUM_SONG) {
-                                        mView.setAlbumSongList(albumSong.getData().getGetSongInfo());
+                                        insertAllAlbumSong(albumSong.getData().getGetSongInfo());
                                     } else {
                                         mView.showAlbumMessage(
                                                 albumSong.getData().getGetSongInfo().get(0).getAlbumname(),
@@ -72,7 +73,8 @@ public class AlbumSongPresenter extends BasePresenter<IAlbumSongContract.View> i
     }
 
     @Override
-    public void insertAllAlbumSong(ArrayList<AlbumSong.DataBean.GetSongInfoBean> songList) {
+    public void insertAllAlbumSong(List<AlbumSong.DataBean.GetSongInfoBean> songList) {
         mModel.insertAllAlbumSong(songList);
+        mView.setAlbumSongList(songList);
     }
 }

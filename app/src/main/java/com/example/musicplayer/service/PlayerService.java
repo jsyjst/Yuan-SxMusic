@@ -188,22 +188,6 @@ public class PlayerService extends Service {
 
         }
 
-        //播放搜索歌曲
-        public void playOnline(int position) {
-            try {
-                mediaPlayer.reset();
-                mediaPlayer.setDataSource(FileHelper.getSong().getUrl());
-                mediaPlayer.prepare();
-                mediaPlayer.setOnPreparedListener(new PreparedListener(position));
-                isPlaying = true;
-                saveToHistoryTable();
-                EventBus.getDefault().post(new OnlineSongChangeEvent()); //发送网络歌曲改变事件
-                EventBus.getDefault().post(new SongStatusEvent(Constant.SONG_CHANGE));
-            } catch (Exception e) {
-                EventBus.getDefault().post(new OnlineSongErrorEvent());
-                e.printStackTrace();
-            }
-        }
 
         /**
          * 暂停音乐
@@ -329,32 +313,11 @@ public class PlayerService extends Service {
             mediaPlayer.stop();
             mediaPlayer.release();
         }
-        Log.d(TAG, "----onDestroy:PlayerService ");
     }
 
     @Override
     public boolean onUnbind(Intent intent) {
-        Log.d(TAG, "-----onUnbind: ");
         return true;
-    }
-
-    /**
-     * 实现一个OnPrepareLister接口,当音乐准备好的时候开始播放
-     */
-    private final class PreparedListener implements MediaPlayer.OnPreparedListener {
-        private int position;
-
-        public PreparedListener(int position) {
-            this.position = position;
-        }
-
-        @Override
-        public void onPrepared(MediaPlayer mp) {
-            mediaPlayer.start();    //开始播放
-            if (position > 0) {    //如果音乐不是从头播放
-                mediaPlayer.seekTo(position);
-            }
-        }
     }
 
     //保存本地音乐列表的信息

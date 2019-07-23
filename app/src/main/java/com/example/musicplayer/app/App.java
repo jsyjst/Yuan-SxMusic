@@ -1,5 +1,6 @@
 package com.example.musicplayer.app;
 
+import android.annotation.SuppressLint;
 import android.app.Application;
 import android.content.Context;
 
@@ -11,6 +12,7 @@ import org.litepal.LitePal;
  */
 
 public class App extends Application {
+    @SuppressLint("StaticFieldLeak")
     private static Context context;
 
     @Override

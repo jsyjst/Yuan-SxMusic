@@ -76,12 +76,9 @@ public class AlbumSongAdapter extends RecyclerView.Adapter<RecyclerView.ViewHold
                 holder.titleTv.setTextColor(App.getContext().getResources().getColor(R.color.white));
                 holder.artistTv.setTextColor(App.getContext().getResources().getColor(R.color.white_blue));
             }
-            holder.mItemView.setOnRippleCompleteListener(new RippleView.OnRippleCompleteListener() {
-                @Override
-                public void onComplete(RippleView rippleView) {
-                    mSongClick.onClick(position);
-                    equalPosition(position);
-                }
+            holder.mItemView.setOnRippleCompleteListener(rippleView -> {
+                mSongClick.onClick(position);
+                equalPosition(position);
             });
         }
     }

@@ -1,5 +1,6 @@
 package com.example.musicplayer.view.search;
 
+import android.annotation.SuppressLint;
 import android.graphics.Bitmap;
 import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.Drawable;
@@ -11,7 +12,6 @@ import android.support.v4.app.FragmentTransaction;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
@@ -31,7 +31,6 @@ import com.bumptech.glide.request.target.SimpleTarget;
 import com.bumptech.glide.request.target.Target;
 import com.bumptech.glide.request.transition.Transition;
 import com.example.musicplayer.R;
-import com.example.musicplayer.app.Constant;
 import com.example.musicplayer.entiy.AlbumCollection;
 import com.example.musicplayer.entiy.SearchHistory;
 import com.example.musicplayer.event.AlbumCollectionEvent;
@@ -45,6 +44,12 @@ import org.litepal.crud.callback.UpdateOrDeleteCallback;
 
 import java.util.List;
 
+import static com.example.musicplayer.app.Constant.ALBUM_ID_KEY;
+import static com.example.musicplayer.app.Constant.ALBUM_NAME_KEY;
+import static com.example.musicplayer.app.Constant.ALBUM_PIC_KEY;
+import static com.example.musicplayer.app.Constant.PUBLIC_TIME_KEY;
+import static com.example.musicplayer.app.Constant.SINGER_NAME_KEY;
+
 /**
  * Created by 残渊 on 2018/11/25.
  */
@@ -52,13 +57,9 @@ import java.util.List;
 public class AlbumContentFragment extends Fragment {
     private static final String TAG = "AlbumContentFragment";
 
-    public static final String ALBUM_ID_KEY = "id";
-    private static final String ALBUM_NAME_KEY = "albumName";
-    private static final String SINGER_NAME_KEY = "singerName";
-    private static final String ALBUM_PIC_KEY = "albumPic";
-    public static final String PUBLIC_TIEM_KEY = "publicTime";
 
-    private String mAlbumName, mSingerNmae, mAlbumPic, mPublicTime, mId;
+
+    private String mAlbumName, mSingerName, mAlbumPic, mPublicTime, mId;
 
     private MaterialViewPager mViewPager;
     private Toolbar toolbar;
@@ -102,6 +103,7 @@ public class AlbumContentFragment extends Fragment {
         super.onCreateOptionsMenu(menu, inflater);
     }
 
+    @SuppressLint("SetTextI18n")
     private void initView() {
         toolbar.setTitle(mAlbumName);
 
@@ -119,7 +121,7 @@ public class AlbumContentFragment extends Fragment {
                 .apply(RequestOptions.errorOf(R.drawable.welcome))
                 .into(target);
 
-        mSingerNameTv.setText("歌手 " + mSingerNmae);
+        mSingerNameTv.setText("歌手 " + mSingerName);
         mPublicTimeTv.setText("发行时间 " + mPublicTime);
         toolbar.setTitleTextColor(getActivity().getResources().getColor(R.color.white));
         if (toolbar != null) {
@@ -135,12 +137,7 @@ public class AlbumContentFragment extends Fragment {
             }
         }
         //返回键的监听
-        toolbar.setNavigationOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                getActivity().getSupportFragmentManager().popBackStack();
-            }
-        });
+        toolbar.setNavigationOnClickListener(v -> getActivity().getSupportFragmentManager().popBackStack());
         mViewPager.getViewPager().setAdapter(new FragmentStatePagerAdapter(getActivity().getSupportFragmentManager()) {
 
             @Override
@@ -149,7 +146,7 @@ public class AlbumContentFragment extends Fragment {
                     case 0:
                         return AlbumSongFragment.newInstance(AlbumSongFragment.ALBUM_SONG, mId, mPublicTime);
                     case 1:
-                        return AlbumSongFragment.newInstance(AlbumSongFragment.ALBUM_INFORATION, mId, mPublicTime);
+                        return AlbumSongFragment.newInstance(AlbumSongFragment.ALBUM_INFORMATION, mId, mPublicTime);
                     default:
                         return null;
                 }
@@ -198,7 +195,7 @@ public class AlbumContentFragment extends Fragment {
                     albumCollection.setAlbumName(mAlbumName);
                     albumCollection.setAlbumPic(mAlbumPic);
                     albumCollection.setPublicTime(mPublicTime);
-                    albumCollection.setSingerName(mSingerNmae);
+                    albumCollection.setSingerName(mSingerName);
                     albumCollection.saveAsync().listen(new SaveCallback() {
                         @Override
                         public void onFinish(boolean success) {
@@ -235,7 +232,7 @@ public class AlbumContentFragment extends Fragment {
         bundle.putString(ALBUM_NAME_KEY, albumName);
         bundle.putString(ALBUM_PIC_KEY, albumPic);
         bundle.putString(SINGER_NAME_KEY, singerName);
-        bundle.putString(PUBLIC_TIEM_KEY, publicTime);
+        bundle.putString(PUBLIC_TIME_KEY, publicTime);
         albumContentFragment.setArguments(bundle);
         return albumContentFragment;
     }
@@ -246,8 +243,8 @@ public class AlbumContentFragment extends Fragment {
             mId = bundle.getString(ALBUM_ID_KEY);
             mAlbumName = bundle.getString(ALBUM_NAME_KEY);
             mAlbumPic = bundle.getString(ALBUM_PIC_KEY);
-            mSingerNmae = bundle.getString(SINGER_NAME_KEY);
-            mPublicTime = bundle.getString(PUBLIC_TIEM_KEY);
+            mSingerName = bundle.getString(SINGER_NAME_KEY);
+            mPublicTime = bundle.getString(PUBLIC_TIME_KEY);
         }
     }
 
@@ -272,6 +269,7 @@ public class AlbumContentFragment extends Fragment {
             return view;
         }
 
+        @SuppressLint("ClickableViewAccessibility")
         @Override
         public void onActivityCreated(Bundle saveInstanceState) {
             super.onActivityCreated(saveInstanceState);
@@ -289,21 +287,15 @@ public class AlbumContentFragment extends Fragment {
                     replaceFragment(ContentFragment.newInstance(mSeekEdit.getText().toString()));
                 }
             });
-            mSeekEdit.setOnTouchListener(new View.OnTouchListener() {
-                @Override
-                public boolean onTouch(View v, MotionEvent event) {
-                    if (MotionEvent.ACTION_DOWN == event.getAction()) {
-                        mSeekEdit.setCursorVisible(true);
-                    }
-                    return false;
+            mSeekEdit.setOnTouchListener((v, event) -> {
+                if (MotionEvent.ACTION_DOWN == event.getAction()) {
+                    mSeekEdit.setCursorVisible(true);
                 }
+                return false;
             });
-            mBackIv.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View v) {
-                    CommonUtil.closeKeybord(mSeekEdit,getActivity());
-                    getActivity().getSupportFragmentManager().popBackStack();
-                }
+            mBackIv.setOnClickListener(v -> {
+                CommonUtil.closeKeybord(mSeekEdit,getActivity());
+                getActivity().getSupportFragmentManager().popBackStack();
             });
         }
 
@@ -333,12 +325,5 @@ public class AlbumContentFragment extends Fragment {
             transaction.replace(R.id.container, fragment);
             transaction.commit();
         }
-
-        @Override
-        public void onDestroyView() {
-            super.onDestroyView();
-            Log.d(TAG, "onDestroyView: true");
-        }
-
     }
 }

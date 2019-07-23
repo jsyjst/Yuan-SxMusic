@@ -65,20 +65,17 @@ public class SearchContentAdapter extends RecyclerView.Adapter<RecyclerView.View
         mType = type;
     }
 
-    @NonNull
     @Override
     public RecyclerView.ViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
         final View view;
         if (viewType == Constant.TYPE_SONG ) {
             view = LayoutInflater.from(parent.getContext())
                     .inflate(R.layout.recycler_song_search_item, parent, false);
-            ViewHolder viewHolder = new ViewHolder(view);
-            return viewHolder;
+            return new ViewHolder(view);
         } else if (viewType == Constant.TYPE_ALBUM) {
             view = LayoutInflater.from(parent.getContext())
                     .inflate(R.layout.recycler_album_item, parent, false);
-            AlbumHolder albumHolder = new AlbumHolder(view);
-            return albumHolder;
+            return new AlbumHolder(view);
         }
         return null;
 
@@ -110,12 +107,9 @@ public class SearchContentAdapter extends RecyclerView.Adapter<RecyclerView.View
                 songHolder.playLine.setVisibility(View.INVISIBLE);
                 songHolder.mItemView.setBackgroundResource(R.color.transparent);
             }
-            songHolder.mItemView.setOnRippleCompleteListener(new RippleView.OnRippleCompleteListener() {
-                @Override
-                public void onComplete(RippleView rippleView) {
-                    mItemClick.onClick(position);
-                    equalPosition(position);
-                }
+            songHolder.mItemView.setOnRippleCompleteListener(rippleView -> {
+                mItemClick.onClick(position);
+                equalPosition(position);
             });
         } else {
             AlbumHolder albumHolder = (AlbumHolder) holder;
@@ -128,12 +122,8 @@ public class SearchContentAdapter extends RecyclerView.Adapter<RecyclerView.View
             CommonUtil.showStringColor(mSeek, albumList.getAlbumName(), albumHolder.albumName);
             CommonUtil.showStringColor(mSeek, albumList.getSingerName(), albumHolder.singerName);
             CommonUtil.showStringColor(mSeek, albumList.getPublicTime(), albumHolder.publicTime);
-            albumHolder.item.setOnRippleCompleteListener(new RippleView.OnRippleCompleteListener() {
-                @Override
-                public void onComplete(RippleView rippleView) {
-                    Log.d(TAG, "onClick: album");
-                    mAlbumClick.onClick(position);
-                }
+            albumHolder.item.setOnRippleCompleteListener(rippleView -> {
+                mAlbumClick.onClick(position);
             });
         }
     }

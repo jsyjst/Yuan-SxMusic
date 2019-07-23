@@ -18,8 +18,6 @@ import com.example.musicplayer.adapter.SearchContentAdapter;
 import com.example.musicplayer.app.BaseUri;
 import com.example.musicplayer.app.Constant;
 import com.example.musicplayer.base.fragment.BaseLoadingFragment;
-import com.example.musicplayer.callback.OnAlbumItemClickListener;
-import com.example.musicplayer.callback.OnItemClickListener;
 import com.example.musicplayer.contract.ISearchContentContract;
 import com.example.musicplayer.entiy.Album;
 import com.example.musicplayer.entiy.SearchSong;
@@ -30,8 +28,6 @@ import com.example.musicplayer.presenter.SearchContentPresenter;
 import com.example.musicplayer.service.PlayerService;
 import com.example.musicplayer.util.CommonUtil;
 import com.example.musicplayer.util.FileHelper;
-import com.github.jdsjlzx.interfaces.OnLoadMoreListener;
-import com.github.jdsjlzx.interfaces.OnNetWorkErrorListener;
 import com.github.jdsjlzx.recyclerview.LRecyclerView;
 import com.github.jdsjlzx.recyclerview.LRecyclerViewAdapter;
 

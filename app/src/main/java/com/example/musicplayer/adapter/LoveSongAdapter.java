@@ -1,5 +1,6 @@
 package com.example.musicplayer.adapter;
 
+import android.annotation.SuppressLint;
 import android.content.Context;
 import android.support.annotation.NonNull;
 import android.support.v7.widget.RecyclerView;
@@ -83,6 +84,7 @@ public class LoveSongAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
         }
     }
 
+    @SuppressLint("SetTextI18n")
     @Override
     public void onBindViewHolder(RecyclerView.ViewHolder viewHolder, final int position) {
         if (viewHolder instanceof ViewHolder) {
@@ -107,14 +109,11 @@ public class LoveSongAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
                 holder.singerTv.setTextColor(mContext.getResources()
                         .getColor(R.color.white_blue));
             }
-            holder.item.setOnRippleCompleteListener(new RippleView.OnRippleCompleteListener() {
-                @Override
-                public void onComplete(RippleView rippleView) {
-                    if (onItemClickListener != null) {
-                        onItemClickListener.onClick(position);
-                    }
-                    equalPosition(position);
+            holder.item.setOnRippleCompleteListener(rippleView -> {
+                if (onItemClickListener != null) {
+                    onItemClickListener.onClick(position);
                 }
+                equalPosition(position);
             });
         } else {
             FooterHolder footerHolder = (FooterHolder) viewHolder;

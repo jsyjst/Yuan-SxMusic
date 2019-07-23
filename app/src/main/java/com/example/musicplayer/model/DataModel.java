@@ -11,7 +11,6 @@ import com.example.musicplayer.model.db.DbHelperImpl;
 import com.example.musicplayer.model.https.NetworkHelper;
 import com.example.musicplayer.model.https.NetworkHelperImpl;
 
-import java.util.ArrayList;
 import java.util.List;
 
 import io.reactivex.Observable;

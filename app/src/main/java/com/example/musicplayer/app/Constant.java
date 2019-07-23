@@ -35,6 +35,13 @@ public class Constant {
     public static final int SONG_CHANGE = 3;
 
 
+    //KEY
+    public static final String ALBUM_ID_KEY = "id";
+    public static final String ALBUM_NAME_KEY = "albumName";
+    public static final String SINGER_NAME_KEY = "singerName";
+    public static final String ALBUM_PIC_KEY = "albumPic";
+    public static final String PUBLIC_TIME_KEY = "publicTime";
+
 
     //TAG
     public static final String TAG_ERROR = "error";

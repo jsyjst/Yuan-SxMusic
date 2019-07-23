@@ -41,6 +41,9 @@ import org.litepal.LitePal;
 import java.util.List;
 import java.util.Objects;
 
+import static com.example.musicplayer.app.Constant.ALBUM_ID_KEY;
+import static com.example.musicplayer.app.Constant.PUBLIC_TIME_KEY;
+
 /**
  * Created by 残渊 on 2018/11/25.
  */
@@ -48,8 +51,7 @@ import java.util.Objects;
 public class AlbumSongFragment extends BaseMvpFragment<AlbumSongPresenter> implements IAlbumSongContract.View{
     private static final String TYPE_KEY = "type_key";
     public static final int ALBUM_SONG = 0;
-    public static final int ALBUM_INFORATION = 1;
-    public static final String IS_ONLINE_ALBUM="online_album";
+    public static final int ALBUM_INFORMATION = 1;
 
     private AlbumSongPresenter mPresenter;
     private String mId;
@@ -159,8 +161,8 @@ public class AlbumSongFragment extends BaseMvpFragment<AlbumSongPresenter> imple
         Bundle bundle = getArguments();
         if (bundle != null) {
             mType = bundle.getInt(TYPE_KEY);
-            mId =bundle.getString(AlbumContentFragment.ALBUM_ID_KEY);
-            mPublicTime = bundle.getString(AlbumContentFragment.PUBLIC_TIEM_KEY);
+            mId =bundle.getString(ALBUM_ID_KEY);
+            mPublicTime = bundle.getString(PUBLIC_TIME_KEY);
         }
     }
 
@@ -168,8 +170,8 @@ public class AlbumSongFragment extends BaseMvpFragment<AlbumSongPresenter> imple
         AlbumSongFragment fragment = new AlbumSongFragment();
         Bundle bundle = new Bundle();
         bundle.putInt(TYPE_KEY, type);
-        bundle.putString(AlbumContentFragment.ALBUM_ID_KEY,id);
-        bundle.putString(AlbumContentFragment.PUBLIC_TIEM_KEY, publicTime);
+        bundle.putString(ALBUM_ID_KEY,id);
+        bundle.putString(PUBLIC_TIME_KEY, publicTime);
         fragment.setArguments(bundle);
         return fragment;
     }

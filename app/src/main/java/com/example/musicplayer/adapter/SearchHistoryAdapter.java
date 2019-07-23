@@ -26,9 +26,9 @@ public class SearchHistoryAdapter extends RecyclerView.Adapter<RecyclerView.View
     private List<SearchHistory> mSearchHistoryList;
     private static final int mHistoryType =0;
     private static final int mFooterType = 1;
-    private static OnItemClickListener mOnItemClickListener;
-    private static OnDeleteClickListener mOnDeleteClickListener;
-    private static OnFooterClickListener mFooterClickListener;
+    private  OnItemClickListener mOnItemClickListener;
+    private  OnDeleteClickListener mOnDeleteClickListener;
+    private  OnFooterClickListener mFooterClickListener;
 
     public SearchHistoryAdapter(List<SearchHistory> searchHistoryList){
         mSearchHistoryList = searchHistoryList;
@@ -40,13 +40,11 @@ public class SearchHistoryAdapter extends RecyclerView.Adapter<RecyclerView.View
         if(viewType ==mHistoryType){
             View view = LayoutInflater.from(parent.getContext()).inflate(R.layout.recycler_seek_history_item,
                     parent,false);
-            HistoryHolder historyHolder = new HistoryHolder(view);
-            return historyHolder;
+            return new HistoryHolder(view);
         }else{
             View view = LayoutInflater.from(parent.getContext()).inflate(R.layout.footer_delete_all_history_item,
                     parent,false);
-            FooterHolder footerHolder = new FooterHolder(view);
-            return footerHolder;
+            return new FooterHolder(view);
 
         }
     }
@@ -56,27 +54,12 @@ public class SearchHistoryAdapter extends RecyclerView.Adapter<RecyclerView.View
         if(holder instanceof HistoryHolder){
             HistoryHolder historyHolder =(HistoryHolder) holder;
             historyHolder.historyTv.setText(mSearchHistoryList.get(position).getHistory());
-            historyHolder.deleteIv.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View v) {
-                    mOnDeleteClickListener.onClick(position);
-                }
-            });
+            historyHolder.deleteIv.setOnClickListener(v -> mOnDeleteClickListener.onClick(position));
 
-            historyHolder.mItemView.setOnRippleCompleteListener(new RippleView.OnRippleCompleteListener() {
-                @Override
-                public void onComplete(RippleView rippleView) {
-                    mOnItemClickListener.onClick(position);
-                }
-            });
+            historyHolder.mItemView.setOnRippleCompleteListener(rippleView -> mOnItemClickListener.onClick(position));
         }else{
             FooterHolder footerHolder =(FooterHolder) holder;
-            footerHolder.deleteView.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View v) {
-                    mFooterClickListener.onClick();
-                }
-            });
+            footerHolder.deleteView.setOnClickListener(v -> mFooterClickListener.onClick());
         }
     }
 

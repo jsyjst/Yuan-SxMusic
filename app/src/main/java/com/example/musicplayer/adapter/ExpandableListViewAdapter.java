@@ -123,12 +123,7 @@ public class ExpandableListViewAdapter extends BaseExpandableListAdapter {
         CommonUtil.setImgWithGlide(mContext,
                 mAlbumCollectionList.get(groupPosition).get(childPosition).getAlbumPic(), childViewHolder.faceIv);
         //点击水波纹效果，结束后开始点击效果
-        childViewHolder.childView.setOnRippleCompleteListener(new RippleView.OnRippleCompleteListener() {
-            @Override
-            public void onComplete(RippleView rippleView) {
-                mChildClickListener.onClick(groupPosition,childPosition);
-            }
-        });
+        childViewHolder.childView.setOnRippleCompleteListener(rippleView -> mChildClickListener.onClick(groupPosition,childPosition));
         return view;
     }
 

@@ -23,28 +23,37 @@ import retrofit2.http.Query;
  */
 
 public interface RetrofitService {
-    @GET("album?")
-    Observable<AlbumSong> getAlbumSong(@Query("id")String id);
-
     /**
-     *  搜索歌曲
+     *  搜索歌曲：https://c.y.qq.com/soso/fcgi-bin/client_search_cp?p=2&n=2&w=周杰伦&format=json
      */
-    @GET(Api.SEARCH)
+    @GET(Api.SEARCH_SONG)
     Observable<SearchSong> search(@Query("w") String seek, @Query("p")int offset);
 
-    @GET("search?type=album")
+    /**
+     * 搜索专辑：https://c.y.qq.com/soso/fcgi-bin/client_search_cp?p=1&n=2&w=林宥嘉&format=json&t=8
+     * @param seek 搜索关键字
+     * @param offset 页数
+     */
+    @GET(Api.SEARCH_ALBUM)
     Observable<Album> searchAlbum(@Query("w") String seek, @Query("p")int offset);
+
+    /**
+     * 专辑详细：https://c.y.qq.com/v8/fcg-bin/fcg_v8_album_info_cp.fcg?albummid=004YodY33zsWTT&format=json
+     * @param id 专辑mid
+     */
+    @GET(Api.ALBUM_DETAIL)
+    Observable<AlbumSong> getAlbumSong(@Query("albummid")String id);
 
     /**
      * 搜索歌词
      * @param seek
      * @return
      */
-    @GET(Api.SEARCH)
+    @GET(Api.SEARCH_SONG)
     Observable<SearchSong> search(@Query("w") String seek);
 
     /**
-     *
+     * 歌词
      * @param id 歌曲id
      * @return
      */

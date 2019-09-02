@@ -58,7 +58,7 @@ public class SearchContentFragment extends BaseLoadingFragment<SearchContentPres
     private LinearLayoutManager manager;
     private SearchContentAdapter mAdapter;
     private ArrayList<SearchSong.DataBean.SongBean.ListBean> mSongList = new ArrayList<>();
-    private List<Album.DataBean.ListBean> mAlbumList;
+    private List<Album.DataBean.AlbumBean.ListBean> mAlbumList;
     private LRecyclerViewAdapter mLRecyclerViewAdapter;//下拉刷新
 
     @BindView(R.id.normalView)
@@ -215,7 +215,7 @@ public class SearchContentFragment extends BaseLoadingFragment<SearchContentPres
     }
 
     @Override
-    public void searchAlbumSuccess(final List<Album.DataBean.ListBean> albumList) {
+    public void searchAlbumSuccess(final List<Album.DataBean.AlbumBean.ListBean> albumList) {
         mAlbumList = new ArrayList<>();
         mAlbumList.addAll(albumList);
         mAdapter = new SearchContentAdapter(mAlbumList, mSeek, getActivity(), Constant.TYPE_ALBUM);
@@ -226,7 +226,7 @@ public class SearchContentFragment extends BaseLoadingFragment<SearchContentPres
     }
 
     @Override
-    public void searchAlbumMoreSuccess(List<Album.DataBean.ListBean> songListBeans) {
+    public void searchAlbumMoreSuccess(List<Album.DataBean.AlbumBean.ListBean> songListBeans) {
         mAlbumList.addAll(songListBeans);
         mAdapter.notifyDataSetChanged();
         mRecycler.refreshComplete(Constant.OFFSET);
@@ -261,7 +261,7 @@ public class SearchContentFragment extends BaseLoadingFragment<SearchContentPres
         return fragment;
     }
 
-    public void toAlbumContentFragment(Album.DataBean.ListBean album) {
+    public void toAlbumContentFragment(Album.DataBean.AlbumBean.ListBean album) {
         FragmentManager manager = getActivity().getSupportFragmentManager();
         FragmentTransaction transaction = manager.beginTransaction();
         transaction.setCustomAnimations(R.anim.fragment_in, R.anim.fragment_out, R.anim.slide_in_right, R.anim.slide_out_right);

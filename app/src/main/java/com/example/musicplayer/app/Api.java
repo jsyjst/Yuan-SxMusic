@@ -24,7 +24,8 @@ public class Api {
     public static final String FIDDLER_BASE_QQ_URL ="https://c.y.qq.com/";
     public static final String FIDDLER_BASE_SONG_URL="https://u.y.qq.com/"; //获取播放地址的baseUrl
     //搜索功能
-    public static final String SEARCH="soso/fcgi-bin/client_search_cp?n=30&format=json";
+    public static final String SEARCH_SONG ="soso/fcgi-bin/client_search_cp?n=30&format=json"; //歌曲，n为一页30首
+    public static final String SEARCH_ALBUM="soso/fcgi-bin/client_search_cp?n=20&format=json&t=8";//专辑，n为一页20张
     //得到歌曲的播放地址
     public static final String SONG_URL="cgi-bin/musicu.fcg?format=json";
     public static final String SONG_URL_DATA_LEFT="%7B%22req_0%22%3A%7B%22module%22%3A%22vkey.GetVkeyServer%22%2C%22method%22%3A%22CgiGetVkey%22%2C%22param%22%3A%7B%22guid%22%3A%22358840384%22%2C%22songmid%22%3A%5B%22";
@@ -32,5 +33,7 @@ public class Api {
     //专辑照片
     public static final String ALBUM_PIC="http://y.gtimg.cn/music/photo_new/T002R180x180M000";
     public static final String JPG=".jpg";
+    //专辑详细
+    public static final String ALBUM_DETAIL="v8/fcg-bin/fcg_v8_album_info_cp.fcg?format=json";
 
 }

@@ -20,8 +20,8 @@ public interface ISearchContentContract {
         void searchMore();//搜索更多
         void showSearcherMoreNetworkError();//下拉刷新网络错误
 
-        void searchAlbumSuccess(List<Album.DataBean.ListBean> albumList); //获取专辑成功
-        void searchAlbumMoreSuccess(List<Album.DataBean.ListBean> songListBeans); //搜索更多内容成功
+        void searchAlbumSuccess(List<Album.DataBean.AlbumBean.ListBean> albumList); //获取专辑成功
+        void searchAlbumMoreSuccess(List<Album.DataBean.AlbumBean.ListBean> songListBeans); //搜索更多内容成功
         void searchAlbumError(); //获取专辑失败
         void getSongUrlSuccess(String url);//成功获取歌曲url
     }

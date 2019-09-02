@@ -10,6 +10,7 @@ import android.support.v4.app.Fragment;
 import android.support.v4.widget.NestedScrollView;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -19,6 +20,7 @@ import android.widget.TextView;
 import com.example.musicplayer.R;
 import com.example.musicplayer.adapter.AlbumSongAdapter;
 import com.example.musicplayer.app.Api;
+import com.example.musicplayer.app.App;
 import com.example.musicplayer.app.Constant;
 import com.example.musicplayer.base.fragment.BaseMvpFragment;
 import com.example.musicplayer.contract.IAlbumSongContract;
@@ -69,7 +71,7 @@ public class AlbumSongFragment extends BaseMvpFragment<AlbumSongPresenter> imple
 
 
 
-    private List<AlbumSong.DataBean.GetSongInfoBean> mSongsList;
+    private List<AlbumSong.DataBean.ListBean> mSongsList;
     private RecyclerView mRecycle;
     private LinearLayoutManager mLinearManager;
     private AlbumSongAdapter mAdapter;
@@ -177,7 +179,7 @@ public class AlbumSongFragment extends BaseMvpFragment<AlbumSongPresenter> imple
     }
 
     @Override
-    public void setAlbumSongList(final List<AlbumSong.DataBean.GetSongInfoBean> songList) {
+    public void setAlbumSongList(final List<AlbumSong.DataBean.ListBean> songList) {
         mLinearManager =new LinearLayoutManager(getActivity());
         mRecycle.setLayoutManager(mLinearManager);
         mAdapter =new AlbumSongAdapter(songList);
@@ -185,17 +187,17 @@ public class AlbumSongFragment extends BaseMvpFragment<AlbumSongPresenter> imple
         mRecycle.setAdapter(mAdapter);
 
         mAdapter.setSongClick(position -> {
-            AlbumSong.DataBean.GetSongInfoBean dataBean= songList.get(position);
+            AlbumSong.DataBean.ListBean dataBean= songList.get(position);
             Song song = new Song();
             song.setSongId(dataBean.getSongmid());
             song.setSinger(getSinger(dataBean));
             song.setSongName(dataBean.getSongname());
-            song.setUrl(Api.PLAY_URL+dataBean.getSongmid());
-            song.setImgUrl(Api.PIC_URL+dataBean.getSongmid());
             song.setCurrent(position);
             song.setDuration(dataBean.getInterval());
             song.setOnline(true);
             song.setListType(Constant.LIST_TYPE_ONLINE);
+            song.setImgUrl(Api.ALBUM_PIC+dataBean.getAlbummid()+ Api.JPG);
+            song.setUrl(null);
             FileHelper.saveSong(song);
 
             mPlayStatusBinder.play(Constant.LIST_TYPE_ONLINE);
@@ -248,7 +250,7 @@ public class AlbumSongFragment extends BaseMvpFragment<AlbumSongPresenter> imple
     }
 
     //获取歌手，因为歌手可能有很多个
-    private String getSinger(AlbumSong.DataBean.GetSongInfoBean dataBean){
+    private String getSinger(AlbumSong.DataBean.ListBean dataBean){
         StringBuilder singer = new StringBuilder(dataBean.getSinger().get(0).getName());
         for (int i = 1; i < dataBean.getSinger().size(); i++) {
             singer.append("、").append(dataBean.getSinger().get(i).getName());

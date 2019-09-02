@@ -27,19 +27,19 @@ import java.util.List;
 public class DbHelperImpl implements DbHelper {
 
     @Override
-    public void insertAllAlbumSong(List<AlbumSong.DataBean.GetSongInfoBean> songList) {
+    public void insertAllAlbumSong(List<AlbumSong.DataBean.ListBean> songList) {
         LitePal.deleteAll(OnlineSong.class);
         for (int i = 0; i < songList.size(); i++) {
-            AlbumSong.DataBean.GetSongInfoBean song = songList.get(i);
+            AlbumSong.DataBean.ListBean song = songList.get(i);
             OnlineSong onlineSong = new OnlineSong();
             onlineSong.setId(i + 1);
-            onlineSong.setUrl(Api.PLAY_URL + song.getSongmid());
             onlineSong.setName(song.getSongname());
-            onlineSong.setPic(Api.PIC_URL + song.getSongmid());
             onlineSong.setSinger(song.getSinger().get(0).getName());
-            onlineSong.setLrc(Api.LRC_URL + song.getSongmid());
             onlineSong.setSongId(song.getSongmid());
             onlineSong.setDuration(song.getInterval());
+            onlineSong.setPic(Api.ALBUM_PIC + song.getAlbummid()+Api.JPG);
+            onlineSong.setUrl(null);
+            onlineSong.setLrc(null);
             onlineSong.save();
         }
     }

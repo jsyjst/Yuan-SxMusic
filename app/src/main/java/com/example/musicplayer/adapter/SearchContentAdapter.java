@@ -32,7 +32,7 @@ public class SearchContentAdapter extends RecyclerView.Adapter<RecyclerView.View
     private static final String TAG = "SearchContentAdapter";
 
     private ArrayList<SearchSong.DataBean.SongBean.ListBean> mSongListBeans;
-    private List<Album.DataBean.ListBean> mAlbumList;
+    private List<Album.DataBean.AlbumBean.ListBean> mAlbumList;
     private static OnItemClickListener mItemClick;
     private static OnAlbumItemClickListener mAlbumClick;
     private String mSeek;
@@ -49,7 +49,7 @@ public class SearchContentAdapter extends RecyclerView.Adapter<RecyclerView.View
         mAlbumClick = albumClick;
     }
 
-    public SearchContentAdapter(List<Album.DataBean.ListBean> dataBeans, String seek, Context context, int type) {
+    public SearchContentAdapter(List<Album.DataBean.AlbumBean.ListBean> dataBeans, String seek, Context context, int type) {
         mContext = context;
         mSeek = seek;
         mAlbumList = dataBeans;
@@ -112,7 +112,7 @@ public class SearchContentAdapter extends RecyclerView.Adapter<RecyclerView.View
             });
         } else {
             AlbumHolder albumHolder = (AlbumHolder) holder;
-            Album.DataBean.ListBean albumList = mAlbumList.get(position);
+            Album.DataBean.AlbumBean.ListBean albumList = mAlbumList.get(position);
             Glide.with(mContext).load(albumList.getAlbumPic())
                     .apply(RequestOptions.errorOf(R.drawable.background)).into(albumHolder.albumIv);
             albumHolder.albumName.setText(albumList.getAlbumName());

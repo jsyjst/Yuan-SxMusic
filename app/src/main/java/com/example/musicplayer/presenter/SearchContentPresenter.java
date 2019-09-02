@@ -83,7 +83,7 @@ public class SearchContentPresenter extends BasePresenter<ISearchContentContract
                             public void onNext(Album album) {
                                 super.onNext(album);
                                 if (album.getCode() == 0) {
-                                    mView.searchAlbumSuccess(album.getData().getList());
+                                    mView.searchAlbumSuccess(album.getData().getAlbum().getList());
                                 } else {
                                     mView.searchAlbumError();
                                 }
@@ -100,8 +100,8 @@ public class SearchContentPresenter extends BasePresenter<ISearchContentContract
                             @Override
                             public void onNext(Album album) {
                                 super.onNext(album);
-                                if (album.getCode() == 200) {
-                                    mView.searchAlbumMoreSuccess(album.getData().getList());
+                                if (album.getCode() == 0) {
+                                    mView.searchAlbumMoreSuccess(album.getData().getAlbum().getList());
                                 } else {
                                     mView.searchMoreError();
                                 }

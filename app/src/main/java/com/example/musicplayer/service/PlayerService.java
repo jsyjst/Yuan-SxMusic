@@ -8,12 +8,16 @@ import android.os.Binder;
 import android.os.IBinder;
 import android.util.Log;
 
+import com.example.musicplayer.app.Api;
 import com.example.musicplayer.app.Constant;
+import com.example.musicplayer.base.observer.BaseObserver;
 import com.example.musicplayer.entiy.HistorySong;
 import com.example.musicplayer.entiy.LocalSong;
 import com.example.musicplayer.entiy.Love;
 import com.example.musicplayer.entiy.OnlineSong;
+import com.example.musicplayer.entiy.SingerImg;
 import com.example.musicplayer.entiy.Song;
+import com.example.musicplayer.entiy.SongUrl;
 import com.example.musicplayer.event.OnlineSongChangeEvent;
 import com.example.musicplayer.event.OnlineSongErrorEvent;
 import com.example.musicplayer.event.SongAlbumEvent;
@@ -21,6 +25,7 @@ import com.example.musicplayer.event.SongCollectionEvent;
 import com.example.musicplayer.event.SongHistoryEvent;
 import com.example.musicplayer.event.SongLocalEvent;
 import com.example.musicplayer.event.SongStatusEvent;
+import com.example.musicplayer.model.https.RetrofitFactory;
 import com.example.musicplayer.util.FileHelper;
 
 import org.greenrobot.eventbus.EventBus;
@@ -28,8 +33,14 @@ import org.litepal.LitePal;
 import org.litepal.crud.callback.FindMultiCallback;
 import org.litepal.crud.callback.SaveCallback;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
+
+import io.reactivex.Observer;
+import io.reactivex.android.schedulers.AndroidSchedulers;
+import io.reactivex.disposables.Disposable;
+import io.reactivex.schedulers.Schedulers;
 
 @SuppressLint("NewApi")
 public class PlayerService extends Service {
@@ -151,19 +162,14 @@ public class PlayerService extends Service {
                 mediaPlayer.reset();//把各项参数恢复到初始状态
                 if (mListType == Constant.LIST_TYPE_LOCAL) {
                     mediaPlayer.setDataSource(mLocalSongList.get(mCurrent).getUrl());
+                    startPlay();
                 } else if (mListType == Constant.LIST_TYPE_ONLINE) {
-                    mediaPlayer.setDataSource(mSongList.get(mCurrent).getUrl());
+                    getSongUrl(mSongList.get(mCurrent).getSongId());
                 } else if (mListType == Constant.LIST_TYPE_LOVE) {
                     mediaPlayer.setDataSource(mLoveList.get(mCurrent).getUrl());
                 } else {
                     mediaPlayer.setDataSource(mHistoryList.get(mCurrent).getUrl());
                 }
-                mediaPlayer.prepare();    //进行缓冲
-                isPlaying = true;
-                mediaPlayer.start();
-                saveToHistoryTable();
-                EventBus.getDefault().post(new SongStatusEvent(Constant.SONG_CHANGE));//发送所有歌曲改变事件
-                EventBus.getDefault().post(new OnlineSongChangeEvent()); //发送网络歌曲改变事件
             } catch (Exception e) {
                 e.printStackTrace();
             }
@@ -175,7 +181,6 @@ public class PlayerService extends Service {
                 mediaPlayer.reset();
                 mediaPlayer.setDataSource(FileHelper.getSong().getUrl());
                 mediaPlayer.prepare();
-
                 isPlaying = true;
                 saveToHistoryTable();
                 mediaPlayer.start();
@@ -439,6 +444,57 @@ public class PlayerService extends Service {
             historySongList.add(tempList.get(i));
         }
         return historySongList;
+    }
+
+    //网络请求获取播放地址
+    private void getSongUrl(String songId){
+        RetrofitFactory.createRequestOfSongUrl().getSongUrl(Api.SONG_URL_DATA_LEFT+songId+Api.SONG_URL_DATA_RIGHT)
+                .subscribeOn(Schedulers.io()).observeOn(AndroidSchedulers.mainThread())
+                .subscribeWith(new Observer<SongUrl>() {
+                    @Override
+                    public void onSubscribe(Disposable disposable) {
+
+                    }
+
+                    @Override
+                    public void onNext(SongUrl songUrl) {
+                        if(songUrl.getCode() == 0){
+                            String sip = songUrl.getReq_0().getData().getSip().get(0);
+                            String purl = songUrl.getReq_0().getData().getMidurlinfo().get(0).getPurl();
+                            Song song = FileHelper.getSong();
+                            assert song != null;
+                            song.setUrl(sip+purl);
+                            FileHelper.saveSong(song);
+                            try {
+                                mediaPlayer.setDataSource(sip+purl);
+                                startPlay();
+                            } catch (IOException e) {
+                                e.printStackTrace();
+                            }
+                        }else {
+                            Log.d(TAG, "onNext:"+ songUrl.getCode()+":获取不到歌曲播放地址");
+                        }
+                    }
+
+                    @Override
+                    public void onError(Throwable throwable) {
+
+                    }
+
+                    @Override
+                    public void onComplete() {
+
+                    }
+                });
+
+    }
+    private void startPlay() throws IOException {
+        mediaPlayer.prepare();    //进行缓冲
+        isPlaying = true;
+        mediaPlayer.start();
+        saveToHistoryTable();
+        EventBus.getDefault().post(new SongStatusEvent(Constant.SONG_CHANGE));//发送所有歌曲改变事件
+        EventBus.getDefault().post(new OnlineSongChangeEvent()); //发送网络歌曲改变事件
     }
 }
 

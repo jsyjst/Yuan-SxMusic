@@ -41,16 +41,16 @@ public class AlbumSongPresenter extends BasePresenter<IAlbumSongContract.View> i
                             public void onNext(AlbumSong albumSong) {
                                 super.onNext(albumSong);
                                 mView.hideLoading();
-                                if (albumSong.getCode() == 200) {
+                                if (albumSong.getCode() == 0) {
                                     if (type == ALBUM_SONG) {
-                                        insertAllAlbumSong(albumSong.getData().getGetSongInfo());
+                                        insertAllAlbumSong(albumSong.getData().getList());
                                     } else {
                                         mView.showAlbumMessage(
-                                                albumSong.getData().getGetSongInfo().get(0).getAlbumname(),
-                                                albumSong.getData().getLanguage(),
-                                                albumSong.getData().getGetCompanyInfo().getFcompany_name(),
-                                                albumSong.getData().getAlbumtype(),
-                                                albumSong.getData().getGetAlbumDesc().getFalbum_desc());
+                                                albumSong.getData().getName(),
+                                                albumSong.getData().getLan(),
+                                                albumSong.getData().getCompany(),
+                                                albumSong.getData().getGenre(),
+                                                albumSong.getData().getDesc());
                                     }
                                 } else {
                                     mView.showAlbumSongError();
@@ -73,7 +73,7 @@ public class AlbumSongPresenter extends BasePresenter<IAlbumSongContract.View> i
     }
 
     @Override
-    public void insertAllAlbumSong(List<AlbumSong.DataBean.GetSongInfoBean> songList) {
+    public void insertAllAlbumSong(List<AlbumSong.DataBean.ListBean> songList) {
         mModel.insertAllAlbumSong(songList);
         mView.setAlbumSongList(songList);
     }

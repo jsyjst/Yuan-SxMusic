@@ -3,6 +3,7 @@ package com.example.musicplayer.base.activity;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v7.app.AppCompatActivity;
+import android.view.MotionEvent;
 
 import com.example.musicplayer.base.view.BaseView;
 import com.example.musicplayer.util.CommonUtil;
@@ -19,6 +20,7 @@ import butterknife.Unbinder;
  */
 
 public abstract class BaseActivity extends AppCompatActivity implements BaseView {
+
     private Unbinder mBinder;
 
     protected abstract int getLayoutId(); //获取布局id

@@ -5,7 +5,7 @@ import android.content.Context;
 import android.graphics.Bitmap;
 import android.util.Log;
 
-import com.example.musicplayer.app.BaseUri;
+import com.example.musicplayer.app.Api;
 import com.example.musicplayer.app.App;
 import com.example.musicplayer.entiy.Song;
 
@@ -75,7 +75,7 @@ public class FileHelper {
 
     //保存图片到本地
     public static void saveImgToNative(Context context, Bitmap bitmap, String singer) {
-        File file = new File(BaseUri.STORAGE_IMG_FILE);
+        File file = new File(Api.STORAGE_IMG_FILE);
         if (!file.exists()) {
             file.mkdirs();
         }

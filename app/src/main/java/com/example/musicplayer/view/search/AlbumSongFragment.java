@@ -18,7 +18,7 @@ import android.widget.TextView;
 
 import com.example.musicplayer.R;
 import com.example.musicplayer.adapter.AlbumSongAdapter;
-import com.example.musicplayer.app.BaseUri;
+import com.example.musicplayer.app.Api;
 import com.example.musicplayer.app.Constant;
 import com.example.musicplayer.base.fragment.BaseMvpFragment;
 import com.example.musicplayer.contract.IAlbumSongContract;
@@ -190,8 +190,8 @@ public class AlbumSongFragment extends BaseMvpFragment<AlbumSongPresenter> imple
             song.setSongId(dataBean.getSongmid());
             song.setSinger(getSinger(dataBean));
             song.setSongName(dataBean.getSongname());
-            song.setUrl(BaseUri.PLAY_URL+dataBean.getSongmid());
-            song.setImgUrl(BaseUri.PIC_URL+dataBean.getSongmid());
+            song.setUrl(Api.PLAY_URL+dataBean.getSongmid());
+            song.setImgUrl(Api.PIC_URL+dataBean.getSongmid());
             song.setCurrent(position);
             song.setDuration(dataBean.getInterval());
             song.setOnline(true);

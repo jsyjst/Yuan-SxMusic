@@ -18,7 +18,6 @@ import android.os.IBinder;
 import android.os.Message;
 import android.support.annotation.Nullable;
 import android.transition.Slide;
-import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.ImageView;
@@ -35,7 +34,7 @@ import com.bumptech.glide.request.target.SimpleTarget;
 import com.bumptech.glide.request.target.Target;
 import com.bumptech.glide.request.transition.Transition;
 import com.example.musicplayer.R;
-import com.example.musicplayer.app.BaseUri;
+import com.example.musicplayer.app.Api;
 import com.example.musicplayer.app.Constant;
 import com.example.musicplayer.base.activity.BaseMvpActivity;
 import com.example.musicplayer.contract.IPlayContract;
@@ -84,7 +83,7 @@ import okhttp3.Response;
  */
 public class PlayActivity extends BaseMvpActivity<PlayPresenter> implements IPlayContract.View {
 
-    private String TAG = "PlayActivity";
+    private final static String TAG = "PlayActivity";
     @BindView(R.id.tv_song)
     TextView mSongTv;
     @BindView(R.id.iv_back)
@@ -118,7 +117,7 @@ public class PlayActivity extends BaseMvpActivity<PlayPresenter> implements IPla
     @BindView(R.id.lrcView)
     LrcView mLrcView; //歌词自定义View
     @BindView(R.id.downloadIv)
-    ImageView mDownLoad; //下载
+    ImageView mDownLoadIv; //下载
 
     private PlayPresenter mPresenter;
 
@@ -201,13 +200,22 @@ public class PlayActivity extends BaseMvpActivity<PlayPresenter> implements IPla
         getWindow().setEnterTransition(new Slide());
         getWindow().setExitTransition(new Slide());
 
-        //是否为网络歌曲
+        //判断播放状态
         mPlayStatus = getIntent().getIntExtra(Constant.PLAYER_STATUS, 2);
 
         //绑定服务
         Intent playIntent = new Intent(PlayActivity.this, PlayerService.class);
         bindService(playIntent, connection, Context.BIND_AUTO_CREATE);
 
+        //界面填充
+        mSong = FileHelper.getSong();
+        mListType = mSong.getListType();
+        mSingerTv.setText(mSong.getSinger());
+        mSongTv.setText(mSong.getSongName());
+        mCurrentTimeTv.setText(MediaUtil.formatTime(mSong.getCurrentTime()));
+        mSeekBar.setMax((int) mSong.getDuration());
+        mSeekBar.setProgress((int) mSong.getCurrentTime());
+        mDownLoadIv.setVisibility(mSong.isOnline()?View.VISIBLE:View.GONE); //下载按钮是否隐藏
 
     }
 
@@ -225,17 +233,6 @@ public class PlayActivity extends BaseMvpActivity<PlayPresenter> implements IPla
 
     @Override
     protected void initData() {
-
-        //界面填充
-        mSong = FileHelper.getSong();
-        mListType = mSong.getListType();
-        mSingerTv.setText(mSong.getSinger());
-        mSongTv.setText(mSong.getSongName());
-        mCurrentTimeTv.setText(MediaUtil.formatTime(mSong.getCurrentTime()));
-        mSeekBar.setMax((int) mSong.getDuration());
-        mSeekBar.setProgress((int) mSong.getCurrentTime());
-        Log.d(TAG, "initData: "+mSongTv.getText());
-
         mPresenter.queryLove(mSong.getSongId()); //查找歌曲是否为我喜欢的歌曲
 
         if (mPlayStatus == Constant.SONG_PLAY) {
@@ -326,7 +323,7 @@ public class PlayActivity extends BaseMvpActivity<PlayPresenter> implements IPla
 
         mOrderBtn.setOnClickListener(v -> CommonUtil.showToast(PlayActivity.this, "抱歉，目前只支持顺序播放，其他功能还在开发中"));
 
-        //
+        //播放，暂停的实现
         mPlayBtn.setOnClickListener(v -> {
             mMediaPlayer = mPlayStatusBinder.getMediaPlayer();
             if (mPlayStatusBinder.isPlaying()) {
@@ -404,7 +401,7 @@ public class PlayActivity extends BaseMvpActivity<PlayPresenter> implements IPla
             mDisc.setVisibility(View.VISIBLE);
         });
         //歌曲下载
-        mDownLoad.setOnClickListener(v -> {
+        mDownLoadIv.setOnClickListener(v -> {
             CommonUtil.showToast(this,"开始下载歌曲");
             downLoad(mSong.getUrl(), mSong.getSongName());
         });
@@ -446,7 +443,7 @@ public class PlayActivity extends BaseMvpActivity<PlayPresenter> implements IPla
                     FileHelper.saveImgToNative(PlayActivity.this, mImgBmp, getSingerName());
                     //将封面地址放到数据库中
                     LocalSong localSong = new LocalSong();
-                    localSong.setPic(BaseUri.STORAGE_IMG_FILE + FileHelper.getSong().getSinger() + ".jpg");
+                    localSong.setPic(Api.STORAGE_IMG_FILE + FileHelper.getSong().getSinger() + ".jpg");
                     localSong.updateAll("songId=?", FileHelper.getSong().getSongId());
                 }
 
@@ -561,7 +558,7 @@ public class PlayActivity extends BaseMvpActivity<PlayPresenter> implements IPla
     }
 
     private void setLocalImg(String singer) {
-        String imgUrl = BaseUri.STORAGE_IMG_FILE + MediaUtil.formatSinger(singer) + ".jpg";
+        String imgUrl = Api.STORAGE_IMG_FILE + MediaUtil.formatSinger(singer) + ".jpg";
         SimpleTarget target = new SimpleTarget<Drawable>(Target.SIZE_ORIGINAL, Target.SIZE_ORIGINAL) {
             @Override
             public void onResourceReady(@Nullable Drawable resource, Transition<? super Drawable> transition) {
@@ -579,7 +576,7 @@ public class PlayActivity extends BaseMvpActivity<PlayPresenter> implements IPla
                         mGetImgAndLrcBtn.setVisibility(View.VISIBLE);
                         mGetImgAndLrcBtn.setText("获取封面和歌词");
                         setDiscImg(BitmapFactory.decodeResource(getResources(), R.drawable.default_disc));
-                        mRootLayout.setBackgroundResource(R.drawable.welcome);
+                        mRootLayout.setBackgroundResource(R.drawable.background);
                         return true;
                     }
 
@@ -588,8 +585,8 @@ public class PlayActivity extends BaseMvpActivity<PlayPresenter> implements IPla
                         return false;
                     }
                 })
-                .apply(RequestOptions.placeholderOf(R.drawable.welcome))
-                .apply(RequestOptions.errorOf(R.drawable.welcome))
+                .apply(RequestOptions.placeholderOf(R.drawable.background))
+                .apply(RequestOptions.errorOf(R.drawable.background))
                 .into(target);
 
     }
@@ -612,7 +609,7 @@ public class PlayActivity extends BaseMvpActivity<PlayPresenter> implements IPla
                  * 保存到本地
                  */
                 if (!isOnline) {
-                    File file = new File(BaseUri.STORAGE_LRC_FILE);
+                    File file = new File(Api.STORAGE_LRC_FILE);
                     if (!file.exists()) {
                         file.mkdirs();
                     }
@@ -652,7 +649,7 @@ public class PlayActivity extends BaseMvpActivity<PlayPresenter> implements IPla
      */
     private String getLrcFromLocal() {
         try {
-            InputStream inputStream = new FileInputStream(new File(BaseUri.STORAGE_LRC_FILE + getSongName() + ".lrc"));
+            InputStream inputStream = new FileInputStream(new File(Api.STORAGE_LRC_FILE + getSongName() + ".lrc"));
             ByteArrayOutputStream os = new ByteArrayOutputStream();
             byte[] buffer = new byte[1024];
             int len = -1;
@@ -688,7 +685,7 @@ public class PlayActivity extends BaseMvpActivity<PlayPresenter> implements IPla
 
     private void downLoad(String url, String song) {
         new Thread(() -> {
-            File file = new File(BaseUri.STORAGE_SONG_FILE);
+            File file = new File(Api.STORAGE_SONG_FILE);
             if (!file.exists()) {
                 file.mkdirs();
             }

@@ -4,6 +4,7 @@ import com.example.musicplayer.entiy.Album;
 import com.example.musicplayer.entiy.AlbumSong;
 import com.example.musicplayer.entiy.SearchSong;
 import com.example.musicplayer.entiy.SingerImg;
+import com.example.musicplayer.entiy.SongUrl;
 import com.example.musicplayer.model.https.api.RetrofitService;
 
 import io.reactivex.Observable;
@@ -51,5 +52,10 @@ public class NetworkHelperImpl implements NetworkHelper {
     @Override
     public Observable<SingerImg> getSingerImg(String singer) {
         return mRetrofitService.getSingerImg(singer);
+    }
+
+    @Override
+    public Observable<SongUrl> getSongUrl(String data) {
+        return mRetrofitService.getSongUrl(data);
     }
 }

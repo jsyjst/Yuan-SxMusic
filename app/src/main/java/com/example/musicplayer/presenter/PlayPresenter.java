@@ -1,7 +1,7 @@
 package com.example.musicplayer.presenter;
 
 
-import com.example.musicplayer.app.BaseUri;
+import com.example.musicplayer.app.Api;
 import com.example.musicplayer.base.observer.BaseObserver;
 import com.example.musicplayer.base.presenter.BasePresenter;
 import com.example.musicplayer.contract.IPlayContract;
@@ -38,7 +38,7 @@ public class PlayPresenter extends BasePresenter<IPlayContract.View> implements 
                             public void onNext(SearchSong value) {
                                 super.onNext(value);
                                 if (value.getCode() == 200) {
-                                    getSongLrcSuccess(value.getData().getList(),duration);
+                                    getSongLrcSuccess(value.getData().getSong().getList(),duration);
                                 } else {
                                     mView.showLrcMessage(null, null);
                                 }
@@ -64,7 +64,7 @@ public class PlayPresenter extends BasePresenter<IPlayContract.View> implements 
                             public void onNext(SearchSong value) {
                                 super.onNext(value);
                                 if (value.getCode() == 200) {
-                                    getSongLrcSuccess(value.getData().getList(),duration);
+                                    getSongLrcSuccess(value.getData().getSong().getList(),duration);
                                 } else {
                                     mView.showLrcMessage(null,null);
                                 }
@@ -94,16 +94,16 @@ public class PlayPresenter extends BasePresenter<IPlayContract.View> implements 
     }
 
 
-    private void getSongLrcSuccess(List<SearchSong.DataBean.ListBean> dataBeans, long duration) {
+    private void getSongLrcSuccess(List<SearchSong.DataBean.SongBean.ListBean> dataBeans, long duration) {
         boolean isLrc =false;
-        for(SearchSong.DataBean.ListBean dataBean : dataBeans){
+        for(SearchSong.DataBean.SongBean.ListBean dataBean : dataBeans){
             if(dataBean.getPubtime() == duration){
                 isLrc = true;
-                mView.showLrcMessage(BaseUri.LRC_URL+dataBean.getSongmid(),dataBean.getSongmid());
+                mView.showLrcMessage(Api.LRC_URL+dataBean.getSongmid(),dataBean.getSongmid());
                 break;
             }
         }
-        if(!isLrc) mView.showLrcMessage(BaseUri.LRC_URL+dataBeans.get(0).getSongmid(),
+        if(!isLrc) mView.showLrcMessage(Api.LRC_URL+dataBeans.get(0).getSongmid(),
                 dataBeans.get(0).getSongmid());
     }
 }

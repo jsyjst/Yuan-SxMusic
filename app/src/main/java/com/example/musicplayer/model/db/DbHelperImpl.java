@@ -4,7 +4,7 @@ import android.database.Cursor;
 import android.provider.MediaStore;
 
 import com.example.musicplayer.app.App;
-import com.example.musicplayer.app.BaseUri;
+import com.example.musicplayer.app.Api;
 import com.example.musicplayer.entiy.AlbumSong;
 import com.example.musicplayer.entiy.LocalSong;
 import com.example.musicplayer.entiy.Love;
@@ -12,7 +12,6 @@ import com.example.musicplayer.entiy.OnlineSong;
 import com.example.musicplayer.entiy.Song;
 
 import org.litepal.LitePal;
-import org.litepal.crud.callback.SaveCallback;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -34,11 +33,11 @@ public class DbHelperImpl implements DbHelper {
             AlbumSong.DataBean.GetSongInfoBean song = songList.get(i);
             OnlineSong onlineSong = new OnlineSong();
             onlineSong.setId(i + 1);
-            onlineSong.setUrl(BaseUri.PLAY_URL + song.getSongmid());
+            onlineSong.setUrl(Api.PLAY_URL + song.getSongmid());
             onlineSong.setName(song.getSongname());
-            onlineSong.setPic(BaseUri.PIC_URL + song.getSongmid());
+            onlineSong.setPic(Api.PIC_URL + song.getSongmid());
             onlineSong.setSinger(song.getSinger().get(0).getName());
-            onlineSong.setLrc(BaseUri.LRC_URL + song.getSongmid());
+            onlineSong.setLrc(Api.LRC_URL + song.getSongmid());
             onlineSong.setSongId(song.getSongmid());
             onlineSong.setDuration(song.getInterval());
             onlineSong.save();

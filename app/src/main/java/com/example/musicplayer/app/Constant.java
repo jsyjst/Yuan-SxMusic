@@ -45,4 +45,5 @@ public class Constant {
 
     //TAG
     public static final String TAG_ERROR = "error";
+
 }

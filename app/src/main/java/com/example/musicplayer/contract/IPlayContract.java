@@ -2,10 +2,7 @@ package com.example.musicplayer.contract;
 
 import com.example.musicplayer.base.presenter.IPresenter;
 import com.example.musicplayer.base.view.BaseView;
-import com.example.musicplayer.entiy.SearchSong;
 import com.example.musicplayer.entiy.Song;
-
-import java.util.List;
 
 /**
  * Created by 残渊 on 2018/10/26.

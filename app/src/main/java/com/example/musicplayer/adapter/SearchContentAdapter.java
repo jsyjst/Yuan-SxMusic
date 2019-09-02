@@ -3,7 +3,6 @@ package com.example.musicplayer.adapter;
 import android.content.Context;
 import android.support.annotation.NonNull;
 import android.support.v7.widget.RecyclerView;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -32,7 +31,7 @@ import java.util.List;
 public class SearchContentAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
     private static final String TAG = "SearchContentAdapter";
 
-    private ArrayList<SearchSong.DataBean.ListBean> mSongListBeans;
+    private ArrayList<SearchSong.DataBean.SongBean.ListBean> mSongListBeans;
     private List<Album.DataBean.ListBean> mAlbumList;
     private static OnItemClickListener mItemClick;
     private static OnAlbumItemClickListener mAlbumClick;
@@ -58,7 +57,7 @@ public class SearchContentAdapter extends RecyclerView.Adapter<RecyclerView.View
     }
 
 
-    public SearchContentAdapter(ArrayList<SearchSong.DataBean.ListBean> songListBeans, String seek, Context context, int type) {
+    public SearchContentAdapter(ArrayList<SearchSong.DataBean.SongBean.ListBean> songListBeans, String seek, Context context, int type) {
         mContext = context;
         mSeek = seek;
         mSongListBeans = songListBeans;
@@ -85,7 +84,7 @@ public class SearchContentAdapter extends RecyclerView.Adapter<RecyclerView.View
     public void onBindViewHolder(@NonNull RecyclerView.ViewHolder holder, final int position) {
         if (holder instanceof ViewHolder) {
             ViewHolder songHolder = (ViewHolder) holder;
-            SearchSong.DataBean.ListBean songListBean = mSongListBeans.get(position);
+            SearchSong.DataBean.SongBean.ListBean songListBean = mSongListBeans.get(position);
 
             //设置歌手，因为歌手可能有两个
             String singer = songListBean.getSinger().get(0).getName();

@@ -1,11 +1,17 @@
 package com.example.musicplayer.presenter;
 
 
+import com.example.musicplayer.app.Api;
 import com.example.musicplayer.base.observer.BaseObserver;
 import com.example.musicplayer.base.presenter.BasePresenter;
 import com.example.musicplayer.contract.ISearchContentContract;
 import com.example.musicplayer.entiy.Album;
 import com.example.musicplayer.entiy.SearchSong;
+import com.example.musicplayer.entiy.SongUrl;
+import com.example.musicplayer.model.DataModel;
+import com.example.musicplayer.model.db.DbHelperImpl;
+import com.example.musicplayer.model.https.NetworkHelperImpl;
+import com.example.musicplayer.model.https.RetrofitFactory;
 
 import java.util.ArrayList;
 
@@ -28,9 +34,9 @@ public class SearchContentPresenter extends BasePresenter<ISearchContentContract
                             @Override
                             public void onNext(SearchSong searchSong) {
                                 super.onNext(searchSong);
-                                if (searchSong.getCode() == 200) {
-                                    mView.setSongsList((ArrayList<SearchSong.DataBean.ListBean>)
-                                            searchSong.getData().getList());
+                                if (searchSong.getCode() == 0) {
+                                    mView.setSongsList((ArrayList<SearchSong.DataBean.SongBean.ListBean>)
+                                            searchSong.getData().getSong().getList());
                                 }
                             }
                         }));
@@ -45,9 +51,9 @@ public class SearchContentPresenter extends BasePresenter<ISearchContentContract
                             @Override
                             public void onNext(SearchSong searchSong) {
                                 super.onNext(searchSong);
-                                if (searchSong.getCode() == 200) {
-                                    ArrayList<SearchSong.DataBean.ListBean> songListBeans =
-                                            (ArrayList<SearchSong.DataBean.ListBean>) searchSong.getData().getList();
+                                if (searchSong.getCode() == 0) {
+                                    ArrayList<SearchSong.DataBean.SongBean.ListBean> songListBeans =
+                                            (ArrayList<SearchSong.DataBean.SongBean.ListBean>) searchSong.getData().getSong().getList();
                                     if (songListBeans.size() == 0) {
                                         mView.searchMoreError();
                                     } else {
@@ -76,7 +82,7 @@ public class SearchContentPresenter extends BasePresenter<ISearchContentContract
                             @Override
                             public void onNext(Album album) {
                                 super.onNext(album);
-                                if (album.getCode() == 200) {
+                                if (album.getCode() == 0) {
                                     mView.searchAlbumSuccess(album.getData().getList());
                                 } else {
                                     mView.searchAlbumError();
@@ -106,6 +112,29 @@ public class SearchContentPresenter extends BasePresenter<ISearchContentContract
                                 mView.showSearcherMoreNetworkError();
                             }
                         }));
+    }
+
+    @Override
+    public void getSongUrl(String songId) {
+        //因为得到播放地址的baseUrl和获取歌曲列表等的baseUrl不同，所以要重新赋值
+        mModel = new DataModel(new NetworkHelperImpl(RetrofitFactory.createRequestOfSongUrl()),new DbHelperImpl());
+        addRxSubscribe(
+                mModel.getSongUrl(Api.SONG_URL_DATA_LEFT+songId+Api.SONG_URL_DATA_RIGHT)
+                        .subscribeOn(Schedulers.io()).observeOn(AndroidSchedulers.mainThread())
+                        .subscribeWith(new BaseObserver<SongUrl>(mView,false,false){
+                            @Override
+                            public void onNext(SongUrl songUrl){
+                                super.onNext(songUrl);
+                                if(songUrl.getCode() == 0){
+                                    String sip = songUrl.getReq_0().getData().getSip().get(0);
+                                    String purl = songUrl.getReq_0().getData().getMidurlinfo().get(0).getPurl();
+                                    mView.getSongUrlSuccess(sip+purl);
+                                }else {
+                                    mView.showToast(songUrl.getCode()+":获取不到歌曲播放地址");
+                                }
+                            }
+                        })
+        );
     }
 
 }

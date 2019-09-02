@@ -6,6 +6,7 @@ import com.example.musicplayer.entiy.LocalSong;
 import com.example.musicplayer.entiy.SearchSong;
 import com.example.musicplayer.entiy.SingerImg;
 import com.example.musicplayer.entiy.Song;
+import com.example.musicplayer.entiy.SongUrl;
 import com.example.musicplayer.model.db.DbHelper;
 import com.example.musicplayer.model.db.DbHelperImpl;
 import com.example.musicplayer.model.https.NetworkHelper;
@@ -60,6 +61,11 @@ public class DataModel implements NetworkHelper, DbHelper {
     @Override
     public Observable<SingerImg> getSingerImg(String singer) {
         return mNetworkHelper.getSingerImg(singer);
+    }
+
+    @Override
+    public Observable<SongUrl> getSongUrl(String data) {
+        return mNetworkHelper.getSongUrl(data);
     }
 
     @Override

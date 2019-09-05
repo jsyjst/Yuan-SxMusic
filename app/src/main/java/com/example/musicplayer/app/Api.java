@@ -35,5 +35,10 @@ public class Api {
     public static final String JPG=".jpg";
     //专辑详细
     public static final String ALBUM_DETAIL="v8/fcg-bin/fcg_v8_album_info_cp.fcg?format=json";
+    //歌词
+    public static final String SONG_LRC ="soso/fcgi-bin/client_search_cp?p=1&n=30&format=json&t=7";//搜索歌词
+    public static final String ONLINE_SONG_LRC="https://c.y.qq.com/lyric/fcgi-bin/fcg_query_lyric_new.fcg?format=json&nobase64=1";//根据qq音乐的mid获取歌词
+
+
 
 }

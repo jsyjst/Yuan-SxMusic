@@ -18,6 +18,7 @@ import android.os.IBinder;
 import android.os.Message;
 import android.support.annotation.Nullable;
 import android.transition.Slide;
+import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.ImageView;
@@ -215,7 +216,7 @@ public class PlayActivity extends BaseMvpActivity<PlayPresenter> implements IPla
         mCurrentTimeTv.setText(MediaUtil.formatTime(mSong.getCurrentTime()));
         mSeekBar.setMax((int) mSong.getDuration());
         mSeekBar.setProgress((int) mSong.getCurrentTime());
-        mDownLoadIv.setVisibility(mSong.isOnline()?View.VISIBLE:View.GONE); //下载按钮是否隐藏
+        mDownLoadIv.setVisibility(mSong.isOnline() ? View.VISIBLE : View.GONE); //下载按钮是否隐藏
 
     }
 
@@ -241,8 +242,6 @@ public class PlayActivity extends BaseMvpActivity<PlayPresenter> implements IPla
             startUpdateSeekBarProgress();
         }
     }
-
-
 
 
     private void try2UpdateMusicPicBackground(final Bitmap bitmap) {
@@ -387,11 +386,11 @@ public class PlayActivity extends BaseMvpActivity<PlayPresenter> implements IPla
         mDisc.setOnClickListener(v -> {
                     if (!isOnline) {
                         if (getLrcFromLocal().equals("")) {
-                            mPresenter.getLrcUrl(getSongName(), mSong.getDuration());
+                            mPresenter.getLrc(getSongName(), null, mSong.getDuration());
                         }
                         showLrc(getLrcFromLocal());
                     } else {
-                        mPresenter.getLrcUrl(getSongName(), mSong.getDuration());
+                        mPresenter.getSongOnlineLrc(mSong.getSongId());
                     }
                 }
         );
@@ -402,7 +401,7 @@ public class PlayActivity extends BaseMvpActivity<PlayPresenter> implements IPla
         });
         //歌曲下载
         mDownLoadIv.setOnClickListener(v -> {
-            CommonUtil.showToast(this,"开始下载歌曲");
+            CommonUtil.showToast(this, "开始下载歌曲");
             downLoad(mSong.getUrl(), mSong.getSongName());
         });
 
@@ -422,6 +421,7 @@ public class PlayActivity extends BaseMvpActivity<PlayPresenter> implements IPla
 
     private String getSongName() {
         Song song = FileHelper.getSong();
+        assert song != null;
         return song.getSongName().trim();
     }
 
@@ -497,13 +497,17 @@ public class PlayActivity extends BaseMvpActivity<PlayPresenter> implements IPla
     }
 
     @Override
-    public void showLrcMessage(String lrc, String id) {
+    public void showLrcMessage(String lrc) {
         if (lrc == null) {
             CommonUtil.showToast(PlayActivity.this, getString(R.string.get_lrc_fail));
             mLrc = null;
         } else {
-            mLrc = lrc;
-            saveLrcToLocal();
+            if (isOnline) {
+                showLrc(lrc);
+            } else {
+                mLrc = lrc;
+                saveLrcToLocal();
+            }
         }
     }
 
@@ -520,11 +524,11 @@ public class PlayActivity extends BaseMvpActivity<PlayPresenter> implements IPla
     }
 
     @Subscribe(threadMode = ThreadMode.MAIN)
-    public void onSongChanageEvent(SongStatusEvent event){
-        if(event.getSongStatus() == Constant.SONG_CHANGE){
+    public void onSongChanageEvent(SongStatusEvent event) {
+        if (event.getSongStatus() == Constant.SONG_CHANGE) {
             mDisc.setVisibility(View.VISIBLE);
             mLrcView.setVisibility(View.GONE);
-            Song mSong = FileHelper.getSong();
+            mSong = FileHelper.getSong();
             mSongTv.setText(mSong.getSongName());
             mSingerTv.setText(mSong.getSinger());
             mDurationTimeTv.setText(MediaUtil.formatTime(mSong.getDuration()));
@@ -671,16 +675,20 @@ public class PlayActivity extends BaseMvpActivity<PlayPresenter> implements IPla
      *
      * @param lrc
      */
-    private void showLrc(final String lrc) {
-        runOnUiThread(()->{
-            mDisc.setVisibility(View.GONE);
-            mLrcView.setVisibility(View.VISIBLE);
-            mLrcView.setLrc(lrc);
-            mLrcView.setHighLineColor(getResources().getColor(R.color.musicStyle));
-            mLrcView.setPlayer(mPlayStatusBinder.getMediaPlayer());
-            mLrcView.init();
-        });
+    @Override
+    public void showLrc(final String lrc) {
+        mDisc.setVisibility(View.GONE);
+        mLrcView.setVisibility(View.VISIBLE);
+        mLrcView.setLrc(lrc);
+        mLrcView.setHighLineColor(getResources().getColor(R.color.musicStyle));
+        mLrcView.setPlayer(mPlayStatusBinder.getMediaPlayer());
+        mLrcView.init();
 
+    }
+
+    @Override
+    public void getLrcError() {
+        showToast(getString(R.string.get_lrc_fail));
     }
 
     private void downLoad(String url, String song) {
@@ -695,21 +703,21 @@ public class PlayActivity extends BaseMvpActivity<PlayPresenter> implements IPla
                 OkHttpClient client = new OkHttpClient();
                 Request request = new Request.Builder().url(url).build();
                 Response response = client.newCall(request).execute();
-                if (response.isSuccessful()){
+                if (response.isSuccessful()) {
                     out = new BufferedOutputStream(new FileOutputStream(songFile));
                     byte[] bytes = response.body().bytes();
-                    out.write(bytes,0,bytes.length);
+                    out.write(bytes, 0, bytes.length);
                     out.close();
                 }
                 showLoadSuccess();
-            } catch (IOException e){
+            } catch (IOException e) {
                 e.printStackTrace();
-            }catch (Exception e) {
+            } catch (Exception e) {
                 e.printStackTrace();
-            }finally {
-                try{
-                    if(out != null) out.close();
-                }catch (Exception e){
+            } finally {
+                try {
+                    if (out != null) out.close();
+                } catch (Exception e) {
                     e.printStackTrace();
                 }
             }
@@ -717,14 +725,12 @@ public class PlayActivity extends BaseMvpActivity<PlayPresenter> implements IPla
     }
 
 
-
-    private void showLoadSuccess(){
-        runOnUiThread(()->{
-            CommonUtil.showToast(this,"歌曲下载成功");
+    private void showLoadSuccess() {
+        runOnUiThread(() -> {
+            CommonUtil.showToast(this, "歌曲下载成功");
         });
 
     }
-
 
 
     @Override

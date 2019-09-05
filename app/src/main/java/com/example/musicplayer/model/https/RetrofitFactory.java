@@ -24,6 +24,7 @@ public class RetrofitFactory {
     private static Retrofit sRetrofit;
     private static Retrofit songUrlRetrofit;
 
+
     // 创建网络请求Observable
     public static RetrofitService createRequest() {
         return getRetrofit().create(RetrofitService.class);

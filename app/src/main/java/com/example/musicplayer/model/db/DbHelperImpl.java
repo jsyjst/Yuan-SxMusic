@@ -54,8 +54,6 @@ public class DbHelperImpl implements DbHelper {
         for (int i = 0; i < cursor.getCount(); i++) {
             cursor.moveToNext();
             LocalSong mp3Info = new LocalSong();
-            long id = cursor.getLong(cursor
-                    .getColumnIndex(MediaStore.Audio.Media._ID));    //音乐id
             String title = cursor.getString((cursor
                     .getColumnIndex(MediaStore.Audio.Media.TITLE)));//音乐标题
             String artist = cursor.getString(cursor
@@ -80,7 +78,7 @@ public class DbHelperImpl implements DbHelper {
                     mp3Info.setSinger(artist);
                     mp3Info.setDuration(duration / 1000);
                     mp3Info.setUrl(url);
-                    mp3Info.setSongId(String.valueOf(id));
+                    mp3Info.setSongId(i+"");
                     mp3InfoList.add(mp3Info);
                 }
             }
@@ -97,8 +95,8 @@ public class DbHelperImpl implements DbHelper {
             song.setName(localSong.getName());
             song.setSinger(localSong.getSinger());
             song.setUrl(localSong.getUrl());
-            song.setDuration(localSong.getDuration());
             song.setSongId(localSong.getSongId());
+            song.setDuration(localSong.getDuration());
             if(!song.save()) return false;
         }
         return true;

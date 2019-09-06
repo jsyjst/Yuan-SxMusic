@@ -12,7 +12,7 @@ import com.example.musicplayer.R;
 import com.example.musicplayer.callback.OnItemClickListener;
 import com.example.musicplayer.app.App;
 import com.example.musicplayer.entiy.AlbumSong;
-import com.example.musicplayer.util.FileHelper;
+import com.example.musicplayer.util.FileUtil;
 
 import java.util.List;
 
@@ -66,7 +66,7 @@ public class AlbumSongAdapter extends RecyclerView.Adapter<RecyclerView.ViewHold
             holder.titleTv.setText(songsBean.getSongname());
             holder.mItemView.setBackgroundResource(R.color.translucent);
             //根据点击显示
-                if(songsBean.getSongmid().equals(FileHelper.getSong().getSongId())){
+                if(songsBean.getSongmid().equals(FileUtil.getSong().getSongId())){
                 holder.playLine.setVisibility(View.VISIBLE);
                 holder.titleTv.setTextColor(App.getContext().getResources().getColor(R.color.yellow));
                 holder.artistTv.setTextColor(App.getContext().getResources().getColor(R.color.yellow));

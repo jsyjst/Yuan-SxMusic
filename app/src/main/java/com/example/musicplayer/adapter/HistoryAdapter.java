@@ -14,7 +14,7 @@ import com.example.musicplayer.R;
 import com.example.musicplayer.callback.OnItemClickListener;
 import com.example.musicplayer.app.Constant;
 import com.example.musicplayer.entiy.HistorySong;
-import com.example.musicplayer.util.FileHelper;
+import com.example.musicplayer.util.FileUtil;
 
 import java.util.List;
 
@@ -95,7 +95,7 @@ public class HistoryAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder
             holder.songNameTv.setText(history.getName());
             holder.singerTv.setText(history.getSinger());
             //根据点击显示
-            if(history.getSongId().equals(FileHelper.getSong().getSongId())){
+            if(history.getSongId().equals(FileUtil.getSong().getSongId())){
                 holder.playLine.setVisibility(View.VISIBLE);
                 mLastPosition =position;
                 holder.songNameTv.setTextColor(mContext.getResources()

@@ -23,7 +23,7 @@ import com.example.musicplayer.entiy.Song;
 import com.example.musicplayer.event.SongLocalEvent;
 import com.example.musicplayer.presenter.LocalPresenter;
 import com.example.musicplayer.service.PlayerService;
-import com.example.musicplayer.util.FileHelper;
+import com.example.musicplayer.util.FileUtil;
 
 import org.greenrobot.eventbus.EventBus;
 import org.greenrobot.eventbus.Subscribe;
@@ -96,8 +96,8 @@ public class LocalFragment extends BaseMvpFragment<LocalPresenter> implements IL
     @Subscribe(threadMode = ThreadMode.MAIN)
     public void onMessageEvent(SongLocalEvent event){
         songAdapter.notifyDataSetChanged();
-        if (FileHelper.getSong() != null) {
-            layoutManager.scrollToPositionWithOffset(FileHelper.getSong().getCurrent() + 4, mRecycler.getHeight());
+        if (FileUtil.getSong() != null) {
+            layoutManager.scrollToPositionWithOffset(FileUtil.getSong().getCurrent() + 4, mRecycler.getHeight());
         }
     }
 
@@ -141,7 +141,7 @@ public class LocalFragment extends BaseMvpFragment<LocalPresenter> implements IL
             song.setOnline(false);
             song.setSongId(mp3Info.getSongId());
             song.setListType(Constant.LIST_TYPE_LOCAL);
-            FileHelper.saveSong(song);
+            FileUtil.saveSong(song);
             mPlayStatusBinder.play(Constant.LIST_TYPE_LOCAL);
         });
 
@@ -178,8 +178,8 @@ public class LocalFragment extends BaseMvpFragment<LocalPresenter> implements IL
             //令recyclerView定位到当前播放的位置
             songAdapter = new SongAdapter(mActivity, mLocalSongsList);
             mRecycler.setAdapter(songAdapter);
-            if (FileHelper.getSong() != null) {
-                layoutManager.scrollToPositionWithOffset(FileHelper.getSong().getCurrent() - 4, mRecycler.getHeight());
+            if (FileUtil.getSong() != null) {
+                layoutManager.scrollToPositionWithOffset(FileUtil.getSong().getCurrent() - 4, mRecycler.getHeight());
             }
             songAdapter.setOnItemClickListener(position -> {
                 //将点击的序列化到本地
@@ -193,7 +193,7 @@ public class LocalFragment extends BaseMvpFragment<LocalPresenter> implements IL
                 song.setOnline(false);
                 song.setSongId(mp3Info.getSongId());
                 song.setListType(Constant.LIST_TYPE_LOCAL);
-                FileHelper.saveSong(song);
+                FileUtil.saveSong(song);
                 mPlayStatusBinder.play(Constant.LIST_TYPE_LOCAL);
             });
 

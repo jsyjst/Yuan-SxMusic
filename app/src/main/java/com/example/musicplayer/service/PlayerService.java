@@ -10,12 +10,10 @@ import android.util.Log;
 
 import com.example.musicplayer.app.Api;
 import com.example.musicplayer.app.Constant;
-import com.example.musicplayer.base.observer.BaseObserver;
 import com.example.musicplayer.entiy.HistorySong;
 import com.example.musicplayer.entiy.LocalSong;
 import com.example.musicplayer.entiy.Love;
 import com.example.musicplayer.entiy.OnlineSong;
-import com.example.musicplayer.entiy.SingerImg;
 import com.example.musicplayer.entiy.Song;
 import com.example.musicplayer.entiy.SongUrl;
 import com.example.musicplayer.event.OnlineSongChangeEvent;
@@ -26,7 +24,7 @@ import com.example.musicplayer.event.SongHistoryEvent;
 import com.example.musicplayer.event.SongLocalEvent;
 import com.example.musicplayer.event.SongStatusEvent;
 import com.example.musicplayer.model.https.RetrofitFactory;
-import com.example.musicplayer.util.FileHelper;
+import com.example.musicplayer.util.FileUtil;
 
 import org.greenrobot.eventbus.EventBus;
 import org.litepal.LitePal;
@@ -60,7 +58,7 @@ public class PlayerService extends Service {
 
     @Override
     public void onCreate() {
-        mListType = FileHelper.getSong().getListType();
+        mListType = FileUtil.getSong().getListType();
         if (mListType == Constant.LIST_TYPE_ONLINE) {
             mSongList = LitePal.findAll(OnlineSong.class);
         } else if (mListType == Constant.LIST_TYPE_LOCAL) {
@@ -70,9 +68,9 @@ public class PlayerService extends Service {
         } else if (mListType == Constant.LIST_TYPE_HISTORY) {
             mHistoryList = orderHistoryList(LitePal.findAll(HistorySong.class));
             //保证最近播放列表一开始总是第一个
-            Song song = FileHelper.getSong();
+            Song song = FileUtil.getSong();
             song.setCurrent(0);
-            FileHelper.saveSong(song);
+            FileUtil.saveSong(song);
         }
     }
 
@@ -82,7 +80,7 @@ public class PlayerService extends Service {
             @Override
             public void onCompletion(MediaPlayer mp) {
                 EventBus.getDefault().post(new SongStatusEvent(Constant.SONG_PAUSE));//暂停广播
-                mCurrent = FileHelper.getSong().getCurrent();
+                mCurrent = FileUtil.getSong().getCurrent();
                 mCurrent++;
                 //将歌曲的信息保存起来
                 if (mListType == Constant.LIST_TYPE_LOCAL) {
@@ -132,9 +130,9 @@ public class PlayerService extends Service {
         public void getHistoryList() {
             mHistoryList = orderHistoryList(LitePal.findAll(HistorySong.class));
             //保证最近播放列表一开始总是第一个
-            Song song = FileHelper.getSong();
+            Song song = FileUtil.getSong();
             song.setCurrent(0);
-            FileHelper.saveSong(song);
+            FileUtil.saveSong(song);
         }
 
         /**
@@ -158,7 +156,7 @@ public class PlayerService extends Service {
                 } else if (mListType == Constant.LIST_TYPE_HISTORY) {
                     EventBus.getDefault().post(new SongHistoryEvent());  //发送随机歌曲改变事件
                 }
-                mCurrent = FileHelper.getSong().getCurrent();
+                mCurrent = FileUtil.getSong().getCurrent();
                 mediaPlayer.reset();//把各项参数恢复到初始状态
                 if (mListType == Constant.LIST_TYPE_LOCAL) {
                     mediaPlayer.setDataSource(mLocalSongList.get(mCurrent).getUrl());
@@ -179,7 +177,7 @@ public class PlayerService extends Service {
         public void playOnline() {
             try {
                 mediaPlayer.reset();
-                mediaPlayer.setDataSource(FileHelper.getSong().getUrl());
+                mediaPlayer.setDataSource(FileUtil.getSong().getUrl());
                 mediaPlayer.prepare();
                 isPlaying = true;
                 saveToHistoryTable();
@@ -219,7 +217,7 @@ public class PlayerService extends Service {
 
         public void next() {
             EventBus.getDefault().post(new SongStatusEvent(Constant.SONG_RESUME));
-            mCurrent = FileHelper.getSong().getCurrent();
+            mCurrent = FileUtil.getSong().getCurrent();
             mCurrent++;
             Log.d(TAG, "next: "+mCurrent);
             if (mListType == Constant.LIST_TYPE_LOCAL) {
@@ -251,7 +249,7 @@ public class PlayerService extends Service {
 
         public void last() {
             EventBus.getDefault().post(new SongStatusEvent(Constant.SONG_RESUME));//暂停广播
-            mCurrent = FileHelper.getSong().getCurrent();
+            mCurrent = FileUtil.getSong().getCurrent();
             mCurrent--;
             if (mCurrent == -1) {
                 if (mListType == Constant.LIST_TYPE_LOCAL) {
@@ -340,7 +338,7 @@ public class PlayerService extends Service {
         song.setSongId(localSong.getSongId());
         song.setOnline(false);
         song.setListType(Constant.LIST_TYPE_LOCAL);
-        FileHelper.saveSong(song);
+        FileUtil.saveSong(song);
     }
 
     //保存网络专辑列表的信息
@@ -356,7 +354,7 @@ public class PlayerService extends Service {
         song.setImgUrl(mSongList.get(current).getPic());
         song.setOnline(true);
         song.setListType(Constant.LIST_TYPE_ONLINE);
-        FileHelper.saveSong(song);
+        FileUtil.saveSong(song);
     }
 
     //保存我的收藏的列表的信息
@@ -373,7 +371,7 @@ public class PlayerService extends Service {
         song.setListType(Constant.LIST_TYPE_LOVE);
         song.setOnline(love.isOnline());
         song.setDuration(love.getDuration());
-        FileHelper.saveSong(song);
+        FileUtil.saveSong(song);
     }
 
     //保存我的收藏的列表的信息
@@ -389,13 +387,13 @@ public class PlayerService extends Service {
         song.setListType(Constant.LIST_TYPE_HISTORY);
         song.setOnline(historySong.isOnline());
         song.setDuration(historySong.getDuration());
-        FileHelper.saveSong(song);
+        FileUtil.saveSong(song);
     }
 
     //将歌曲保存到最近播放的数据库中
     private void saveToHistoryTable() {
 
-        final Song song = FileHelper.getSong();
+        final Song song = FileUtil.getSong();
         LitePal.where("songId=?", song.getSongId()).findAsync(HistorySong.class)
                 .listen(new FindMultiCallback<HistorySong>() {
                     @Override
@@ -461,10 +459,10 @@ public class PlayerService extends Service {
                         if(songUrl.getCode() == 0){
                             String sip = songUrl.getReq_0().getData().getSip().get(0);
                             String purl = songUrl.getReq_0().getData().getMidurlinfo().get(0).getPurl();
-                            Song song = FileHelper.getSong();
+                            Song song = FileUtil.getSong();
                             assert song != null;
                             song.setUrl(sip+purl);
-                            FileHelper.saveSong(song);
+                            FileUtil.saveSong(song);
                             try {
                                 mediaPlayer.setDataSource(sip+purl);
                                 startPlay();

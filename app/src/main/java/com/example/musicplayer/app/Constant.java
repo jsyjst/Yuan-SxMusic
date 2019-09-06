@@ -47,4 +47,11 @@ public class Constant {
     public static final int SONG_LOCAL=1;
 
 
+    //后缀
+    public static final String LRC=".lrc";
+
+    //音乐id
+    public static final String SONG_ID_UNFIND ="unFind";
+
+
 }

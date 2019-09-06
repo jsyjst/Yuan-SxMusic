@@ -60,7 +60,7 @@ public interface RetrofitService {
      * 根据songmid获取歌词：https://c.y.qq.com/lyric/fcgi-bin/fcg_query_lyric_new.fcg?songmid=000wocYU11tSzS&format=json&nobase64=1
      * headers中的Referer是qq用来防盗链的
      */
-    @Headers("Referer:https://y.qq.com/portal/player.html")
+    @Headers(Api.HEADER_REFERER)
     @GET(Api.ONLINE_SONG_LRC)
     Observable<OnlineSongLrc> getOnlineSongLrc(@Query("songmid") String songId);
 
@@ -71,7 +71,12 @@ public interface RetrofitService {
     @GET(Api.SONG_LRC)
     Observable<SongLrc> getLrc(@Query("w") String seek);
 
-    @POST("web?csrf_token=&type=100")
+    /**
+     * 得到歌手照片，主要用于本地音乐：http://music.163.com/api/search/get/web?s=刘瑞琦&type=100
+     * @param singer 歌手名字
+     */
+    @Headers(Api.HEADER_USER_AGENT)
+    @POST(Api.SINGER_PIC)
     @FormUrlEncoded
     Observable<SingerImg> getSingerImg(@Field("s")String singer);
 

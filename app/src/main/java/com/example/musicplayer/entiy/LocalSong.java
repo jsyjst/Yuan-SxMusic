@@ -9,7 +9,7 @@ import org.litepal.crud.LitePalSupport;
 
 public class LocalSong extends LitePalSupport{
     private int id;
-    private String songId;
+    private String songId ;
     private String name;
     private String singer;
     private String url;

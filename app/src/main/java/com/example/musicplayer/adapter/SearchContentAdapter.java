@@ -19,7 +19,7 @@ import com.example.musicplayer.app.Constant;
 import com.example.musicplayer.entiy.Album;
 import com.example.musicplayer.entiy.SearchSong;
 import com.example.musicplayer.util.CommonUtil;
-import com.example.musicplayer.util.FileHelper;
+import com.example.musicplayer.util.FileUtil;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -98,7 +98,7 @@ public class SearchContentAdapter extends RecyclerView.Adapter<RecyclerView.View
             CommonUtil.showStringColor(mSeek, songListBean.getSongname(), songHolder.titleTv);
 
                 //根据点击显示
-            if(songListBean.getSongmid().equals(FileHelper.getSong().getSongId())){
+            if(songListBean.getSongmid().equals(FileUtil.getSong().getSongId())){
                 songHolder.playLine.setVisibility(View.VISIBLE);
                 mLastPosition =position;
                 songHolder.mItemView.setBackgroundResource(R.color.translucent);

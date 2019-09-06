@@ -14,7 +14,7 @@ import com.andexert.library.RippleView;
 import com.example.musicplayer.R;
 import com.example.musicplayer.callback.OnItemClickListener;
 import com.example.musicplayer.entiy.Love;
-import com.example.musicplayer.util.FileHelper;
+import com.example.musicplayer.util.FileUtil;
 
 import java.util.List;
 
@@ -95,7 +95,7 @@ public class LoveSongAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
             holder.songNameTv.setText(love.getName());
             holder.singerTv.setText(love.getSinger());
             //根据点击显示
-            if (love.getSongId().equals(FileHelper.getSong().getSongId())) {
+            if (love.getSongId().equals(FileUtil.getSong().getSongId())) {
                 holder.playLine.setVisibility(View.VISIBLE);
                 mLastPosition = position;
                 holder.songNameTv.setTextColor(mContext.getResources()

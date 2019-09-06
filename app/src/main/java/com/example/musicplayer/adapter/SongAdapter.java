@@ -15,9 +15,10 @@ import com.example.musicplayer.callback.OnItemClickListener;
 import com.example.musicplayer.app.App;
 import com.example.musicplayer.R;
 import com.example.musicplayer.entiy.LocalSong;
-import com.example.musicplayer.util.FileHelper;
+import com.example.musicplayer.util.FileUtil;
 
 import java.util.List;
+import java.util.Objects;
 
 /**
  * Created by 残渊 on 2018/10/10.
@@ -95,7 +96,8 @@ public class SongAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
             holder.songNameTv.setText(mp3Info.getName());
             holder.artistTv.setText(mp3Info.getSinger());
             //根据播放的歌曲是否为当前列表的歌曲显示
-            if(mp3Info.getSongId().equals(FileHelper.getSong().getSongId())){
+            String songId = Objects.requireNonNull(FileUtil.getSong()).getSongId();
+            if(songId!=null&&(mp3Info.getSongId().equals(songId))){
                 holder.songNameTv.setTextColor(App.getContext().
                         getResources().getColor(R.color.musicStyle_low));
                 holder.artistTv.setTextColor(App.getContext().

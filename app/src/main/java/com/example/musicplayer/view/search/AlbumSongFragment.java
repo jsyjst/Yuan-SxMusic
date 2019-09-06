@@ -10,7 +10,6 @@ import android.support.v4.app.Fragment;
 import android.support.v4.widget.NestedScrollView;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -20,7 +19,6 @@ import android.widget.TextView;
 import com.example.musicplayer.R;
 import com.example.musicplayer.adapter.AlbumSongAdapter;
 import com.example.musicplayer.app.Api;
-import com.example.musicplayer.app.App;
 import com.example.musicplayer.app.Constant;
 import com.example.musicplayer.base.fragment.BaseMvpFragment;
 import com.example.musicplayer.contract.IAlbumSongContract;
@@ -30,7 +28,7 @@ import com.example.musicplayer.event.SongAlbumEvent;
 import com.example.musicplayer.presenter.AlbumSongPresenter;
 import com.example.musicplayer.service.PlayerService;
 import com.example.musicplayer.util.CommonUtil;
-import com.example.musicplayer.util.FileHelper;
+import com.example.musicplayer.util.FileUtil;
 import com.github.florent37.materialviewpager.MaterialViewPagerHelper;
 import com.github.florent37.materialviewpager.header.MaterialViewPagerHeaderDecorator;
 import com.wang.avi.AVLoadingIndicatorView;
@@ -198,7 +196,7 @@ public class AlbumSongFragment extends BaseMvpFragment<AlbumSongPresenter> imple
             song.setListType(Constant.LIST_TYPE_ONLINE);
             song.setImgUrl(Api.ALBUM_PIC+dataBean.getAlbummid()+ Api.JPG);
             song.setUrl(null);
-            FileHelper.saveSong(song);
+            FileUtil.saveSong(song);
 
             mPlayStatusBinder.play(Constant.LIST_TYPE_ONLINE);
 

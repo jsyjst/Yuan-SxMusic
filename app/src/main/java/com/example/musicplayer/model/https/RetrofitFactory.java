@@ -23,6 +23,7 @@ public class RetrofitFactory {
     private static OkHttpClient sOkHttpClient;
     private static Retrofit sRetrofit;
     private static Retrofit songUrlRetrofit;
+    private static Retrofit sSingerPicRetrofit;
 
 
     // 创建网络请求Observable
@@ -52,15 +53,15 @@ public class RetrofitFactory {
 
     // 获取歌手照片
     private synchronized static Retrofit getRetrofitOfSinger() {
-        if (sRetrofit == null) {
-            sRetrofit = new Retrofit.Builder()
-                    .baseUrl(Api.SINGER_URL) // 对应服务端的host
+        if (sSingerPicRetrofit == null) {
+            sSingerPicRetrofit = new Retrofit.Builder()
+                    .baseUrl(Api.SINGER_PIC_BASE_URL) // 对应服务端的host
                     .client(getOkHttpClient())
                     .addConverterFactory(GsonConverterFactory.create()) // 这里还结合了Gson
                     .addCallAdapterFactory(RxJava2CallAdapterFactory.create()) // 把Retrofit请求转化成RxJava的Observable
                     .build();
         }
-        return sRetrofit;
+        return sSingerPicRetrofit;
     }
 
     //得到播放地址

@@ -48,7 +48,7 @@ import com.example.musicplayer.service.PlayerService;
 import com.example.musicplayer.util.CommonUtil;
 import com.example.musicplayer.util.DisplayUtil;
 import com.example.musicplayer.util.FastBlurUtil;
-import com.example.musicplayer.util.FileHelper;
+import com.example.musicplayer.util.FileUtil;
 import com.example.musicplayer.util.MediaUtil;
 import com.example.musicplayer.widget.BackgroundAnimationRelativeLayout;
 import com.example.musicplayer.widget.DiscView;
@@ -61,15 +61,19 @@ import org.greenrobot.eventbus.ThreadMode;
 import java.io.BufferedOutputStream;
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
+import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
+import java.io.FileReader;
+import java.io.FileWriter;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.OutputStreamWriter;
+import java.io.UnsupportedEncodingException;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.util.List;
@@ -149,10 +153,10 @@ public class PlayActivity extends BaseMvpActivity<PlayPresenter> implements IPla
         public void onServiceConnected(ComponentName name, IBinder service) {
             mPlayStatusBinder = (PlayerService.PlayStatusBinder) service;
 
-            isOnline = FileHelper.getSong().isOnline();
+            isOnline = FileUtil.getSong().isOnline();
             if (isOnline) {
                 mGetImgAndLrcBtn.setVisibility(View.GONE);
-                setSingerImg(FileHelper.getSong().getImgUrl());
+                setSingerImg(FileUtil.getSong().getImgUrl());
                 if (mPlayStatus == Constant.SONG_PLAY) {
                     mDisc.play();
                     mPlayBtn.setSelected(true);
@@ -209,7 +213,7 @@ public class PlayActivity extends BaseMvpActivity<PlayPresenter> implements IPla
         bindService(playIntent, connection, Context.BIND_AUTO_CREATE);
 
         //界面填充
-        mSong = FileHelper.getSong();
+        mSong = FileUtil.getSong();
         mListType = mSong.getListType();
         mSingerTv.setText(mSong.getSinger());
         mSongTv.setText(mSong.getSongName());
@@ -289,6 +293,7 @@ public class PlayActivity extends BaseMvpActivity<PlayPresenter> implements IPla
         mBackIv.setOnClickListener(v -> {
             finish();
         });
+        //获取本地音乐的图片和歌词
         mGetImgAndLrcBtn.setOnClickListener(v -> getSingerAndLrc());
 
         //进度条的监听事件
@@ -374,10 +379,10 @@ public class PlayActivity extends BaseMvpActivity<PlayPresenter> implements IPla
             showLoveAnim();
             if (isLove) {
                 mLoveBtn.setSelected(false);
-                mPresenter.deleteFromLove(FileHelper.getSong().getSongId());
+                mPresenter.deleteFromLove(FileUtil.getSong().getSongId());
             } else {
                 mLoveBtn.setSelected(true);
-                mPresenter.saveToLove(FileHelper.getSong());
+                mPresenter.saveToLove(FileUtil.getSong());
             }
             isLove = !isLove;
         });
@@ -385,12 +390,23 @@ public class PlayActivity extends BaseMvpActivity<PlayPresenter> implements IPla
         //唱碟点击效果
         mDisc.setOnClickListener(v -> {
                     if (!isOnline) {
-                        if (getLrcFromLocal().equals("")) {
-                            mPresenter.getLrc(getSongName(), null, mSong.getDuration());
+                        String lrc = FileUtil.getLrcFromNative(mSong.getSongName());
+                        if (null == lrc) {
+                            String songId = mSong.getSongId();
+                            Log.d(TAG, "onClick: songId="+songId);
+                            if(songId.length()<14&&Constant.SONG_ID_UNFIND.equals(songId)){//匹配不到歌词
+                                getLrcError(null);
+                            }else if(songId.length()<14){//歌曲的id还未匹配
+                                Log.d(TAG, "onClick: "+mSong.getDuration());
+                                mPresenter.getSongId(mSong.getSongName(),mSong.getDuration());
+                            }else {//歌词还未匹配
+                                mPresenter.getLrc(mSong.getSongId(),Constant.SONG_LOCAL);
+                            }
+                        }else {
+                            showLrc(lrc);
                         }
-                        showLrc(getLrcFromLocal());
                     } else {
-                        mPresenter.getSongOnlineLrc(mSong.getSongId());
+                        mPresenter.getLrc(mSong.getSongId(),Constant.SONG_ONLINE);
                     }
                 }
         );
@@ -409,7 +425,7 @@ public class PlayActivity extends BaseMvpActivity<PlayPresenter> implements IPla
 
     @Override
     public String getSingerName() {
-        Song song = FileHelper.getSong();
+        Song song = FileUtil.getSong();
         if (song.getSinger().contains("/")) {
             String[] s = song.getSinger().split("/");
             return s[0].trim();
@@ -420,7 +436,7 @@ public class PlayActivity extends BaseMvpActivity<PlayPresenter> implements IPla
     }
 
     private String getSongName() {
-        Song song = FileHelper.getSong();
+        Song song = FileUtil.getSong();
         assert song != null;
         return song.getSongName().trim();
     }
@@ -440,11 +456,11 @@ public class PlayActivity extends BaseMvpActivity<PlayPresenter> implements IPla
                 //如果是本地音乐
                 if (!isOnline) {
                     //保存图片到本地
-                    FileHelper.saveImgToNative(PlayActivity.this, mImgBmp, getSingerName());
+                    FileUtil.saveImgToNative(PlayActivity.this, mImgBmp, getSingerName());
                     //将封面地址放到数据库中
                     LocalSong localSong = new LocalSong();
-                    localSong.setPic(Api.STORAGE_IMG_FILE + FileHelper.getSong().getSinger() + ".jpg");
-                    localSong.updateAll("songId=?", FileHelper.getSong().getSongId());
+                    localSong.setPic(Api.STORAGE_IMG_FILE + FileUtil.getSong().getSinger() + ".jpg");
+                    localSong.updateAll("songId=?", FileUtil.getSong().getSongId());
                 }
 
                 try2UpdateMusicPicBackground(mImgBmp);
@@ -460,10 +476,6 @@ public class PlayActivity extends BaseMvpActivity<PlayPresenter> implements IPla
 
     }
 
-    @Override
-    public void setImgFail(String errorMessage) {
-        CommonUtil.showToast(this, errorMessage);
-    }
 
     @Override
     public void showLove(final boolean love) {
@@ -496,21 +508,6 @@ public class PlayActivity extends BaseMvpActivity<PlayPresenter> implements IPla
         EventBus.getDefault().post(new SongCollectionEvent(false));
     }
 
-    @Override
-    public void showLrcMessage(String lrc) {
-        if (lrc == null) {
-            CommonUtil.showToast(PlayActivity.this, getString(R.string.get_lrc_fail));
-            mLrc = null;
-        } else {
-            if (isOnline) {
-                showLrc(lrc);
-            } else {
-                mLrc = lrc;
-                saveLrcToLocal();
-            }
-        }
-    }
-
 
     //设置唱碟中歌手头像
     private void setDiscImg(Bitmap bitmap) {
@@ -528,7 +525,7 @@ public class PlayActivity extends BaseMvpActivity<PlayPresenter> implements IPla
         if (event.getSongStatus() == Constant.SONG_CHANGE) {
             mDisc.setVisibility(View.VISIBLE);
             mLrcView.setVisibility(View.GONE);
-            mSong = FileHelper.getSong();
+            mSong = FileUtil.getSong();
             mSongTv.setText(mSong.getSongName());
             mSingerTv.setText(mSong.getSinger());
             mDurationTimeTv.setText(MediaUtil.formatTime(mSong.getDuration()));
@@ -595,80 +592,6 @@ public class PlayActivity extends BaseMvpActivity<PlayPresenter> implements IPla
 
     }
 
-    private void saveLrcToLocal() {
-        new Thread(() -> {
-            HttpURLConnection urlConnection = null;
-            BufferedReader reader = null;
-            BufferedWriter writer = null;
-            try {
-                URL url = new URL(mLrc);
-                urlConnection = (HttpURLConnection) url.openConnection();
-                urlConnection.setRequestMethod("GET");
-                InputStream inputStream = urlConnection.getInputStream();
-                reader = new BufferedReader(new InputStreamReader(inputStream));
-                StringBuilder lrcBuilder = new StringBuilder();
-                String lrc;
-
-                /**
-                 * 保存到本地
-                 */
-                if (!isOnline) {
-                    File file = new File(Api.STORAGE_LRC_FILE);
-                    if (!file.exists()) {
-                        file.mkdirs();
-                    }
-                    File lrcFile = new File(file, getSongName() + ".lrc");
-                    FileOutputStream outputStream = new FileOutputStream(lrcFile);
-                    OutputStreamWriter outputStreamWriter = new OutputStreamWriter(outputStream, "gbk");
-                    writer = new BufferedWriter(outputStreamWriter);
-                }
-                while ((lrc = reader.readLine()) != null) {
-                    if (isOnline) {
-                        lrcBuilder.append(lrc);
-                        lrcBuilder.append("\n");
-                    } else {
-                        //写入
-                        writer.write(lrc);
-                        writer.newLine();
-                    }
-
-                }
-                if (isOnline) showLrc(lrcBuilder.toString());
-            } catch (Exception e) {
-                e.printStackTrace();
-            } finally {
-                if (urlConnection != null) urlConnection.disconnect();
-                try {
-                    if (reader != null) reader.close();
-                    if (writer != null) writer.close();
-                } catch (IOException e) {
-                    e.printStackTrace();
-                }
-            }
-        }).start();
-    }
-
-    /**
-     * 从本地读取歌词文件
-     */
-    private String getLrcFromLocal() {
-        try {
-            InputStream inputStream = new FileInputStream(new File(Api.STORAGE_LRC_FILE + getSongName() + ".lrc"));
-            ByteArrayOutputStream os = new ByteArrayOutputStream();
-            byte[] buffer = new byte[1024];
-            int len = -1;
-            while ((len = inputStream.read(buffer)) != -1) {
-                os.write(buffer, 0, len);
-            }
-            return os.toString("gbk"); //文件编码是gbk
-
-        } catch (FileNotFoundException e) {
-            e.printStackTrace();
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-        return "";
-    }
 
     /**
      * 展示歌词
@@ -687,8 +610,28 @@ public class PlayActivity extends BaseMvpActivity<PlayPresenter> implements IPla
     }
 
     @Override
-    public void getLrcError() {
+    public void getLrcError(String content) {
         showToast(getString(R.string.get_lrc_fail));
+        mSong.setSongId(content);
+        FileUtil.saveSong(mSong);
+    }
+
+    @Override
+    public void setLocalSongId(String songId) {
+        mSong.setSongId(songId);
+        FileUtil.saveSong(mSong); //保存
+    }
+
+    @Override
+    public void getSongIdSuccess(String songId) {
+        Log.d(TAG, "getSongIdSuccess: "+songId);
+        setLocalSongId(songId);//保存音乐信息
+        mPresenter.getLrc(songId,Constant.SONG_LOCAL);//获取歌词
+    }
+
+    @Override
+    public void saveLrc(String lrc) {
+        FileUtil.saveLrcToNative(lrc,mSong.getSongName());
     }
 
     private void downLoad(String url, String song) {

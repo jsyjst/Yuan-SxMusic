@@ -24,7 +24,7 @@ import com.example.musicplayer.entiy.HistorySong;
 import com.example.musicplayer.entiy.Song;
 import com.example.musicplayer.event.SongHistoryEvent;
 import com.example.musicplayer.service.PlayerService;
-import com.example.musicplayer.util.FileHelper;
+import com.example.musicplayer.util.FileUtil;
 
 import org.greenrobot.eventbus.EventBus;
 import org.greenrobot.eventbus.Subscribe;
@@ -120,7 +120,7 @@ public class HistoryFragment extends Fragment {
             song.setCurrent(position);
             song.setDuration(history.getDuration());
             song.setListType(Constant.LIST_TYPE_HISTORY);
-            FileHelper.saveSong(song);
+            FileUtil.saveSong(song);
 
             mPlayStatusBinder.play(Constant.LIST_TYPE_HISTORY);
         });

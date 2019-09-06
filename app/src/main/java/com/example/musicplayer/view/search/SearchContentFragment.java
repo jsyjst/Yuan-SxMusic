@@ -27,7 +27,7 @@ import com.example.musicplayer.event.OnlineSongErrorEvent;
 import com.example.musicplayer.presenter.SearchContentPresenter;
 import com.example.musicplayer.service.PlayerService;
 import com.example.musicplayer.util.CommonUtil;
-import com.example.musicplayer.util.FileHelper;
+import com.example.musicplayer.util.FileUtil;
 import com.github.jdsjlzx.recyclerview.LRecyclerView;
 import com.github.jdsjlzx.recyclerview.LRecyclerViewAdapter;
 
@@ -168,7 +168,7 @@ public class SearchContentFragment extends BaseLoadingFragment<SearchContentPres
             song.setCurrent(position);
             song.setDuration(dataBean.getInterval());
             song.setOnline(true);
-            FileHelper.saveSong(song);
+            FileUtil.saveSong(song);
             //网络获取歌曲地址
             mPresenter.getSongUrl(dataBean.getSongmid());
         });
@@ -239,10 +239,10 @@ public class SearchContentFragment extends BaseLoadingFragment<SearchContentPres
 
     @Override
     public void getSongUrlSuccess(String url) {
-        Song song=FileHelper.getSong();
+        Song song= FileUtil.getSong();
         assert song != null;
         song.setUrl(url);
-        FileHelper.saveSong(song);
+        FileUtil.saveSong(song);
         mPlayStatusBinder.playOnline();
     }
 

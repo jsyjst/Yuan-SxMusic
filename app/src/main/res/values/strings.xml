@@ -17,6 +17,7 @@
     <string name="sure">确定</string>
 
     <string name="love_success">收藏成功</string>
+    <string name="get_lrc_success">获取封面和歌词成功</string>
     <string name="get_lrc_fail">抱歉，获取不到该歌曲的歌词信息</string>
 
     //专辑

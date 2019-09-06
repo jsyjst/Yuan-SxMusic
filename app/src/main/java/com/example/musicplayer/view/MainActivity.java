@@ -31,7 +31,7 @@ import com.example.musicplayer.event.OnlineSongErrorEvent;
 import com.example.musicplayer.event.SongStatusEvent;
 import com.example.musicplayer.service.PlayerService;
 import com.example.musicplayer.util.CommonUtil;
-import com.example.musicplayer.util.FileHelper;
+import com.example.musicplayer.util.FileUtil;
 import com.example.musicplayer.view.main.MainFragment;
 import com.example.musicplayer.view.search.SearchContentFragment;
 
@@ -90,9 +90,9 @@ public class MainActivity extends BaseActivity {
         unbindService(connection);
         EventBus.getDefault().unregister(this);
         if (mSeekBarThread != null || mSeekBarThread.isAlive()) mSeekBarThread.interrupt();
-        Song song = FileHelper.getSong();
+        Song song = FileUtil.getSong();
         song.setCurrentTime(mPlayStatusBinder.getCurrentTime());
-        FileHelper.saveSong(song);
+        FileUtil.saveSong(song);
 
 
     }
@@ -118,7 +118,7 @@ public class MainActivity extends BaseActivity {
         mCircleAnimator.setRepeatMode(ValueAnimator.RESTART);
 
 
-        mSong = FileHelper.getSong();
+        mSong = FileUtil.getSong();
         if (mSong.getSongName() != null) {
             Log.d(TAG, "initView: " + mSong.toString());
             mLinear.setVisibility(View.VISIBLE);
@@ -167,7 +167,7 @@ public class MainActivity extends BaseActivity {
             mPlayerBtn.setSelected(false);
             mCircleAnimator.pause();
         } else if(status == Constant.SONG_CHANGE){
-            mSong = FileHelper.getSong();
+            mSong = FileUtil.getSong();
             mSongNameTv.setText(mSong.getSongName());
             mSingerTv.setText(mSong.getSinger());
             mSeekBar.setMax((int) mSong.getDuration());
@@ -236,11 +236,11 @@ public class MainActivity extends BaseActivity {
                         mMediaPlayer.seekTo(time);
                     }
                 } else {
-                    if (FileHelper.getSong().isOnline()) {
+                    if (FileUtil.getSong().isOnline()) {
                         Log.d(TAG, "onClick: "+mSong.getCurrentTime());
                         mPlayStatusBinder.playOnline();
                     } else {
-                        mPlayStatusBinder.play(FileHelper.getSong().getListType());
+                        mPlayStatusBinder.play(FileUtil.getSong().getListType());
                     }
                     mMediaPlayer = mPlayStatusBinder.getMediaPlayer();
                     mMediaPlayer.seekTo((int) mSong.getCurrentTime());
@@ -267,17 +267,17 @@ public class MainActivity extends BaseActivity {
 
                 //播放情况
                 if (mPlayStatusBinder.isPlaying()) {
-                    Song song = FileHelper.getSong();
+                    Song song = FileUtil.getSong();
                     song.setCurrentTime(mPlayStatusBinder.getCurrentTime());
-                    FileHelper.saveSong(song);
+                    FileUtil.saveSong(song);
                     toPlayActivityIntent.putExtra(Constant.PLAYER_STATUS, Constant.SONG_PLAY);
                 } else {
                     //暂停情况
-                    Song song = FileHelper.getSong();
+                    Song song = FileUtil.getSong();
                     song.setCurrentTime(mSeekBar.getProgress());
-                    FileHelper.saveSong(song);
+                    FileUtil.saveSong(song);
                 }
-                if (FileHelper.getSong().getImgUrl() != null) {
+                if (FileUtil.getSong().getImgUrl() != null) {
                     toPlayActivityIntent.putExtra(SearchContentFragment.IS_ONLINE, true);
                 }
                 startActivity(toPlayActivityIntent,

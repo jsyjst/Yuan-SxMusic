@@ -165,8 +165,10 @@ public class PlayerService extends Service {
                     getSongUrl(mSongList.get(mCurrent).getSongId());
                 } else if (mListType == Constant.LIST_TYPE_LOVE) {
                     mediaPlayer.setDataSource(mLoveList.get(mCurrent).getUrl());
+                    startPlay();
                 } else {
                     mediaPlayer.setDataSource(mHistoryList.get(mCurrent).getUrl());
+                    startPlay();
                 }
             } catch (Exception e) {
                 e.printStackTrace();
@@ -336,6 +338,7 @@ public class PlayerService extends Service {
         song.setUrl(localSong.getUrl());
         song.setImgUrl(localSong.getPic());
         song.setSongId(localSong.getSongId());
+        song.setQqId(localSong.getQqId());
         song.setOnline(false);
         song.setListType(Constant.LIST_TYPE_LOCAL);
         FileUtil.saveSong(song);
@@ -364,6 +367,7 @@ public class PlayerService extends Service {
         Song song = new Song();
         song.setCurrent(current);
         song.setSongId(love.getSongId());
+        song.setQqId(love.getQqId());
         song.setSongName(love.getName());
         song.setSinger(love.getSinger());
         song.setUrl(love.getUrl());
@@ -380,6 +384,7 @@ public class PlayerService extends Service {
         Song song = new Song();
         song.setCurrent(current);
         song.setSongId(historySong.getSongId());
+        song.setQqId(historySong.getQqId());
         song.setSongName(historySong.getName());
         song.setSinger(historySong.getSinger());
         song.setUrl(historySong.getUrl());
@@ -403,6 +408,7 @@ public class PlayerService extends Service {
                         }
                         final HistorySong history = new HistorySong();
                         history.setSongId(song.getSongId());
+                        history.setQqId(song.getQqId());
                         history.setName(song.getSongName());
                         history.setSinger(song.getSinger());
                         history.setUrl(song.getUrl());

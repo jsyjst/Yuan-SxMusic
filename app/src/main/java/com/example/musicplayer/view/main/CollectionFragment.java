@@ -111,6 +111,7 @@ public class CollectionFragment extends Fragment {
                 Love love = mLoveList.get(position);
                 Song song = new Song();
                 song.setSongId(love.getSongId());
+                song.setQqId(love.getQqId());
                 song.setSongName(love.getName());
                 song.setSinger(love.getSinger());
                 song.setOnline(love.isOnline());

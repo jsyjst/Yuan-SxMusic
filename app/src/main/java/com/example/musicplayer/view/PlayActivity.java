@@ -59,23 +59,9 @@ import org.greenrobot.eventbus.Subscribe;
 import org.greenrobot.eventbus.ThreadMode;
 
 import java.io.BufferedOutputStream;
-import java.io.BufferedReader;
-import java.io.BufferedWriter;
-import java.io.ByteArrayInputStream;
-import java.io.ByteArrayOutputStream;
 import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
-import java.io.FileReader;
-import java.io.FileWriter;
 import java.io.IOException;
-import java.io.InputStream;
-import java.io.InputStreamReader;
-import java.io.OutputStreamWriter;
-import java.io.UnsupportedEncodingException;
-import java.net.HttpURLConnection;
-import java.net.URL;
 import java.util.List;
 
 import butterknife.BindView;
@@ -392,15 +378,13 @@ public class PlayActivity extends BaseMvpActivity<PlayPresenter> implements IPla
                     if (!isOnline) {
                         String lrc = FileUtil.getLrcFromNative(mSong.getSongName());
                         if (null == lrc) {
-                            String songId = mSong.getSongId();
-                            Log.d(TAG, "onClick: songId="+songId);
-                            if(songId.length()<14&&Constant.SONG_ID_UNFIND.equals(songId)){//匹配不到歌词
+                            String qqId = mSong.getQqId();
+                            if(Constant.SONG_ID_UNFIND.equals(qqId)){//匹配不到歌词
                                 getLrcError(null);
-                            }else if(songId.length()<14){//歌曲的id还未匹配
-                                Log.d(TAG, "onClick: "+mSong.getDuration());
+                            }else if(null == qqId){//歌曲的id还未匹配
                                 mPresenter.getSongId(mSong.getSongName(),mSong.getDuration());
                             }else {//歌词还未匹配
-                                mPresenter.getLrc(mSong.getSongId(),Constant.SONG_LOCAL);
+                                mPresenter.getLrc(qqId,Constant.SONG_LOCAL);
                             }
                         }else {
                             showLrc(lrc);
@@ -612,13 +596,13 @@ public class PlayActivity extends BaseMvpActivity<PlayPresenter> implements IPla
     @Override
     public void getLrcError(String content) {
         showToast(getString(R.string.get_lrc_fail));
-        mSong.setSongId(content);
+        mSong.setQqId(content);
         FileUtil.saveSong(mSong);
     }
 
     @Override
     public void setLocalSongId(String songId) {
-        mSong.setSongId(songId);
+        mSong.setQqId(songId);
         FileUtil.saveSong(mSong); //保存
     }
 

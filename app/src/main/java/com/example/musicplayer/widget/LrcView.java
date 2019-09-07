@@ -25,16 +25,16 @@ import java.util.List;
 
 public class LrcView extends View {
 
-    private List<LrcBean> list;
-    private Paint gPaint;
-    private Paint hPaint;
+    private List<LrcBean> list;  //歌词列表
+    private Paint gPaint; //静态歌词画笔
+    private Paint hPaint; //动态歌词画笔
     private int width = 0, height = 0;
-    private int currentPosition = 0;
+    private int currentPosition = 0;   //歌曲播放的位置
     private MediaPlayer player;
     private int lastPosition = 0;
-    private int highLineColor;
-    private int lrcTextSize;
-    private int lrcColor;
+    private int highLineColor;  //播放歌词的颜色
+    private int lrcTextSize;   //歌词大小
+    private int lrcColor;    //歌词颜色
     private int mode = 0;
     public final static int KARAOKE = 1;
 
@@ -55,9 +55,7 @@ public class LrcView extends View {
     }
 
     /**
-     * 标准歌词字符串
-     *
-     * @param lrc
+     * @param lrc 标准歌词字符串
      */
     public void setLrc(String lrc) {
         list = LrcUtil.parseStr2List(lrc);

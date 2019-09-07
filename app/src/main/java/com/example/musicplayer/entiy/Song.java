@@ -10,7 +10,8 @@ public class Song implements Serializable {
     private static final long serialVersionUID=1L;
 
     private String songId; //歌曲id
-    private String singer; //歌手
+    private String qqId;//专属本地音乐，本地音乐在qq音乐中的songId
+   private String singer; //歌手
     private long duration; //总时长
     private String songName; //歌曲名字
     private String url;  //歌曲url
@@ -98,6 +99,14 @@ public class Song implements Serializable {
 
     public void setSongId(String songId) {
         this.songId = songId;
+    }
+
+    public String getQqId() {
+        return qqId;
+    }
+
+    public void setQqId(String qqId) {
+        this.qqId = qqId;
     }
 
     public String toString(){

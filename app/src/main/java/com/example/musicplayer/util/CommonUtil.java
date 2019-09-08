@@ -23,7 +23,7 @@ import com.bumptech.glide.request.target.SimpleTarget;
 import com.bumptech.glide.request.target.Target;
 import com.bumptech.glide.request.transition.Transition;
 import com.example.musicplayer.R;
-import com.example.musicplayer.app.BaseUri;
+import com.example.musicplayer.app.Api;
 import com.example.musicplayer.app.App;
 
 /**
@@ -179,7 +179,7 @@ public class CommonUtil {
             singer=s[0];
         }
         singer=singer.trim();
-        String imgUrl = BaseUri.STORAGE_IMG_FILE + singer + ".jpg";
+        String imgUrl = Api.STORAGE_IMG_FILE + singer + ".jpg";
 
         Glide.with(context)
                 .load(imgUrl)

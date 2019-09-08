@@ -5,15 +5,21 @@ import android.content.Context;
 import android.graphics.Bitmap;
 import android.util.Log;
 
-import com.example.musicplayer.app.BaseUri;
+import com.example.musicplayer.app.Api;
 import com.example.musicplayer.app.App;
+import com.example.musicplayer.app.Constant;
 import com.example.musicplayer.entiy.Song;
 
+import java.io.BufferedReader;
+import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
+import java.io.FileReader;
+import java.io.FileWriter;
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 
@@ -23,8 +29,8 @@ import java.io.ObjectOutputStream;
  */
 
 
-public class FileHelper {
-    private static String TAG = "FileHelper";
+public class FileUtil {
+    private static String TAG = "FileUtil";
 
     /**
      * 将person对象保存到文件中
@@ -75,7 +81,7 @@ public class FileHelper {
 
     //保存图片到本地
     public static void saveImgToNative(Context context, Bitmap bitmap, String singer) {
-        File file = new File(BaseUri.STORAGE_IMG_FILE);
+        File file = new File(Api.STORAGE_IMG_FILE);
         if (!file.exists()) {
             file.mkdirs();
         }
@@ -100,4 +106,44 @@ public class FileHelper {
             }
         }
     }
+
+    //保存歌词到本地
+    public static void saveLrcToNative(String lrc,String songName){
+        //开启线程保存歌词
+        new Thread(() -> {
+            File file = new File(Api.STORAGE_LRC_FILE);
+            if (!file.exists()) {
+                file.mkdirs();
+            }
+            File lrcFile = new File(file, songName + Constant.LRC);
+            try {
+                FileWriter fileWriter = new FileWriter(lrcFile);
+                fileWriter.write(lrc);
+                fileWriter.close();
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }).start();
+    }
+
+    public static String getLrcFromNative(String songName) {
+        try {
+            FileReader fileReader = new FileReader(Api.STORAGE_LRC_FILE+songName+Constant.LRC);
+            BufferedReader bufferedReader = new BufferedReader(fileReader);
+            StringBuilder lrc = new StringBuilder();
+            while (true){
+                String s = bufferedReader.readLine();
+                if(s == null) break;
+                lrc.append(s).append("\n");
+            }
+            fileReader.close();
+            Log.d(TAG, "getLrcFromNative: "+lrc.toString());
+            return lrc.toString();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        return null;
+    }
+
+
 }

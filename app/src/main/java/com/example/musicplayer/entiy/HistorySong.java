@@ -9,6 +9,7 @@ import org.litepal.crud.LitePalSupport;
 public class HistorySong extends LitePalSupport {
     private int id;
     private String songId;
+    private String qqId;
     private String name;
     private String singer;
     private String url;
@@ -81,5 +82,13 @@ public class HistorySong extends LitePalSupport {
 
     public void setDuration(long duration) {
         this.duration = duration;
+    }
+
+    public String getQqId() {
+        return qqId;
+    }
+
+    public void setQqId(String qqId) {
+        this.qqId = qqId;
     }
 }

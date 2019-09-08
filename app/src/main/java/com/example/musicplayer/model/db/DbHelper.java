@@ -20,7 +20,7 @@ public interface DbHelper {
      *  将所有搜索专辑列表中的歌曲都保存到网络歌曲数据库中
      * @param songList 专辑列表
      */
-    void insertAllAlbumSong(List<AlbumSong.DataBean.GetSongInfoBean> songList);
+    void insertAllAlbumSong(List<AlbumSong.DataBean.ListBean> songList);
     List<LocalSong> getLocalMp3Info();  //得到本地列表
     boolean saveSong(List<LocalSong> localSongs);//将本地音乐放到数据库中
 

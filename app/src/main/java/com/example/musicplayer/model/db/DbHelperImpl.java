@@ -4,7 +4,7 @@ import android.database.Cursor;
 import android.provider.MediaStore;
 
 import com.example.musicplayer.app.App;
-import com.example.musicplayer.app.BaseUri;
+import com.example.musicplayer.app.Api;
 import com.example.musicplayer.entiy.AlbumSong;
 import com.example.musicplayer.entiy.LocalSong;
 import com.example.musicplayer.entiy.Love;
@@ -12,7 +12,6 @@ import com.example.musicplayer.entiy.OnlineSong;
 import com.example.musicplayer.entiy.Song;
 
 import org.litepal.LitePal;
-import org.litepal.crud.callback.SaveCallback;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -28,19 +27,19 @@ import java.util.List;
 public class DbHelperImpl implements DbHelper {
 
     @Override
-    public void insertAllAlbumSong(List<AlbumSong.DataBean.GetSongInfoBean> songList) {
+    public void insertAllAlbumSong(List<AlbumSong.DataBean.ListBean> songList) {
         LitePal.deleteAll(OnlineSong.class);
         for (int i = 0; i < songList.size(); i++) {
-            AlbumSong.DataBean.GetSongInfoBean song = songList.get(i);
+            AlbumSong.DataBean.ListBean song = songList.get(i);
             OnlineSong onlineSong = new OnlineSong();
             onlineSong.setId(i + 1);
-            onlineSong.setUrl(BaseUri.PLAY_URL + song.getSongmid());
             onlineSong.setName(song.getSongname());
-            onlineSong.setPic(BaseUri.PIC_URL + song.getSongmid());
             onlineSong.setSinger(song.getSinger().get(0).getName());
-            onlineSong.setLrc(BaseUri.LRC_URL + song.getSongmid());
             onlineSong.setSongId(song.getSongmid());
             onlineSong.setDuration(song.getInterval());
+            onlineSong.setPic(Api.ALBUM_PIC + song.getAlbummid()+Api.JPG);
+            onlineSong.setUrl(null);
+            onlineSong.setLrc(null);
             onlineSong.save();
         }
     }
@@ -55,8 +54,6 @@ public class DbHelperImpl implements DbHelper {
         for (int i = 0; i < cursor.getCount(); i++) {
             cursor.moveToNext();
             LocalSong mp3Info = new LocalSong();
-            long id = cursor.getLong(cursor
-                    .getColumnIndex(MediaStore.Audio.Media._ID));    //音乐id
             String title = cursor.getString((cursor
                     .getColumnIndex(MediaStore.Audio.Media.TITLE)));//音乐标题
             String artist = cursor.getString(cursor
@@ -81,7 +78,7 @@ public class DbHelperImpl implements DbHelper {
                     mp3Info.setSinger(artist);
                     mp3Info.setDuration(duration / 1000);
                     mp3Info.setUrl(url);
-                    mp3Info.setSongId(String.valueOf(id));
+                    mp3Info.setSongId(i+"");
                     mp3InfoList.add(mp3Info);
                 }
             }
@@ -98,8 +95,8 @@ public class DbHelperImpl implements DbHelper {
             song.setName(localSong.getName());
             song.setSinger(localSong.getSinger());
             song.setUrl(localSong.getUrl());
-            song.setDuration(localSong.getDuration());
             song.setSongId(localSong.getSongId());
+            song.setDuration(localSong.getDuration());
             if(!song.save()) return false;
         }
         return true;
@@ -121,6 +118,7 @@ public class DbHelperImpl implements DbHelper {
         love.setDuration(song.getDuration());
         love.setSongId(song.getSongId());
         love.setOnline(song.isOnline());
+        love.setQqId(song.getQqId());
         return love.save();
     }
 

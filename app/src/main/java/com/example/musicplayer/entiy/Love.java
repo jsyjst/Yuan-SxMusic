@@ -9,6 +9,7 @@ import org.litepal.crud.LitePalSupport;
 public class Love extends LitePalSupport{
     private int id;
     private String songId;
+    private String qqId;
     private String name;
     private String singer;
     private String url;
@@ -80,5 +81,13 @@ public class Love extends LitePalSupport{
 
     public void setDuration(long duration) {
         this.duration = duration;
+    }
+
+    public void setQqId(String qqId) {
+        this.qqId = qqId;
+    }
+
+    public String getQqId() {
+        return qqId;
     }
 }

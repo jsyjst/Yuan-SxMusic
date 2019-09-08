@@ -5,6 +5,8 @@ package com.example.musicplayer.app;
  */
 
 public class Constant {
+    public static final String TAG = "jsyjst";
+
     public static final int OFFSET=30;
     public static final int TYPE_SONG=1;
     public static final int TYPE_ALBUM=2;
@@ -14,12 +16,6 @@ public class Constant {
     public static final int LIST_TYPE_LOVE=2;
     public static final int LIST_TYPE_HISTORY=3;
     public static final int HISTORY_MAX_SIZE=100;
-    public static final String LOCAL_IMG="local_img";
-    public static final String SEARCH_SONG= "search_song";
-    public static final String SEARCH_SONG_MORE= "search_song_more";
-    public static final String SEARCH_ALBUM="search_album";
-    public static final String SEARCH_ALBUM_MORE="search_album_more";
-    public static final String ALBUM="album";
 
 
     //布局
@@ -45,4 +41,17 @@ public class Constant {
 
     //TAG
     public static final String TAG_ERROR = "error";
+
+    //网络与非网络歌曲
+    public static final int SONG_ONLINE=0;
+    public static final int SONG_LOCAL=1;
+
+
+    //后缀
+    public static final String LRC=".lrc";
+
+    //音乐id
+    public static final String SONG_ID_UNFIND ="unFind";
+
+
 }

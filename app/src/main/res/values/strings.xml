@@ -1,7 +1,7 @@
 <resources>
-    <string name="app_name">心渊音乐</string>
+    <string name="app_name">随心音乐</string>
     <string name="name">残渊</string>
-    <string name="student_id">jay0712</string>
+    <string name="student_id">https://github.com/jsyjst</string>
     <string name="seek">搜索</string>
     <string name="local_music">本地音乐</string>
     <string name="collection">我的收藏</string>
@@ -17,6 +17,7 @@
     <string name="sure">确定</string>
 
     <string name="love_success">收藏成功</string>
+    <string name="get_lrc_success">获取封面和歌词成功</string>
     <string name="get_lrc_fail">抱歉，获取不到该歌曲的歌词信息</string>
 
     //专辑
@@ -37,7 +38,11 @@
     <string name="error_parse">解析错误</string>
     <string name="error_view_network">网络不给力</string>
     <string name="error_view_retry">重试</string>
+    <string name="error_out_of_copyright">抱歉该歌曲暂没有版权，搜搜其他歌曲吧</string>
 
     <string name="empty_text">本地音乐为空，试试点击右上角导入本地歌曲</string>
+    
+    //start
+    <string name="welcome_start">随心跳动，开启你的音乐旅程！</string>
 
 </resources>

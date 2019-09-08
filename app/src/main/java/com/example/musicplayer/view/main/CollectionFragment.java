@@ -23,7 +23,7 @@ import com.example.musicplayer.entiy.Love;
 import com.example.musicplayer.entiy.Song;
 import com.example.musicplayer.event.SongCollectionEvent;
 import com.example.musicplayer.service.PlayerService;
-import com.example.musicplayer.util.FileHelper;
+import com.example.musicplayer.util.FileUtil;
 
 import org.greenrobot.eventbus.EventBus;
 import org.greenrobot.eventbus.Subscribe;
@@ -92,8 +92,8 @@ public class CollectionFragment extends Fragment {
         mLoveList.addAll(orderList(LitePal.findAll(Love.class)));
         mAdapter.notifyDataSetChanged();
         if(songCollectionEvent.isLove()){//定位歌曲
-            if (FileHelper.getSong() != null) {
-                mManager.scrollToPositionWithOffset(FileHelper.getSong().getCurrent() + 4, mRecycler.getHeight());
+            if (FileUtil.getSong() != null) {
+                mManager.scrollToPositionWithOffset(FileUtil.getSong().getCurrent() + 4, mRecycler.getHeight());
             }
         }
     }
@@ -111,6 +111,7 @@ public class CollectionFragment extends Fragment {
                 Love love = mLoveList.get(position);
                 Song song = new Song();
                 song.setSongId(love.getSongId());
+                song.setQqId(love.getQqId());
                 song.setSongName(love.getName());
                 song.setSinger(love.getSinger());
                 song.setOnline(love.isOnline());
@@ -119,7 +120,7 @@ public class CollectionFragment extends Fragment {
                 song.setCurrent(position);
                 song.setDuration(love.getDuration());
                 song.setListType(Constant.LIST_TYPE_LOVE);
-                FileHelper.saveSong(song);
+                FileUtil.saveSong(song);
 
                 mPlayStatusBinder.play(Constant.LIST_TYPE_LOVE);
             }

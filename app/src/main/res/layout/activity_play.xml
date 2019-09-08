@@ -4,7 +4,7 @@
     android:id="@+id/relative_root"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@drawable/welcome"
+    android:background="@drawable/background"
     android:fitsSystemWindows="true"
     android:orientation="vertical">
 
@@ -83,7 +83,7 @@
         android:id="@+id/btn_get_img_lrc"
         android:layout_width="120dp"
         android:layout_height="wrap_content"
-        android:layout_below="@+id/disc_view"
+        android:layout_above="@+id/downloadIv"
         android:layout_centerHorizontal="true"
         android:layout_marginTop="10dp"
         android:textColor="@color/white"

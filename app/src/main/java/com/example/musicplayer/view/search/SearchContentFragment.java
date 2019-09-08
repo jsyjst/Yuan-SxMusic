@@ -15,7 +15,7 @@ import android.widget.ImageView;
 
 import com.example.musicplayer.R;
 import com.example.musicplayer.adapter.SearchContentAdapter;
-import com.example.musicplayer.app.BaseUri;
+import com.example.musicplayer.app.Api;
 import com.example.musicplayer.app.Constant;
 import com.example.musicplayer.base.fragment.BaseLoadingFragment;
 import com.example.musicplayer.contract.ISearchContentContract;
@@ -27,7 +27,7 @@ import com.example.musicplayer.event.OnlineSongErrorEvent;
 import com.example.musicplayer.presenter.SearchContentPresenter;
 import com.example.musicplayer.service.PlayerService;
 import com.example.musicplayer.util.CommonUtil;
-import com.example.musicplayer.util.FileHelper;
+import com.example.musicplayer.util.FileUtil;
 import com.github.jdsjlzx.recyclerview.LRecyclerView;
 import com.github.jdsjlzx.recyclerview.LRecyclerViewAdapter;
 
@@ -57,8 +57,8 @@ public class SearchContentFragment extends BaseLoadingFragment<SearchContentPres
 
     private LinearLayoutManager manager;
     private SearchContentAdapter mAdapter;
-    private ArrayList<SearchSong.DataBean.ListBean> mSongList = new ArrayList<>();
-    private List<Album.DataBean.ListBean> mAlbumList;
+    private ArrayList<SearchSong.DataBean.SongBean.ListBean> mSongList = new ArrayList<>();
+    private List<Album.DataBean.AlbumBean.ListBean> mAlbumList;
     private LRecyclerViewAdapter mLRecyclerViewAdapter;//下拉刷新
 
     @BindView(R.id.normalView)
@@ -150,32 +150,32 @@ public class SearchContentFragment extends BaseLoadingFragment<SearchContentPres
 
 
     @Override
-    public void setSongsList(final ArrayList<SearchSong.DataBean.ListBean> songListBeans) {
+    public void setSongsList(final ArrayList<SearchSong.DataBean.SongBean.ListBean> songListBeans) {
         mSongList.addAll(songListBeans);
         mAdapter = new SearchContentAdapter(mSongList, mSeek, getActivity(), Constant.TYPE_SONG);
         mLRecyclerViewAdapter = new LRecyclerViewAdapter(mAdapter);
         mRecycler.setLayoutManager(manager);
         mRecycler.setAdapter(mLRecyclerViewAdapter);
 
+        //点击播放
         SearchContentAdapter.setItemClick(position -> {
-            SearchSong.DataBean.ListBean dataBean = mSongList.get(position);
+            SearchSong.DataBean.SongBean.ListBean dataBean = mSongList.get(position);
             Song song = new Song();
             song.setSongId(dataBean.getSongmid());
             song.setSinger(getSinger(dataBean));
             song.setSongName(dataBean.getSongname());
-            song.setUrl(BaseUri.PLAY_URL+dataBean.getSongmid());
-            song.setImgUrl(BaseUri.PIC_URL+dataBean.getSongmid());
+            song.setImgUrl(Api.ALBUM_PIC+dataBean.getAlbummid()+Api.JPG);
             song.setCurrent(position);
             song.setDuration(dataBean.getInterval());
             song.setOnline(true);
-            FileHelper.saveSong(song);
-
-            mPlayStatusBinder.playOnline();
+            FileUtil.saveSong(song);
+            //网络获取歌曲地址
+            mPresenter.getSongUrl(dataBean.getSongmid());
         });
     }
 
     @Override
-    public void searchMoreSuccess(ArrayList<SearchSong.DataBean.ListBean> songListBeans) {
+    public void searchMoreSuccess(ArrayList<SearchSong.DataBean.SongBean.ListBean> songListBeans) {
         mSongList.addAll(songListBeans);
         mAdapter.notifyDataSetChanged();
         mRecycler.refreshComplete(Constant.OFFSET);
@@ -215,7 +215,7 @@ public class SearchContentFragment extends BaseLoadingFragment<SearchContentPres
     }
 
     @Override
-    public void searchAlbumSuccess(final List<Album.DataBean.ListBean> albumList) {
+    public void searchAlbumSuccess(final List<Album.DataBean.AlbumBean.ListBean> albumList) {
         mAlbumList = new ArrayList<>();
         mAlbumList.addAll(albumList);
         mAdapter = new SearchContentAdapter(mAlbumList, mSeek, getActivity(), Constant.TYPE_ALBUM);
@@ -226,7 +226,7 @@ public class SearchContentFragment extends BaseLoadingFragment<SearchContentPres
     }
 
     @Override
-    public void searchAlbumMoreSuccess(List<Album.DataBean.ListBean> songListBeans) {
+    public void searchAlbumMoreSuccess(List<Album.DataBean.AlbumBean.ListBean> songListBeans) {
         mAlbumList.addAll(songListBeans);
         mAdapter.notifyDataSetChanged();
         mRecycler.refreshComplete(Constant.OFFSET);
@@ -235,6 +235,15 @@ public class SearchContentFragment extends BaseLoadingFragment<SearchContentPres
     @Override
     public void searchAlbumError() {
         CommonUtil.showToast(getActivity(), "获取专辑信息失败");
+    }
+
+    @Override
+    public void getSongUrlSuccess(String url) {
+        Song song= FileUtil.getSong();
+        assert song != null;
+        song.setUrl(url);
+        FileUtil.saveSong(song);
+        mPlayStatusBinder.playOnline();
     }
 
 
@@ -252,7 +261,7 @@ public class SearchContentFragment extends BaseLoadingFragment<SearchContentPres
         return fragment;
     }
 
-    public void toAlbumContentFragment(Album.DataBean.ListBean album) {
+    public void toAlbumContentFragment(Album.DataBean.AlbumBean.ListBean album) {
         FragmentManager manager = getActivity().getSupportFragmentManager();
         FragmentTransaction transaction = manager.beginTransaction();
         transaction.setCustomAnimations(R.anim.fragment_in, R.anim.fragment_out, R.anim.slide_in_right, R.anim.slide_out_right);
@@ -266,7 +275,7 @@ public class SearchContentFragment extends BaseLoadingFragment<SearchContentPres
 
 
     //获取歌手，因为歌手可能有很多个
-    private String getSinger( SearchSong.DataBean.ListBean dataBean){
+    private String getSinger( SearchSong.DataBean.SongBean.ListBean dataBean){
         StringBuilder singer = new StringBuilder(dataBean.getSinger().get(0).getName());
         for (int i = 1; i < dataBean.getSinger().size(); i++) {
             singer.append("、").append(dataBean.getSinger().get(i).getName());

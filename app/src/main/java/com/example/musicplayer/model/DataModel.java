@@ -3,9 +3,12 @@ package com.example.musicplayer.model;
 import com.example.musicplayer.entiy.Album;
 import com.example.musicplayer.entiy.AlbumSong;
 import com.example.musicplayer.entiy.LocalSong;
+import com.example.musicplayer.entiy.OnlineSongLrc;
 import com.example.musicplayer.entiy.SearchSong;
 import com.example.musicplayer.entiy.SingerImg;
 import com.example.musicplayer.entiy.Song;
+import com.example.musicplayer.entiy.SongLrc;
+import com.example.musicplayer.entiy.SongUrl;
 import com.example.musicplayer.model.db.DbHelper;
 import com.example.musicplayer.model.db.DbHelperImpl;
 import com.example.musicplayer.model.https.NetworkHelper;
@@ -48,13 +51,13 @@ public class DataModel implements NetworkHelper, DbHelper {
     }
 
     @Override
-    public Observable<SearchSong> search(String seek) {
-        return mNetworkHelper.search(seek);
+    public Observable<SongLrc> getLrc(String seek) {
+        return mNetworkHelper.getLrc(seek);
     }
 
     @Override
-    public Observable<String> getLrc(String id) {
-        return mNetworkHelper.getLrc(id);
+    public Observable<OnlineSongLrc> getOnlineSongLrc(String songId) {
+        return mNetworkHelper.getOnlineSongLrc(songId);
     }
 
     @Override
@@ -63,7 +66,12 @@ public class DataModel implements NetworkHelper, DbHelper {
     }
 
     @Override
-    public void insertAllAlbumSong(List<AlbumSong.DataBean.GetSongInfoBean> songList) {
+    public Observable<SongUrl> getSongUrl(String data) {
+        return mNetworkHelper.getSongUrl(data);
+    }
+
+    @Override
+    public void insertAllAlbumSong(List<AlbumSong.DataBean.ListBean> songList) {
          mDbHelper.insertAllAlbumSong(songList);
     }
 

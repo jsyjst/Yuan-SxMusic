@@ -3,7 +3,6 @@ package com.example.musicplayer.adapter;
 import android.content.Context;
 import android.support.annotation.NonNull;
 import android.support.v7.widget.RecyclerView;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -20,7 +19,7 @@ import com.example.musicplayer.app.Constant;
 import com.example.musicplayer.entiy.Album;
 import com.example.musicplayer.entiy.SearchSong;
 import com.example.musicplayer.util.CommonUtil;
-import com.example.musicplayer.util.FileHelper;
+import com.example.musicplayer.util.FileUtil;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -32,8 +31,8 @@ import java.util.List;
 public class SearchContentAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
     private static final String TAG = "SearchContentAdapter";
 
-    private ArrayList<SearchSong.DataBean.ListBean> mSongListBeans;
-    private List<Album.DataBean.ListBean> mAlbumList;
+    private ArrayList<SearchSong.DataBean.SongBean.ListBean> mSongListBeans;
+    private List<Album.DataBean.AlbumBean.ListBean> mAlbumList;
     private static OnItemClickListener mItemClick;
     private static OnAlbumItemClickListener mAlbumClick;
     private String mSeek;
@@ -50,7 +49,7 @@ public class SearchContentAdapter extends RecyclerView.Adapter<RecyclerView.View
         mAlbumClick = albumClick;
     }
 
-    public SearchContentAdapter(List<Album.DataBean.ListBean> dataBeans, String seek, Context context, int type) {
+    public SearchContentAdapter(List<Album.DataBean.AlbumBean.ListBean> dataBeans, String seek, Context context, int type) {
         mContext = context;
         mSeek = seek;
         mAlbumList = dataBeans;
@@ -58,7 +57,7 @@ public class SearchContentAdapter extends RecyclerView.Adapter<RecyclerView.View
     }
 
 
-    public SearchContentAdapter(ArrayList<SearchSong.DataBean.ListBean> songListBeans, String seek, Context context, int type) {
+    public SearchContentAdapter(ArrayList<SearchSong.DataBean.SongBean.ListBean> songListBeans, String seek, Context context, int type) {
         mContext = context;
         mSeek = seek;
         mSongListBeans = songListBeans;
@@ -85,7 +84,7 @@ public class SearchContentAdapter extends RecyclerView.Adapter<RecyclerView.View
     public void onBindViewHolder(@NonNull RecyclerView.ViewHolder holder, final int position) {
         if (holder instanceof ViewHolder) {
             ViewHolder songHolder = (ViewHolder) holder;
-            SearchSong.DataBean.ListBean songListBean = mSongListBeans.get(position);
+            SearchSong.DataBean.SongBean.ListBean songListBean = mSongListBeans.get(position);
 
             //设置歌手，因为歌手可能有两个
             String singer = songListBean.getSinger().get(0).getName();
@@ -99,7 +98,7 @@ public class SearchContentAdapter extends RecyclerView.Adapter<RecyclerView.View
             CommonUtil.showStringColor(mSeek, songListBean.getSongname(), songHolder.titleTv);
 
                 //根据点击显示
-            if(songListBean.getSongmid().equals(FileHelper.getSong().getSongId())){
+            if(songListBean.getSongmid().equals(FileUtil.getSong().getSongId())){
                 songHolder.playLine.setVisibility(View.VISIBLE);
                 mLastPosition =position;
                 songHolder.mItemView.setBackgroundResource(R.color.translucent);
@@ -113,7 +112,7 @@ public class SearchContentAdapter extends RecyclerView.Adapter<RecyclerView.View
             });
         } else {
             AlbumHolder albumHolder = (AlbumHolder) holder;
-            Album.DataBean.ListBean albumList = mAlbumList.get(position);
+            Album.DataBean.AlbumBean.ListBean albumList = mAlbumList.get(position);
             Glide.with(mContext).load(albumList.getAlbumPic())
                     .apply(RequestOptions.errorOf(R.drawable.background)).into(albumHolder.albumIv);
             albumHolder.albumName.setText(albumList.getAlbumName());

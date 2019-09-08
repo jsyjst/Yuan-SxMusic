@@ -31,7 +31,7 @@ import com.example.musicplayer.event.OnlineSongErrorEvent;
 import com.example.musicplayer.event.SongStatusEvent;
 import com.example.musicplayer.service.PlayerService;
 import com.example.musicplayer.util.CommonUtil;
-import com.example.musicplayer.util.FileHelper;
+import com.example.musicplayer.util.FileUtil;
 import com.example.musicplayer.view.main.MainFragment;
 import com.example.musicplayer.view.search.SearchContentFragment;
 
@@ -90,9 +90,9 @@ public class MainActivity extends BaseActivity {
         unbindService(connection);
         EventBus.getDefault().unregister(this);
         if (mSeekBarThread != null || mSeekBarThread.isAlive()) mSeekBarThread.interrupt();
-        Song song = FileHelper.getSong();
+        Song song = FileUtil.getSong();
         song.setCurrentTime(mPlayStatusBinder.getCurrentTime());
-        FileHelper.saveSong(song);
+        FileUtil.saveSong(song);
 
 
     }
@@ -118,7 +118,7 @@ public class MainActivity extends BaseActivity {
         mCircleAnimator.setRepeatMode(ValueAnimator.RESTART);
 
 
-        mSong = FileHelper.getSong();
+        mSong = FileUtil.getSong();
         if (mSong.getSongName() != null) {
             Log.d(TAG, "initView: " + mSong.toString());
             mLinear.setVisibility(View.VISIBLE);
@@ -136,24 +136,17 @@ public class MainActivity extends BaseActivity {
                         .into(mCoverIv);
             }
         } else {
-            mSongNameTv.setText("心渊音乐");
-            mSingerTv.setText("袁健策 3117004905");
+            mSongNameTv.setText(getString(R.string.app_name));
+            mSingerTv.setText(getString(R.string.welcome_start));
             mCoverIv.setImageResource(R.drawable.jay);
-            mLinear.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View v) {
-                    CommonUtil.showToast(MainActivity.this, "开启你的音乐之旅吧");
-                }
-            });
         }
-
 
         addMainFragment();
     }
 
     @Subscribe(threadMode = ThreadMode.MAIN)
     public void onOnlineSongErrorEvent(OnlineSongErrorEvent event){
-        showToast("抱歉该歌曲暂没有版权，搜搜其他歌曲吧");
+        showToast(getString(R.string.error_out_of_copyright));
     }
 
     @Subscribe(threadMode = ThreadMode.MAIN)
@@ -167,7 +160,7 @@ public class MainActivity extends BaseActivity {
             mPlayerBtn.setSelected(false);
             mCircleAnimator.pause();
         } else if(status == Constant.SONG_CHANGE){
-            mSong = FileHelper.getSong();
+            mSong = FileUtil.getSong();
             mSongNameTv.setText(mSong.getSongName());
             mSingerTv.setText(mSong.getSinger());
             mSeekBar.setMax((int) mSong.getDuration());
@@ -220,69 +213,65 @@ public class MainActivity extends BaseActivity {
             }
         });
 
-        //
-        mPlayerBtn.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                mMediaPlayer = mPlayStatusBinder.getMediaPlayer();
-                if (mPlayStatusBinder.isPlaying()) {
-                    time = mMediaPlayer.getCurrentPosition();
-                    mPlayStatusBinder.pause();
-                    flag = true;
-                } else if (flag) {
-                    mPlayStatusBinder.resume();
-                    flag = false;
-                    if (isSeek) {
-                        mMediaPlayer.seekTo(time);
-                    }
-                } else {
-                    if (FileHelper.getSong().isOnline()) {
-                        Log.d(TAG, "onClick: "+mSong.getCurrentTime());
-                        mPlayStatusBinder.playOnline();
-                    } else {
-                        mPlayStatusBinder.play(FileHelper.getSong().getListType());
-                    }
-                    mMediaPlayer = mPlayStatusBinder.getMediaPlayer();
-                    mMediaPlayer.seekTo((int) mSong.getCurrentTime());
+        //控制按钮，播放，暂停
+        mPlayerBtn.setOnClickListener(v -> {
+            mMediaPlayer = mPlayStatusBinder.getMediaPlayer();
+            if (mPlayStatusBinder.isPlaying()) {
+                time = mMediaPlayer.getCurrentPosition();
+                mPlayStatusBinder.pause();
+                flag = true;
+            } else if (flag) {
+                mPlayStatusBinder.resume();
+                flag = false;
+                if (isSeek) {
+                    mMediaPlayer.seekTo(time);
                 }
+            } else {
+                if (FileUtil.getSong().isOnline()) {
+                    mPlayStatusBinder.playOnline();
+                } else {
+                    mPlayStatusBinder.play(FileUtil.getSong().getListType());
+                }
+                mMediaPlayer = mPlayStatusBinder.getMediaPlayer();
+                mMediaPlayer.seekTo((int) mSong.getCurrentTime());
             }
         });
-        mNextIv.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                mPlayStatusBinder.next();
-                if (mPlayStatusBinder.isPlaying()) {
-                    mPlayerBtn.setSelected(true);
-                } else {
-                    mPlayerBtn.setSelected(false);
-                }
+        //下一首
+        mNextIv.setOnClickListener(v -> {
+            if(FileUtil.getSong().getSongName()!=null) mPlayStatusBinder.next();
+            if (mPlayStatusBinder.isPlaying()) {
+                mPlayerBtn.setSelected(true);
+            } else {
+                mPlayerBtn.setSelected(false);
             }
         });
 
         //点击播放栏，跳转到播放的主界面
-        mLinear.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                Intent toPlayActivityIntent = new Intent(MainActivity.this, PlayActivity.class);
+       mLinear.setOnClickListener(v -> {
+           if(FileUtil.getSong().getSongName()!=null){
+               Intent toPlayActivityIntent = new Intent(MainActivity.this, PlayActivity.class);
 
-                //播放情况
-                if (mPlayStatusBinder.isPlaying()) {
-                    Song song = FileHelper.getSong();
-                    song.setCurrentTime(mPlayStatusBinder.getCurrentTime());
-                    FileHelper.saveSong(song);
-                    toPlayActivityIntent.putExtra(Constant.PLAYER_STATUS, Constant.SONG_PLAY);
-                } else {
-                    //暂停情况
-                    Song song = FileHelper.getSong();
-                    song.setCurrentTime(mSeekBar.getProgress());
-                    FileHelper.saveSong(song);
-                }
-                if (FileHelper.getSong().getImgUrl() != null) {
-                    toPlayActivityIntent.putExtra(SearchContentFragment.IS_ONLINE, true);
-                }
-                startActivity(toPlayActivityIntent,
-                        ActivityOptions.makeSceneTransitionAnimation(MainActivity.this).toBundle());
-            }
+               //播放情况
+               if (mPlayStatusBinder.isPlaying()) {
+                   Song song = FileUtil.getSong();
+                   song.setCurrentTime(mPlayStatusBinder.getCurrentTime());
+                   FileUtil.saveSong(song);
+                   toPlayActivityIntent.putExtra(Constant.PLAYER_STATUS, Constant.SONG_PLAY);
+               } else {
+                   //暂停情况
+                   Song song = FileUtil.getSong();
+                   song.setCurrentTime(mSeekBar.getProgress());
+                   FileUtil.saveSong(song);
+               }
+               if (FileUtil.getSong().getImgUrl() != null) {
+                   toPlayActivityIntent.putExtra(SearchContentFragment.IS_ONLINE, true);
+               }
+               startActivity(toPlayActivityIntent,
+                       ActivityOptions.makeSceneTransitionAnimation(MainActivity.this).toBundle());
+
+           }else {
+               showToast(getString(R.string.welcome_start));
+           }
         });
     }
 

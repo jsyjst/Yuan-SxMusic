@@ -12,7 +12,7 @@ import com.example.musicplayer.R;
 import com.example.musicplayer.callback.OnItemClickListener;
 import com.example.musicplayer.app.App;
 import com.example.musicplayer.entiy.AlbumSong;
-import com.example.musicplayer.util.FileHelper;
+import com.example.musicplayer.util.FileUtil;
 
 import java.util.List;
 
@@ -22,13 +22,13 @@ import java.util.List;
 
 public class AlbumSongAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
 
-    private List<AlbumSong.DataBean.GetSongInfoBean> mSongsBeanList;
+    private List<AlbumSong.DataBean.ListBean> mSongsBeanList;
     private int mLastPosition = -1;
     private OnItemClickListener mSongClick;
     private final int songType = 1;
     private final int footerType = 2;
 
-    public AlbumSongAdapter(List<AlbumSong.DataBean.GetSongInfoBean> songsBeans) {
+    public AlbumSongAdapter(List<AlbumSong.DataBean.ListBean> songsBeans) {
         mSongsBeanList = songsBeans;
     }
 
@@ -56,7 +56,7 @@ public class AlbumSongAdapter extends RecyclerView.Adapter<RecyclerView.ViewHold
     public void onBindViewHolder(@NonNull RecyclerView.ViewHolder viewHolder, final int position) {
         if (viewHolder instanceof ViewHolder) {
             ViewHolder holder = (ViewHolder) viewHolder;
-            AlbumSong.DataBean.GetSongInfoBean songsBean = mSongsBeanList.get(position);
+            AlbumSong.DataBean.ListBean songsBean = mSongsBeanList.get(position);
             //设置歌手，因为歌手可能有两个
             StringBuilder singer = new StringBuilder(songsBean.getSinger().get(0).getName());
             for (int i = 1; i < songsBean.getSinger().size(); i++) {
@@ -66,7 +66,7 @@ public class AlbumSongAdapter extends RecyclerView.Adapter<RecyclerView.ViewHold
             holder.titleTv.setText(songsBean.getSongname());
             holder.mItemView.setBackgroundResource(R.color.translucent);
             //根据点击显示
-            if(songsBean.getSongmid().equals(FileHelper.getSong().getSongId())){
+                if(songsBean.getSongmid().equals(FileUtil.getSong().getSongId())){
                 holder.playLine.setVisibility(View.VISIBLE);
                 holder.titleTv.setTextColor(App.getContext().getResources().getColor(R.color.yellow));
                 holder.artistTv.setTextColor(App.getContext().getResources().getColor(R.color.yellow));

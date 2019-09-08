@@ -9,9 +9,9 @@ package com.example.musicplayer.entiy;
  */
 
 public class LrcBean {
-    private String lrc;
-    private long start;
-    private long end;
+    private String lrc;  //歌词
+    private long start;  //开始时间
+    private long end;   //结束时间
 
     public LrcBean() {
     }

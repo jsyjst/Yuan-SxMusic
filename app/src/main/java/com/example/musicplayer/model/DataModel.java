@@ -13,6 +13,8 @@ import com.example.musicplayer.model.db.DbHelper;
 import com.example.musicplayer.model.db.DbHelperImpl;
 import com.example.musicplayer.model.https.NetworkHelper;
 import com.example.musicplayer.model.https.NetworkHelperImpl;
+import com.example.musicplayer.model.prefs.PreferencesHelper;
+import com.example.musicplayer.model.prefs.PreferencesHelperImpl;
 
 import java.util.List;
 
@@ -26,13 +28,15 @@ import io.reactivex.Observable;
  * </pre>
  */
 
-public class DataModel implements NetworkHelper, DbHelper {
+public class DataModel implements NetworkHelper, DbHelper,PreferencesHelper {
     private NetworkHelperImpl mNetworkHelper;
     private DbHelperImpl mDbHelper;
+    private PreferencesHelperImpl mPreferencesHelper;
 
-    public DataModel(NetworkHelperImpl networkHelper,DbHelperImpl dbHelper){
+    public DataModel(NetworkHelperImpl networkHelper,DbHelperImpl dbHelper,PreferencesHelperImpl preferencesHelper){
         mNetworkHelper = networkHelper;
         mDbHelper = dbHelper;
+        mPreferencesHelper = preferencesHelper;
     }
 
     @Override
@@ -98,5 +102,15 @@ public class DataModel implements NetworkHelper, DbHelper {
     @Override
     public boolean deleteFromLove(String songId) {
         return mDbHelper.deleteFromLove(songId);
+    }
+
+    @Override
+    public void setPlayMode(int mode) {
+        mPreferencesHelper.setPlayMode(mode);
+    }
+
+    @Override
+    public int getPlayMode() {
+        return mPreferencesHelper.getPlayMode();
     }
 }

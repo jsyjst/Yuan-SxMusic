@@ -93,6 +93,16 @@ public class PlayPresenter extends BasePresenter<IPlayContract.View> implements 
                         }));
     }
 
+    @Override
+    public void setPlayMode(int mode) {
+        mModel.setPlayMode(mode);
+    }
+
+    @Override
+    public int getPlayMode() {
+        return mModel.getPlayMode();
+    }
+
 
     @Override
     public void queryLove(String songId) {

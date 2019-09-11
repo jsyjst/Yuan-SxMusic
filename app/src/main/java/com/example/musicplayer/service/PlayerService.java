@@ -54,6 +54,7 @@ public class PlayerService extends Service {
     private List<HistorySong> mHistoryList;
     private int mCurrent;
     private int mListType;
+    private int mPlayMode = Constant.PLAY_ORDER; //播放模式,默认为顺序播放
 
 
     @Override
@@ -76,43 +77,26 @@ public class PlayerService extends Service {
 
     @Override
     public IBinder onBind(Intent arg0) {
-        mediaPlayer.setOnCompletionListener(new MediaPlayer.OnCompletionListener() {
-            @Override
-            public void onCompletion(MediaPlayer mp) {
-                EventBus.getDefault().post(new SongStatusEvent(Constant.SONG_PAUSE));//暂停广播
-                mCurrent = FileUtil.getSong().getCurrent();
-                mCurrent++;
-                //将歌曲的信息保存起来
-                if (mListType == Constant.LIST_TYPE_LOCAL) {
-                    if (mCurrent < mLocalSongList.size()) {
-                        saveLocalSongInfo(mCurrent);
-                        mPlayStatusBinder.play(Constant.LIST_TYPE_LOCAL);
-                    } else {
-                        mPlayStatusBinder.stop();
-                    }
-                } else if (mListType == Constant.LIST_TYPE_ONLINE) {
-                    if (mCurrent < mSongList.size()) {
-                        saveOnlineSongInfo(mCurrent);
-                        mPlayStatusBinder.play(Constant.LIST_TYPE_ONLINE);
-                    } else {
-                        mPlayStatusBinder.stop();
-                    }
-
-                } else if (mListType == Constant.LIST_TYPE_LOVE) {
-                    if (mCurrent < mLoveList.size()) {
-                        saveLoveInfo(mCurrent);
-                        mPlayStatusBinder.play(Constant.LIST_TYPE_LOVE);
-                    } else {
-                        mPlayStatusBinder.stop();
-                    }
-                } else {
-                    if (mCurrent < mHistoryList.size()) {
-                        saveHistoryInfo(mCurrent);
-                        mPlayStatusBinder.play(Constant.LIST_TYPE_HISTORY);
-                    } else {
-                        mPlayStatusBinder.stop();
-                    }
-                }
+        mediaPlayer.setOnCompletionListener(mp -> {
+            EventBus.getDefault().post(new SongStatusEvent(Constant.SONG_PAUSE));//暂停广播
+            mCurrent = FileUtil.getSong().getCurrent();
+            //将歌曲的信息保存起来
+            if (mListType == Constant.LIST_TYPE_LOCAL) {
+                mCurrent=getNextCurrent(mCurrent, mPlayMode, mLocalSongList.size()); //根据播放模式来播放下一曲
+                saveLocalSongInfo(mCurrent);
+                mPlayStatusBinder.play(Constant.LIST_TYPE_LOCAL);
+            } else if (mListType == Constant.LIST_TYPE_ONLINE) {
+                mCurrent=getNextCurrent(mCurrent, mPlayMode, mSongList.size());//根据播放模式来播放下一曲
+                saveOnlineSongInfo(mCurrent);
+                mPlayStatusBinder.play(Constant.LIST_TYPE_ONLINE);
+            } else if (mListType == Constant.LIST_TYPE_LOVE) {
+                mCurrent=getNextCurrent(mCurrent, mPlayMode, mLoveList.size());//根据播放模式来播放下一曲
+                saveLoveInfo(mCurrent);
+                mPlayStatusBinder.play(Constant.LIST_TYPE_LOVE);
+            } else {
+                mCurrent=getNextCurrent(mCurrent, mPlayMode, mHistoryList.size());//根据播放模式来播放下一曲
+                saveHistoryInfo(mCurrent);
+                mPlayStatusBinder.play(Constant.LIST_TYPE_HISTORY);
             }
         });
         /**
@@ -124,7 +108,11 @@ public class PlayerService extends Service {
     }
 
 
-    public class PlayStatusBinder extends Binder {
+    public class PlayStatusBinder extends Binder{
+
+        public void setPlayMode(int mode){
+            mPlayMode = mode;
+        }
 
 
         public void getHistoryList() {
@@ -220,30 +208,20 @@ public class PlayerService extends Service {
         public void next() {
             EventBus.getDefault().post(new SongStatusEvent(Constant.SONG_RESUME));
             mCurrent = FileUtil.getSong().getCurrent();
-            mCurrent++;
-            Log.d(TAG, "next: "+mCurrent);
             if (mListType == Constant.LIST_TYPE_LOCAL) {
-                if (mCurrent >= mLocalSongList.size()) {
-                    mCurrent = 0;
-                }
+                mCurrent=getNextCurrent(mCurrent, mPlayMode, mLocalSongList.size()); //根据播放模式来播放下一曲
                 saveLocalSongInfo(mCurrent);
                 mPlayStatusBinder.play(Constant.LIST_TYPE_LOCAL);
             } else if (mListType == Constant.LIST_TYPE_ONLINE) {
-                if (mCurrent >= mSongList.size()) {
-                    mCurrent = 0;
-                }
+                mCurrent=getNextCurrent(mCurrent, mPlayMode, mSongList.size());//根据播放模式来播放下一曲
                 saveOnlineSongInfo(mCurrent);
                 mPlayStatusBinder.play(Constant.LIST_TYPE_ONLINE);
             } else if (mListType == Constant.LIST_TYPE_LOVE) {
-                if (mCurrent >= mLoveList.size()) {
-                    mCurrent = 0;
-                }
+                mCurrent=getNextCurrent(mCurrent, mPlayMode, mLoveList.size());//根据播放模式来播放下一曲
                 saveLoveInfo(mCurrent);
                 mPlayStatusBinder.play(Constant.LIST_TYPE_LOVE);
             } else {
-                if (mCurrent >= mHistoryList.size()) {
-                    mCurrent = 0;
-                }
+                mCurrent=getNextCurrent(mCurrent, mPlayMode, mHistoryList.size());//根据播放模式来播放下一曲
                 saveHistoryInfo(mCurrent);
                 mPlayStatusBinder.play(Constant.LIST_TYPE_HISTORY);
             }
@@ -252,26 +230,20 @@ public class PlayerService extends Service {
         public void last() {
             EventBus.getDefault().post(new SongStatusEvent(Constant.SONG_RESUME));//暂停广播
             mCurrent = FileUtil.getSong().getCurrent();
-            mCurrent--;
-            if (mCurrent == -1) {
-                if (mListType == Constant.LIST_TYPE_LOCAL) {
-                    mCurrent = mLocalSongList.size() - 1;
-                } else if (mListType == Constant.LIST_TYPE_ONLINE) {
-                    mCurrent = mSongList.size() - 1;
-                } else {
-                    mCurrent = mLoveList.size() - 1;
-                }
-            }
             if (mListType == Constant.LIST_TYPE_LOCAL) {
+                mCurrent = getLastCurrent(mCurrent,mPlayMode,mLocalSongList.size());
                 saveLocalSongInfo(mCurrent);
                 mPlayStatusBinder.play(mListType);
             } else if (mListType == Constant.LIST_TYPE_ONLINE) {
+                mCurrent = getLastCurrent(mCurrent,mPlayMode,mSongList.size());
                 saveOnlineSongInfo(mCurrent);
                 mPlayStatusBinder.play(mListType);
             } else if (mListType == Constant.LIST_TYPE_LOVE) {
+                mCurrent = getLastCurrent(mCurrent,mPlayMode,mLoveList.size());
                 saveLoveInfo(mCurrent);
                 mPlayStatusBinder.play(mListType);
             } else {
+                mCurrent = getLastCurrent(mCurrent,mPlayMode,mHistoryList.size());
                 saveHistoryInfo(mCurrent);
                 mPlayStatusBinder.play(mListType);
             }
@@ -307,7 +279,7 @@ public class PlayerService extends Service {
         }
 
         public long getCurrentTime() {
-            return mediaPlayer.getCurrentPosition()/1000;
+            return mediaPlayer.getCurrentPosition() / 1000;
         }
     }
 
@@ -451,8 +423,8 @@ public class PlayerService extends Service {
     }
 
     //网络请求获取播放地址
-    private void getSongUrl(String songId){
-        RetrofitFactory.createRequestOfSongUrl().getSongUrl(Api.SONG_URL_DATA_LEFT+songId+Api.SONG_URL_DATA_RIGHT)
+    private void getSongUrl(String songId) {
+        RetrofitFactory.createRequestOfSongUrl().getSongUrl(Api.SONG_URL_DATA_LEFT + songId + Api.SONG_URL_DATA_RIGHT)
                 .subscribeOn(Schedulers.io()).observeOn(AndroidSchedulers.mainThread())
                 .subscribeWith(new Observer<SongUrl>() {
                     @Override
@@ -462,21 +434,21 @@ public class PlayerService extends Service {
 
                     @Override
                     public void onNext(SongUrl songUrl) {
-                        if(songUrl.getCode() == 0){
+                        if (songUrl.getCode() == 0) {
                             String sip = songUrl.getReq_0().getData().getSip().get(0);
                             String purl = songUrl.getReq_0().getData().getMidurlinfo().get(0).getPurl();
                             Song song = FileUtil.getSong();
                             assert song != null;
-                            song.setUrl(sip+purl);
+                            song.setUrl(sip + purl);
                             FileUtil.saveSong(song);
                             try {
-                                mediaPlayer.setDataSource(sip+purl);
+                                mediaPlayer.setDataSource(sip + purl);
                                 startPlay();
                             } catch (IOException e) {
                                 e.printStackTrace();
                             }
-                        }else {
-                            Log.d(TAG, "onNext:"+ songUrl.getCode()+":获取不到歌曲播放地址");
+                        } else {
+                            Log.d(TAG, "onNext:" + songUrl.getCode() + ":获取不到歌曲播放地址");
                         }
                     }
 
@@ -492,6 +464,8 @@ public class PlayerService extends Service {
                 });
 
     }
+
+    //开始播放
     private void startPlay() throws IOException {
         mediaPlayer.prepare();    //进行缓冲
         isPlaying = true;
@@ -499,6 +473,32 @@ public class PlayerService extends Service {
         saveToHistoryTable();
         EventBus.getDefault().post(new SongStatusEvent(Constant.SONG_CHANGE));//发送所有歌曲改变事件
         EventBus.getDefault().post(new OnlineSongChangeEvent()); //发送网络歌曲改变事件
+    }
+
+
+    //根据播放模式得到下一首歌曲的位置
+    private int getNextCurrent(int current, int playMode, int len) {
+        int res;
+        if (playMode == Constant.PLAY_ORDER) {
+            res = (current + 1) % len;
+        } else if (playMode == Constant.PLAY_RANDOM) {
+            res = (current + (int) (Math.random() * len)) % len;
+        } else {
+            res = current;
+        }
+        return res;
+    }
+    //根据播放模式得到上一首歌曲的位置
+    private int getLastCurrent(int current, int playMode, int len) {
+        int res;
+        if (playMode == Constant.PLAY_ORDER) {
+            res = current - 1 == -1 ? len-1 : current - 1;
+        } else if (playMode == Constant.PLAY_RANDOM) {
+            res = (current + (int) (Math.random() * len)) % len;
+        } else {
+            res = current;
+        }
+        return res;
     }
 }
 

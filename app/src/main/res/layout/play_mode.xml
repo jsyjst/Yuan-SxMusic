@@ -1,0 +1,106 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="@dimen/dp_130"
+    android:layout_height="@dimen/dp_150"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:orientation="vertical"
+    >
+
+    <android.support.constraint.ConstraintLayout
+        android:background="@drawable/selector_play_mode"
+        android:clickable="true"
+        android:focusable="true"
+        android:id="@+id/orderLayout"
+        android:layout_width="match_parent"
+        android:layout_height="@dimen/dp_50"
+        >
+
+        <ImageView
+            android:id="@+id/orderIv"
+            android:layout_width="@dimen/dp_35"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="@dimen/dp_10"
+            android:src="@drawable/play_mode_order"
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintLeft_toLeftOf="parent"
+            app:layout_constraintBottom_toBottomOf="parent"/>
+
+        <TextView
+            android:id="@+id/orderTv"
+            style="@style/text_style"
+            android:text="@string/play_mode_order"
+            android:textColor="@drawable/selector_play_mode_text"
+            android:layout_marginStart="@dimen/dp_10"
+            app:layout_constraintLeft_toRightOf="@id/orderIv"
+            app:layout_constraintBottom_toBottomOf="@id/orderIv"
+            app:layout_constraintTop_toTopOf="@id/orderIv"
+            />
+
+    </android.support.constraint.ConstraintLayout>
+
+    <android.support.constraint.ConstraintLayout
+        android:background="@drawable/selector_play_mode"
+        android:clickable="true"
+        android:focusable="true"
+        android:id="@+id/randomLayout"
+        android:layout_width="match_parent"
+        android:layout_height="@dimen/dp_50">
+
+        <ImageView
+            android:id="@+id/randomIv"
+            android:layout_width="@dimen/dp_35"
+            android:layout_height="@dimen/dp_35"
+            android:src="@drawable/play_mode_random"
+            android:layout_marginStart="@dimen/dp_10"
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintLeft_toLeftOf="parent"
+            app:layout_constraintBottom_toBottomOf="parent"/>
+
+        <TextView
+            android:id="@+id/randomTv"
+            style="@style/text_style"
+            android:text="@string/play_mode_random"
+            android:textColor="@drawable/selector_play_mode_text"
+            android:layout_marginStart="@dimen/dp_10"
+            app:layout_constraintLeft_toRightOf="@id/randomIv"
+            app:layout_constraintBottom_toBottomOf="@id/randomIv"
+            app:layout_constraintTop_toTopOf="@id/randomIv"
+            />
+
+    </android.support.constraint.ConstraintLayout>
+
+    <android.support.constraint.ConstraintLayout
+        android:background="@drawable/selector_play_mode"
+        android:clickable="true"
+        android:focusable="true"
+        android:id="@+id/singleLayout"
+        android:layout_width="match_parent"
+        android:layout_height="@dimen/dp_50">
+
+        <ImageView
+            android:id="@+id/singleIv"
+            android:layout_width="@dimen/dp_25"
+            android:layout_height="@dimen/dp_25"
+            android:src="@drawable/play_mode_single"
+            android:layout_marginStart="@dimen/dp_15"
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintLeft_toLeftOf="parent"
+            app:layout_constraintBottom_toBottomOf="parent"/>
+
+        <TextView
+            android:id="@+id/singleTv"
+            style="@style/text_style"
+            android:text="@string/play_mode_single"
+            android:textColor="@drawable/selector_play_mode_text"
+            android:layout_marginStart="@dimen/dp_15"
+            app:layout_constraintLeft_toRightOf="@id/singleIv"
+            app:layout_constraintBottom_toBottomOf="@id/singleIv"
+            app:layout_constraintTop_toTopOf="@id/singleIv"
+            />
+
+    </android.support.constraint.ConstraintLayout>
+
+
+
+
+</LinearLayout>

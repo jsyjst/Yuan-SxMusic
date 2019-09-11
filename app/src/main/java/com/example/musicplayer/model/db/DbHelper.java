@@ -28,5 +28,4 @@ public interface DbHelper {
     boolean saveToLove(Song song);//收藏歌曲
     boolean deleteFromLove(String songId);//取消收藏歌曲
 
-
 }

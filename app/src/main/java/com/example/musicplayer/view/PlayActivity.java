@@ -67,6 +67,7 @@ import java.io.BufferedOutputStream;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.lang.ref.WeakReference;
 import java.util.List;
 
 import butterknife.BindView;
@@ -314,21 +315,20 @@ public class PlayActivity extends BaseMvpActivity<PlayPresenter> implements IPla
             public void onStartTrackingTouch(SeekBar seekBar) {
                 //防止在拖动进度条进行进度设置时与Thread更新播放进度条冲突
                 isChange = true;
-                isSeek = true;
             }
 
             @Override
             public void onStopTrackingTouch(SeekBar seekBar) {
                 if (mPlayStatusBinder.isPlaying()) {
                     mMediaPlayer = mPlayStatusBinder.getMediaPlayer();
-                    mMediaPlayer.seekTo(seekBar.getProgress());
+                    mMediaPlayer.seekTo(seekBar.getProgress()*1000);
                     startUpdateSeekBarProgress();
                 } else {
                     time = seekBar.getProgress();
+                    isSeek = true;
                 }
-                mCurrentTimeTv.setText(MediaUtil.formatTime(seekBar.getProgress()));
                 isChange = false;
-
+                mCurrentTimeTv.setText(MediaUtil.formatTime(seekBar.getProgress()));
             }
         });
 
@@ -338,7 +338,6 @@ public class PlayActivity extends BaseMvpActivity<PlayPresenter> implements IPla
         mPlayBtn.setOnClickListener(v -> {
             mMediaPlayer = mPlayStatusBinder.getMediaPlayer();
             if (mPlayStatusBinder.isPlaying()) {
-                time = mMediaPlayer.getCurrentPosition();
                 mPlayStatusBinder.pause();
                 stopUpdateSeekBarProgress();
                 flag = true;
@@ -348,8 +347,8 @@ public class PlayActivity extends BaseMvpActivity<PlayPresenter> implements IPla
                 mPlayStatusBinder.resume();
                 flag = false;
                 if (isSeek) {
-                    mMediaPlayer.seekTo(time);
-                } else {
+                    Log.d(TAG, "onClick: "+time);
+                    mMediaPlayer.seekTo(time*1000);
                     isSeek = false;
                 }
                 mDisc.play();
@@ -361,7 +360,7 @@ public class PlayActivity extends BaseMvpActivity<PlayPresenter> implements IPla
                 } else {
                     mPlayStatusBinder.play(mListType);
                 }
-                mMediaPlayer.seekTo((int) mSong.getCurrentTime());
+                mMediaPlayer.seekTo((int) mSong.getCurrentTime()*1000);
                 mDisc.play();
                 mPlayBtn.setSelected(true);
                 startUpdateSeekBarProgress();
@@ -753,6 +752,9 @@ public class PlayActivity extends BaseMvpActivity<PlayPresenter> implements IPla
         unbindService(connection);
         EventBus.getDefault().unregister(this);
         stopUpdateSeekBarProgress();
+
+        //避免内存泄漏
+        mMusicHandler.removeCallbacksAndMessages(null);
     }
 
 }

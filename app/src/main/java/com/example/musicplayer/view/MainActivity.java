@@ -198,15 +198,15 @@ public class MainActivity extends BaseActivity {
             public void onStartTrackingTouch(SeekBar seekBar) {
                 //防止在拖动进度条进行进度设置时与Thread更新播放进度条冲突
                 isChange = true;
-                isSeek = true;
             }
 
             @Override
             public void onStopTrackingTouch(SeekBar seekBar) {
                 if (mPlayStatusBinder.isPlaying()) {
-                    mPlayStatusBinder.getMediaPlayer().seekTo(seekBar.getProgress());
+                    mPlayStatusBinder.getMediaPlayer().seekTo(seekBar.getProgress()*1000);
                 } else {
                     time = seekBar.getProgress();
+                    isSeek = true;
                 }
                 isChange = false;
                 seekBarStart();
@@ -224,16 +224,17 @@ public class MainActivity extends BaseActivity {
                 mPlayStatusBinder.resume();
                 flag = false;
                 if (isSeek) {
-                    mMediaPlayer.seekTo(time);
+                    mMediaPlayer.seekTo(time*1000);
+                    isSeek = false;
                 }
-            } else {
+            } else {//退出程序后重新打开后的情况
                 if (FileUtil.getSong().isOnline()) {
                     mPlayStatusBinder.playOnline();
                 } else {
                     mPlayStatusBinder.play(FileUtil.getSong().getListType());
                 }
                 mMediaPlayer = mPlayStatusBinder.getMediaPlayer();
-                mMediaPlayer.seekTo((int) mSong.getCurrentTime());
+                mMediaPlayer.seekTo((int) mSong.getCurrentTime()*1000);
             }
         });
         //下一首

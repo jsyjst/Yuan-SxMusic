@@ -155,7 +155,7 @@
             android:layout_height="30dp"
             android:layout_centerVertical="true"
             android:layout_marginStart="20dp"
-            android:background="@drawable/playstatus_order" />
+            android:background="@drawable/play_mode_order" />
 
 
         <LinearLayout

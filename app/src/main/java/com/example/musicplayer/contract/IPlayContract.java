@@ -27,6 +27,8 @@ public interface IPlayContract {
         void getSingerImg(String singer,String song,long duration);
         void getLrc(String songId,int type);//获取歌词
         void getSongId(String song,long duration);//获取歌曲在qq音乐中的id
+        void setPlayMode(int mode);//保存播放状态
+        int getPlayMode();//得到播放状态
 
         void queryLove(String songId);//查询我喜欢的数据库中有没这首歌
         void saveToLove(Song song); //添加到我喜欢的表

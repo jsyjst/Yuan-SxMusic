@@ -2,6 +2,7 @@ package com.example.musicplayer.view;
 
 import android.animation.AnimatorInflater;
 import android.animation.AnimatorSet;
+import android.annotation.SuppressLint;
 import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
@@ -17,11 +18,14 @@ import android.os.Handler;
 import android.os.IBinder;
 import android.os.Message;
 import android.support.annotation.Nullable;
+import android.support.constraint.ConstraintLayout;
 import android.transition.Slide;
 import android.util.Log;
+import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.Button;
 import android.widget.ImageView;
+import android.widget.PopupWindow;
 import android.widget.RelativeLayout;
 import android.widget.SeekBar;
 import android.widget.TextView;
@@ -50,6 +54,7 @@ import com.example.musicplayer.util.DisplayUtil;
 import com.example.musicplayer.util.FastBlurUtil;
 import com.example.musicplayer.util.FileUtil;
 import com.example.musicplayer.util.MediaUtil;
+import com.example.musicplayer.util.ScreenUtil;
 import com.example.musicplayer.widget.BackgroundAnimationRelativeLayout;
 import com.example.musicplayer.widget.DiscView;
 import com.example.musicplayer.widget.LrcView;
@@ -62,6 +67,7 @@ import java.io.BufferedOutputStream;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.lang.ref.WeakReference;
 import java.util.List;
 
 import butterknife.BindView;
@@ -86,7 +92,7 @@ public class PlayActivity extends BaseMvpActivity<PlayPresenter> implements IPla
     @BindView(R.id.btn_last)
     Button mLastBtn;
     @BindView(R.id.btn_order)
-    Button mOrderBtn;
+    Button mPlayModeBtn;
     @BindView(R.id.next)
     Button mNextBtn;
     @BindView(R.id.relative_root)
@@ -117,6 +123,8 @@ public class PlayActivity extends BaseMvpActivity<PlayPresenter> implements IPla
     private int mListType; //列表类型
     private int mPlayStatus;
 
+    private int mPlayMode;//播放模式
+
     private boolean isChange; //拖动进度条
     private boolean isSeek;//标记是否在暂停的时候拖动进度条
     private boolean flag; //用做暂停的标记
@@ -138,6 +146,9 @@ public class PlayActivity extends BaseMvpActivity<PlayPresenter> implements IPla
         @Override
         public void onServiceConnected(ComponentName name, IBinder service) {
             mPlayStatusBinder = (PlayerService.PlayStatusBinder) service;
+            //播放模式
+            mPlayMode = mPresenter.getPlayMode();//得到播放模式
+            mPlayStatusBinder.setPlayMode(mPlayMode);//通知服务播放模式
 
             isOnline = FileUtil.getSong().isOnline();
             if (isOnline) {
@@ -168,6 +179,7 @@ public class PlayActivity extends BaseMvpActivity<PlayPresenter> implements IPla
 
         }
     };
+    @SuppressLint("HandlerLeak")
     private Handler mMusicHandler = new Handler() {
         @Override
         public void handleMessage(Message msg) {
@@ -207,6 +219,16 @@ public class PlayActivity extends BaseMvpActivity<PlayPresenter> implements IPla
         mSeekBar.setMax((int) mSong.getDuration());
         mSeekBar.setProgress((int) mSong.getCurrentTime());
         mDownLoadIv.setVisibility(mSong.isOnline() ? View.VISIBLE : View.GONE); //下载按钮是否隐藏
+
+        mPlayMode = mPresenter.getPlayMode();//得到播放模式
+        if(mPlayMode == Constant.PLAY_ORDER){
+            mPlayModeBtn.setBackground(getDrawable(R.drawable.play_mode_order));
+        }else if(mPlayMode == Constant.PLAY_RANDOM){
+            mPlayModeBtn.setBackground(getDrawable(R.drawable.play_mode_random));
+        }else {
+            mPlayModeBtn.setBackground(getDrawable(R.drawable.play_mode_single));
+        }
+
 
     }
 
@@ -293,31 +315,29 @@ public class PlayActivity extends BaseMvpActivity<PlayPresenter> implements IPla
             public void onStartTrackingTouch(SeekBar seekBar) {
                 //防止在拖动进度条进行进度设置时与Thread更新播放进度条冲突
                 isChange = true;
-                isSeek = true;
             }
 
             @Override
             public void onStopTrackingTouch(SeekBar seekBar) {
                 if (mPlayStatusBinder.isPlaying()) {
                     mMediaPlayer = mPlayStatusBinder.getMediaPlayer();
-                    mMediaPlayer.seekTo(seekBar.getProgress());
+                    mMediaPlayer.seekTo(seekBar.getProgress()*1000);
                     startUpdateSeekBarProgress();
                 } else {
                     time = seekBar.getProgress();
+                    isSeek = true;
                 }
-                mCurrentTimeTv.setText(MediaUtil.formatTime(seekBar.getProgress()));
                 isChange = false;
-
+                mCurrentTimeTv.setText(MediaUtil.formatTime(seekBar.getProgress()));
             }
         });
 
-        mOrderBtn.setOnClickListener(v -> CommonUtil.showToast(PlayActivity.this, "抱歉，目前只支持顺序播放，其他功能还在开发中"));
+        mPlayModeBtn.setOnClickListener(v -> changePlayMode());
 
         //播放，暂停的实现
         mPlayBtn.setOnClickListener(v -> {
             mMediaPlayer = mPlayStatusBinder.getMediaPlayer();
             if (mPlayStatusBinder.isPlaying()) {
-                time = mMediaPlayer.getCurrentPosition();
                 mPlayStatusBinder.pause();
                 stopUpdateSeekBarProgress();
                 flag = true;
@@ -327,8 +347,8 @@ public class PlayActivity extends BaseMvpActivity<PlayPresenter> implements IPla
                 mPlayStatusBinder.resume();
                 flag = false;
                 if (isSeek) {
-                    mMediaPlayer.seekTo(time);
-                } else {
+                    Log.d(TAG, "onClick: "+time);
+                    mMediaPlayer.seekTo(time*1000);
                     isSeek = false;
                 }
                 mDisc.play();
@@ -340,7 +360,7 @@ public class PlayActivity extends BaseMvpActivity<PlayPresenter> implements IPla
                 } else {
                     mPlayStatusBinder.play(mListType);
                 }
-                mMediaPlayer.seekTo((int) mSong.getCurrentTime());
+                mMediaPlayer.seekTo((int) mSong.getCurrentTime()*1000);
                 mDisc.play();
                 mPlayBtn.setSelected(true);
                 startUpdateSeekBarProgress();
@@ -659,6 +679,72 @@ public class PlayActivity extends BaseMvpActivity<PlayPresenter> implements IPla
 
     }
 
+    //改变播放模式
+    private void changePlayMode(){
+        View playModeView = LayoutInflater.from(this).inflate(R.layout.play_mode,null);
+        ConstraintLayout orderLayout = playModeView.findViewById(R.id.orderLayout);
+        ConstraintLayout randomLayout = playModeView.findViewById(R.id.randomLayout);
+        ConstraintLayout singleLayout = playModeView.findViewById(R.id.singleLayout);
+        TextView orderTv = playModeView.findViewById(R.id.orderTv);
+        TextView randomTv = playModeView.findViewById(R.id.randomTv);
+        TextView singleTv = playModeView.findViewById(R.id.singleTv);
+
+        //显示弹窗
+        PopupWindow popupWindow = new PopupWindow(playModeView, ScreenUtil.dip2px(this,130),ScreenUtil.dip2px(this,150));
+        //设置背景色
+        popupWindow.setBackgroundDrawable(getDrawable(R.color.transparent));
+        //设置焦点
+        popupWindow.setFocusable(true);
+        //设置可以触摸框以外的地方
+        popupWindow.setOutsideTouchable(true);
+        popupWindow.update();
+        //设置弹出的位置
+        popupWindow.showAsDropDown(mPlayModeBtn,0,-50);
+
+
+        //显示播放模式
+        int mode = mPresenter.getPlayMode();
+        if(mode == Constant.PLAY_ORDER){
+            orderTv.setSelected(true);
+            randomTv.setSelected(false);
+            singleTv.setSelected(false);
+        }else if(mode == Constant.PLAY_RANDOM){
+            randomTv.setSelected(true);
+            orderTv.setSelected(false);
+            singleTv.setSelected(false);
+        }else {
+            singleTv.setSelected(true);
+            randomTv.setSelected(false);
+            orderTv.setSelected(false);
+        }
+
+
+        //顺序播放
+        orderLayout.setOnClickListener(view -> {
+            mPlayStatusBinder.setPlayMode(Constant.PLAY_ORDER); //通知服务
+            mPresenter.setPlayMode(Constant.PLAY_ORDER);
+            popupWindow.dismiss();
+            mPlayModeBtn.setBackground(getDrawable(R.drawable.play_mode_order));
+
+        });
+        //随机播放
+        randomLayout.setOnClickListener(view -> {
+            mPlayStatusBinder.setPlayMode(Constant.PLAY_RANDOM);
+            mPresenter.setPlayMode(Constant.PLAY_RANDOM);
+            popupWindow.dismiss();
+            mPlayModeBtn.setBackground(getDrawable(R.drawable.play_mode_random));
+        });
+        //单曲循环
+        singleLayout.setOnClickListener(view -> {
+            mPlayStatusBinder.setPlayMode(Constant.PLAY_SINGLE);
+            mPresenter.setPlayMode(Constant.PLAY_SINGLE);
+            popupWindow.dismiss();
+            mPlayModeBtn.setBackground(getDrawable(R.drawable.play_mode_single));
+        });
+
+
+    }
+
 
     @Override
     public void onDestroy() {
@@ -666,6 +752,9 @@ public class PlayActivity extends BaseMvpActivity<PlayPresenter> implements IPla
         unbindService(connection);
         EventBus.getDefault().unregister(this);
         stopUpdateSeekBarProgress();
+
+        //避免内存泄漏
+        mMusicHandler.removeCallbacksAndMessages(null);
     }
 
 }

@@ -25,4 +25,6 @@
     <color name="line">#50aebcbf</color>
     <color name="blue">#555</color>
     <color name="line_default">#1E000000</color>
+    <color name="play_mode">#37474F</color>
+    <color name="play_mode_low">#546E7A</color>
 </resources>

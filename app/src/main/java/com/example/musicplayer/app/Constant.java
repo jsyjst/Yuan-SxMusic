@@ -7,15 +7,15 @@ package com.example.musicplayer.app;
 public class Constant {
     public static final String TAG = "jsyjst";
 
-    public static final int OFFSET=30;
-    public static final int TYPE_SONG=1;
-    public static final int TYPE_ALBUM=2;
-    public static final int TYPE_ALBUM_SONG=3;
-    public static final int LIST_TYPE_LOCAL=0;
-    public static final int LIST_TYPE_ONLINE=1;
-    public static final int LIST_TYPE_LOVE=2;
-    public static final int LIST_TYPE_HISTORY=3;
-    public static final int HISTORY_MAX_SIZE=100;
+    public static final int OFFSET = 30;
+    public static final int TYPE_SONG = 1;
+    public static final int TYPE_ALBUM = 2;
+    public static final int TYPE_ALBUM_SONG = 3;
+    public static final int LIST_TYPE_LOCAL = 0;
+    public static final int LIST_TYPE_ONLINE = 1;
+    public static final int LIST_TYPE_LOVE = 2;
+    public static final int LIST_TYPE_HISTORY = 3;
+    public static final int HISTORY_MAX_SIZE = 100;
 
 
     //布局
@@ -24,10 +24,10 @@ public class Constant {
     public static final int ERROR_STATE = 2;
 
     //playerStatus
-    public static final String PLAYER_STATUS="PlayerStatus";
+    public static final String PLAYER_STATUS = "PlayerStatus";
     public static final int SONG_PLAY = 0;
-    public static final int SONG_PAUSE= 1;
-    public static final int SONG_RESUME= 2;
+    public static final int SONG_PAUSE = 1;
+    public static final int SONG_RESUME = 2;
     public static final int SONG_CHANGE = 3;
 
 
@@ -43,15 +43,22 @@ public class Constant {
     public static final String TAG_ERROR = "error";
 
     //网络与非网络歌曲
-    public static final int SONG_ONLINE=0;
-    public static final int SONG_LOCAL=1;
+    public static final int SONG_ONLINE = 0;
+    public static final int SONG_LOCAL = 1;
 
 
     //后缀
-    public static final String LRC=".lrc";
+    public static final String LRC = ".lrc";
 
     //音乐id
-    public static final String SONG_ID_UNFIND ="unFind";
+    public static final String SONG_ID_UNFIND = "unFind";
 
+    //播放顺序
+    public static final int PLAY_ORDER = 0;//顺序播放
+    public static final int PLAY_SINGLE = 1;//单曲循环
+    public static final int PLAY_RANDOM = 2;//随机播放
 
+    //Preferences
+    public static final String SHARED_PREFERENCES_NAME = "prefs";
+    public static final String PREFS_PLAY_MODE="play_mode";//播放状态
 }

@@ -45,4 +45,9 @@
     //start
     <string name="welcome_start">随心跳动，开启你的音乐旅程！</string>
 
+    //playMode
+    <string name="play_mode_order">顺序播放</string>
+    <string name="play_mode_random">随机播放</string>
+    <string name="play_mode_single">单曲循环</string>
+
 </resources>

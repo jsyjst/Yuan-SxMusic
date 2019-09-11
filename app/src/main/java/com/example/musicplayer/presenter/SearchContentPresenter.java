@@ -12,6 +12,7 @@ import com.example.musicplayer.model.DataModel;
 import com.example.musicplayer.model.db.DbHelperImpl;
 import com.example.musicplayer.model.https.NetworkHelperImpl;
 import com.example.musicplayer.model.https.RetrofitFactory;
+import com.example.musicplayer.model.prefs.PreferencesHelperImpl;
 
 import java.util.ArrayList;
 
@@ -117,7 +118,7 @@ public class SearchContentPresenter extends BasePresenter<ISearchContentContract
     @Override
     public void getSongUrl(String songId) {
         //因为得到播放地址的baseUrl和获取歌曲列表等的baseUrl不同，所以要重新赋值
-        mModel = new DataModel(new NetworkHelperImpl(RetrofitFactory.createRequestOfSongUrl()),new DbHelperImpl());
+        mModel = new DataModel(new NetworkHelperImpl(RetrofitFactory.createRequestOfSongUrl()),new DbHelperImpl(),new PreferencesHelperImpl());
         addRxSubscribe(
                 mModel.getSongUrl(Api.SONG_URL_DATA_LEFT+songId+Api.SONG_URL_DATA_RIGHT)
                         .subscribeOn(Schedulers.io()).observeOn(AndroidSchedulers.mainThread())

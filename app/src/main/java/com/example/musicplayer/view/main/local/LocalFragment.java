@@ -1,4 +1,4 @@
-package com.example.musicplayer.view.main;
+package com.example.musicplayer.view.main.local;
 
 import android.content.ComponentName;
 import android.content.Context;
@@ -115,7 +115,7 @@ public class LocalFragment extends BaseMvpFragment<LocalPresenter> implements IL
 
     @Override
     protected int getLayoutId() {
-        return R.layout.fragment_local_music;
+        return R.layout.fragment_local;
     }
 
 

@@ -29,6 +29,7 @@ import com.example.musicplayer.base.activity.BaseActivity;
 import com.example.musicplayer.entiy.Song;
 import com.example.musicplayer.event.OnlineSongErrorEvent;
 import com.example.musicplayer.event.SongStatusEvent;
+import com.example.musicplayer.service.DownloadService;
 import com.example.musicplayer.service.PlayerService;
 import com.example.musicplayer.util.CommonUtil;
 import com.example.musicplayer.util.FileUtil;
@@ -71,6 +72,8 @@ public class MainActivity extends BaseActivity {
     private MediaPlayer mMediaPlayer;
     private Thread mSeekBarThread;
     private PlayerService.PlayStatusBinder mPlayStatusBinder;
+    private DownloadService.DownloadBinder mDownloadBinder;
+
     private ServiceConnection connection = new ServiceConnection() {
         @Override
         public void onServiceConnected(ComponentName name, IBinder service) {
@@ -84,10 +87,23 @@ public class MainActivity extends BaseActivity {
         }
     };
 
+    //绑定下载服务
+    private ServiceConnection mDownloadConnection =new ServiceConnection() {
+        @Override
+        public void onServiceConnected(ComponentName componentName, IBinder iBinder) {
+            mDownloadBinder = (DownloadService.DownloadBinder) iBinder;
+        }
+
+        @Override
+        public void onServiceDisconnected(ComponentName componentName) {
+        }
+    };
+
     @Override
     public void onDestroy() {
         super.onDestroy();
         unbindService(connection);
+        unbindService(mDownloadConnection);
         EventBus.getDefault().unregister(this);
         if (mSeekBarThread != null || mSeekBarThread.isAlive()) mSeekBarThread.interrupt();
         Song song = FileUtil.getSong();
@@ -109,7 +125,10 @@ public class MainActivity extends BaseActivity {
         LitePal.getDatabase();
         //启动服务
         Intent playIntent = new Intent(MainActivity.this, PlayerService.class);
+        Intent downIntent = new Intent(MainActivity.this,DownloadService.class);
         bindService(playIntent, connection, Context.BIND_AUTO_CREATE);
+        bindService(downIntent,mDownloadConnection,Context.BIND_AUTO_CREATE);
+
         //设置属性动画
         mCircleAnimator = ObjectAnimator.ofFloat(mCoverIv, "rotation", 0.0f, 360.0f);
         mCircleAnimator.setDuration(30000);

@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:Android="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
     package="com.example.musicplayer">
 
     <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
@@ -14,7 +15,8 @@
         android:label="@string/app_name"
         android:roundIcon="@mipmap/icon"
         android:supportsRtl="true"
-        android:theme="@style/AppTheme">
+        android:theme="@style/AppTheme"
+        tools:ignore="GoogleAppIndexingWarning">
         <activity android:name=".view.WelcomeActivity">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
@@ -24,14 +26,19 @@
         </activity>
         <activity android:name=".view.MainActivity"
             android:windowSoftInputMode="adjustPan|stateHidden"
-            ></activity>
+            />
 
         <service
             android:name=".service.PlayerService"
             android:enabled="true"
-            android:exported="true"></service>
+            android:exported="true"/>
 
-        <activity android:name=".view.PlayActivity"></activity>
+        <service android:name=".service.DownloadService"
+            android:enabled="true"
+            android:exported="true"/>
+
+
+        <activity android:name=".view.PlayActivity"/>
     </application>
 
 </manifest>

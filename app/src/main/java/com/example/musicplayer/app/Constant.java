@@ -61,4 +61,11 @@ public class Constant {
     //Preferences
     public static final String SHARED_PREFERENCES_NAME = "prefs";
     public static final String PREFS_PLAY_MODE="play_mode";//播放状态
+
+    //download
+    public final static int TYPE_DOWNLOADING=0;
+    public final static int TYPE_PAUSED = 1;
+    public final static int TYPE_CANCELED = 2;
+    public final static int TYPE_SUCCESS = 3;
+    public final static int TYPE_FAILED = 4;
 }

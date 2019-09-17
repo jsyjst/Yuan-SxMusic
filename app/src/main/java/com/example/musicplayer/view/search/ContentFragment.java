@@ -9,7 +9,7 @@ import android.view.View;
 import android.view.ViewGroup;
 
 import com.example.musicplayer.R;
-import com.example.musicplayer.adapter.SearchAdapter;
+import com.example.musicplayer.adapter.TabAdapter;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -23,7 +23,7 @@ public class ContentFragment extends Fragment {
     private List<String> mTitleList;
     private List<Fragment> mFragments;
     private ViewPager mPager;
-    private SearchAdapter mAdapter;
+    private TabAdapter mAdapter;
     private TabLayout mTabLayout;
     private String[] mTitles = {"歌曲", "专辑"};
     private String[] mTypes = {"song", "album"};
@@ -48,18 +48,12 @@ public class ContentFragment extends Fragment {
         return view;
     }
 
-    @Override
-    public void onActivityCreated(Bundle savedInstanceState) {
-        super.onActivityCreated(savedInstanceState);
-
-    }
-
     private void initTab() {
         for (int i = 0; i < mTitles.length; i++) {
             mTitleList.add(mTitles[i]);
             mFragments.add(SearchContentFragment.newInstance(mSeek, mTypes[i]));
         }
-        mAdapter = new SearchAdapter(getChildFragmentManager(), mFragments, mTitleList);
+        mAdapter = new TabAdapter(getChildFragmentManager(), mFragments, mTitleList);
         mPager.setAdapter(mAdapter);
         mTabLayout.setupWithViewPager(mPager);
 

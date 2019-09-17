@@ -49,5 +49,6 @@
     <string name="play_mode_order">顺序播放</string>
     <string name="play_mode_random">随机播放</string>
     <string name="play_mode_single">单曲循环</string>
+    <string name="bias">&#160;/&#160;</string>
 
 </resources>

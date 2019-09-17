@@ -116,11 +116,13 @@
                 android:textColor="@drawable/selector_linear_click"/>
         </LinearLayout>
         <LinearLayout
+            android:id="@+id/downloadLinear"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_weight="1"
             android:clickable="true"
-            android:orientation="vertical">
+            android:orientation="vertical"
+            android:focusable="true">
 
 
             <ImageView

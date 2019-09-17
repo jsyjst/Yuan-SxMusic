@@ -1,4 +1,4 @@
-package com.example.musicplayer.view.main;
+package com.example.musicplayer.view.main.history;
 
 import android.content.ComponentName;
 import android.content.Context;
@@ -67,7 +67,7 @@ public class HistoryFragment extends Fragment {
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
-        View view = inflater.inflate(R.layout.fragment_love_music, container, false);
+        View view = inflater.inflate(R.layout.fragment_love, container, false);
         EventBus.getDefault().register(this);
         mRecycler = view.findViewById(R.id.recycler_love_songs);
         mBackIv = view.findViewById(R.id.iv_back);

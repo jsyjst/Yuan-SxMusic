@@ -43,11 +43,13 @@ import com.example.musicplayer.app.Api;
 import com.example.musicplayer.app.Constant;
 import com.example.musicplayer.base.activity.BaseMvpActivity;
 import com.example.musicplayer.contract.IPlayContract;
+import com.example.musicplayer.entiy.DownloadInfo;
 import com.example.musicplayer.entiy.LocalSong;
 import com.example.musicplayer.entiy.Song;
 import com.example.musicplayer.event.SongCollectionEvent;
 import com.example.musicplayer.event.SongStatusEvent;
 import com.example.musicplayer.presenter.PlayPresenter;
+import com.example.musicplayer.service.DownloadService;
 import com.example.musicplayer.service.PlayerService;
 import com.example.musicplayer.util.CommonUtil;
 import com.example.musicplayer.util.DisplayUtil;
@@ -67,10 +69,10 @@ import java.io.BufferedOutputStream;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
-import java.lang.ref.WeakReference;
 import java.util.List;
 
 import butterknife.BindView;
+import okhttp3.Connection;
 import okhttp3.OkHttpClient;
 import okhttp3.Request;
 import okhttp3.Response;
@@ -142,7 +144,10 @@ public class PlayActivity extends BaseMvpActivity<PlayPresenter> implements IPla
     private List<LocalSong> mLocalSong;//用来判断是否有本地照片
     //服务
     private PlayerService.PlayStatusBinder mPlayStatusBinder;
-    private ServiceConnection connection = new ServiceConnection() {
+    private DownloadService.DownloadBinder mDownloadBinder;
+
+    //播放
+    private ServiceConnection mPlayConnection = new ServiceConnection() {
         @Override
         public void onServiceConnected(ComponentName name, IBinder service) {
             mPlayStatusBinder = (PlayerService.PlayStatusBinder) service;
@@ -179,6 +184,19 @@ public class PlayActivity extends BaseMvpActivity<PlayPresenter> implements IPla
 
         }
     };
+    //绑定下载服务
+    private ServiceConnection mDownloadConnection =new ServiceConnection() {
+        @Override
+        public void onServiceConnected(ComponentName componentName, IBinder iBinder) {
+            mDownloadBinder = (DownloadService.DownloadBinder) iBinder;
+        }
+
+        @Override
+        public void onServiceDisconnected(ComponentName componentName) {
+
+        }
+    };
+
     @SuppressLint("HandlerLeak")
     private Handler mMusicHandler = new Handler() {
         @Override
@@ -206,9 +224,11 @@ public class PlayActivity extends BaseMvpActivity<PlayPresenter> implements IPla
         //判断播放状态
         mPlayStatus = getIntent().getIntExtra(Constant.PLAYER_STATUS, 2);
 
-        //绑定服务
+        //绑定服务,播放和下载的服务
         Intent playIntent = new Intent(PlayActivity.this, PlayerService.class);
-        bindService(playIntent, connection, Context.BIND_AUTO_CREATE);
+        Intent downIntent = new Intent(PlayActivity.this,DownloadService.class);
+        bindService(playIntent, mPlayConnection, Context.BIND_AUTO_CREATE);
+        bindService(downIntent,mDownloadConnection,Context.BIND_AUTO_CREATE);
 
         //界面填充
         mSong = FileUtil.getSong();
@@ -422,7 +442,11 @@ public class PlayActivity extends BaseMvpActivity<PlayPresenter> implements IPla
         //歌曲下载
         mDownLoadIv.setOnClickListener(v -> {
             CommonUtil.showToast(this, "开始下载歌曲");
-            downLoad(mSong.getUrl(), mSong.getSongName());
+            DownloadInfo downloadInfo = new DownloadInfo();
+            downloadInfo.setUrl(mSong.getUrl());
+            downloadInfo.setSongName(mSong.getSongName());
+            mDownloadBinder.startDownload(downloadInfo);
+            //downLoad(mSong.getUrl(), mSong.getSongName());
         });
 
     }
@@ -749,7 +773,8 @@ public class PlayActivity extends BaseMvpActivity<PlayPresenter> implements IPla
     @Override
     public void onDestroy() {
         super.onDestroy();
-        unbindService(connection);
+        unbindService(mPlayConnection);
+        unbindService(mDownloadConnection);
         EventBus.getDefault().unregister(this);
         stopUpdateSeekBarProgress();
 

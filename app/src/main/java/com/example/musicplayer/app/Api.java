@@ -1,5 +1,7 @@
 package com.example.musicplayer.app;
 
+import android.os.Environment;
+
 /**
  * Created by 残渊 on 2018/10/26.
  */
@@ -16,7 +18,7 @@ public class Api {
      */
     public static String STORAGE_IMG_FILE= App.getContext().getExternalFilesDir("") + "/yuanmusic/img/";
     public static String STORAGE_LRC_FILE= App.getContext().getExternalFilesDir("") + "/yuanmusic/lrc/";
-    public static String STORAGE_SONG_FILE= App.getContext().getExternalFilesDir("") + "/yuanmusic/song/";
+    public static String STORAGE_SONG_FILE= Environment.getExternalStorageDirectory() + "/Sxmusic/download/";
 
     //Fiddler抓包qq音乐网站后的地址
     public static final String FIDDLER_BASE_QQ_URL ="https://c.y.qq.com/";

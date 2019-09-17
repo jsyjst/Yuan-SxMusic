@@ -1,4 +1,4 @@
-package com.example.musicplayer.view.main;
+package com.example.musicplayer.view.main.collection;
 
 
 import android.content.ComponentName;
@@ -62,7 +62,7 @@ public class CollectionFragment extends Fragment {
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
-        View mView = inflater.inflate(R.layout.fragment_love_music, container, false);
+        View mView = inflater.inflate(R.layout.fragment_love, container, false);
         EventBus.getDefault().register(this); //注册事件订阅者
         mRecycler = mView.findViewById(R.id.recycler_love_songs);
         mBackIv = mView.findViewById(R.id.iv_back);

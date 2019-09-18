@@ -119,6 +119,7 @@ public class HistoryFragment extends Fragment {
             song.setImgUrl(history.getPic());
             song.setCurrent(position);
             song.setDuration(history.getDuration());
+            song.setMediaId(history.getMediaId());
             song.setListType(Constant.LIST_TYPE_HISTORY);
             FileUtil.saveSong(song);
 

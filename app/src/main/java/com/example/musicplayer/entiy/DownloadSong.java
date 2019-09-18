@@ -3,22 +3,22 @@ package com.example.musicplayer.entiy;
 import org.litepal.crud.LitePalSupport;
 
 /**
- * Created by 残渊 on 2018/12/2.
+ * <pre>
+ *     author : 残渊
+ *     time   : 2019/09/18
+ *     desc   : 下载的歌曲
+ * </pre>
  */
 
-public class HistorySong extends LitePalSupport {
+public class DownloadSong extends LitePalSupport {
     private int id;
-    private String songId;
+    private String songId ;
     private String mediaId; //下载标识符
-    private String qqId;
     private String name;
     private String singer;
     private String url;
     private String pic;
     private long duration;
-    private boolean isOnline;
-
-
 
     public int getId() {
         return id;
@@ -61,36 +61,20 @@ public class HistorySong extends LitePalSupport {
     }
 
 
-    public String getSongId() {
-        return songId;
-    }
-
-    public void setSongId(String songId) {
-        this.songId = songId;
-    }
-
-    public void setOnline(boolean online) {
-        isOnline = online;
-    }
-
-    public boolean isOnline() {
-        return isOnline;
+    public void setDuration(long duration) {
+        this.duration = duration;
     }
 
     public long getDuration() {
         return duration;
     }
 
-    public void setDuration(long duration) {
-        this.duration = duration;
+    public void setSongId(String songId) {
+        this.songId = songId;
     }
 
-    public String getQqId() {
-        return qqId;
-    }
-
-    public void setQqId(String qqId) {
-        this.qqId = qqId;
+    public String getSongId() {
+        return songId;
     }
 
     public String getMediaId() {

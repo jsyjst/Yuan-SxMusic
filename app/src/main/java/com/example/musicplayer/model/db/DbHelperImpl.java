@@ -119,6 +119,7 @@ public class DbHelperImpl implements DbHelper {
         love.setSongId(song.getSongId());
         love.setOnline(song.isOnline());
         love.setQqId(song.getQqId());
+        love.setMediaId(song.getMediaId());
         return love.save();
     }
 

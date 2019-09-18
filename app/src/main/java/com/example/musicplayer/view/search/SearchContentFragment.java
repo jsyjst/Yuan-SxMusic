@@ -168,6 +168,7 @@ public class SearchContentFragment extends BaseLoadingFragment<SearchContentPres
             song.setCurrent(position);
             song.setDuration(dataBean.getInterval());
             song.setOnline(true);
+            song.setMediaId(dataBean.getStrMediaMid());
             FileUtil.saveSong(song);
             //网络获取歌曲地址
             mPresenter.getSongUrl(dataBean.getSongmid());

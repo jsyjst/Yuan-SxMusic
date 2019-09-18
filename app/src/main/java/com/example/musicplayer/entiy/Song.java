@@ -11,6 +11,7 @@ public class Song implements Serializable {
 
     private String songId; //歌曲id
     private String qqId;//专属本地音乐，本地音乐在qq音乐中的songId
+    private String mediaId;//播放id,下载需要用到
    private String singer; //歌手
     private long duration; //总时长
     private String songName; //歌曲名字
@@ -107,6 +108,14 @@ public class Song implements Serializable {
 
     public void setQqId(String qqId) {
         this.qqId = qqId;
+    }
+
+    public String getMediaId() {
+        return mediaId;
+    }
+
+    public void setMediaId(String mediaId) {
+        this.mediaId = mediaId;
     }
 
     public String toString(){

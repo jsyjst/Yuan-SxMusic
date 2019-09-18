@@ -196,6 +196,7 @@ public class AlbumSongFragment extends BaseMvpFragment<AlbumSongPresenter> imple
             song.setListType(Constant.LIST_TYPE_ONLINE);
             song.setImgUrl(Api.ALBUM_PIC+dataBean.getAlbummid()+ Api.JPG);
             song.setUrl(null);
+            song.setMediaId(dataBean.getStrMediaMid());
             FileUtil.saveSong(song);
 
             mPlayStatusBinder.play(Constant.LIST_TYPE_ONLINE);

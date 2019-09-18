@@ -13,11 +13,14 @@ import android.widget.TextView;
 
 import com.example.musicplayer.R;
 import com.example.musicplayer.adapter.ExpandableListViewAdapter;
+import com.example.musicplayer.app.Constant;
 import com.example.musicplayer.entiy.AlbumCollection;
+import com.example.musicplayer.entiy.DownloadSong;
 import com.example.musicplayer.entiy.HistorySong;
 import com.example.musicplayer.entiy.LocalSong;
 import com.example.musicplayer.entiy.Love;
 import com.example.musicplayer.event.AlbumCollectionEvent;
+import com.example.musicplayer.event.DownloadEvent;
 import com.example.musicplayer.event.SongLocalSizeChangeEvent;
 import com.example.musicplayer.view.main.collection.CollectionFragment;
 import com.example.musicplayer.view.main.download.DownloadFragment;
@@ -44,7 +47,7 @@ public class MainFragment extends Fragment {
     private MyListView myListView;
     private ExpandableListViewAdapter mAdapter;
     private LinearLayout mLocalMusicLinear, mCollectionLinear, mHistoryMusicLinear,mDownloadLinear;
-    private TextView mLocalMusicNum, mLoveMusicNum, mHistoryMusicNum;
+    private TextView mLocalMusicNum, mLoveMusicNum, mHistoryMusicNum,mDownloadMusicNum;
 
     private TextView mSeekBtn;
     private List<List<AlbumCollection>> mAlbumCollectionList;
@@ -69,6 +72,7 @@ public class MainFragment extends Fragment {
         mLocalMusicNum = view.findViewById(R.id.tv_local_music_num);
         mLoveMusicNum = view.findViewById(R.id.tv_love_num);
         mHistoryMusicNum = view.findViewById(R.id.tv_history_num);
+        mDownloadMusicNum = view.findViewById(R.id.tv_download_num);
         mDownloadLinear = view.findViewById(R.id.downloadLinear);
         return view;
     }
@@ -125,6 +129,14 @@ public class MainFragment extends Fragment {
     public void onLocalSizeEvent(SongLocalSizeChangeEvent event) {
         mLocalMusicNum.setText(String.valueOf(LitePal.findAll(LocalSong.class).size()));
     }
+
+    @Subscribe(threadMode = ThreadMode.MAIN,sticky = true)
+    public void onDownloadSuccessEvent(DownloadEvent event){
+        if(event.getDownloadStatus() == Constant.TYPE_SUCCESS){
+            mDownloadMusicNum.setText(String.valueOf(LitePal.findAll(DownloadSong.class).size()));
+        }
+    }
+
 
     private void onClick() {
         //本地音乐
@@ -190,6 +202,7 @@ public class MainFragment extends Fragment {
         mLocalMusicNum.setText(String.valueOf(LitePal.findAll(LocalSong.class).size()));
         mLoveMusicNum.setText(String.valueOf(LitePal.findAll(Love.class).size()));
         mHistoryMusicNum.setText(String.valueOf(LitePal.findAll(HistorySong.class).size()));
+        mDownloadMusicNum.setText(String.valueOf(LitePal.findAll(DownloadSong.class).size()));
     }
 
     //使数据库中的列表逆序排列

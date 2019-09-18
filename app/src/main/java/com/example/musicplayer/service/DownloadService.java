@@ -9,23 +9,29 @@ import android.content.Intent;
 import android.graphics.BitmapFactory;
 import android.os.Binder;
 import android.os.Build;
-import android.os.Environment;
 import android.os.IBinder;
 import android.support.annotation.Nullable;
 import android.support.v4.app.NotificationCompat;
+import android.util.Log;
 import android.widget.Toast;
 
-
 import com.example.musicplayer.R;
+import com.example.musicplayer.app.Api;
+import com.example.musicplayer.app.Constant;
+import com.example.musicplayer.download.DownloadListener;
 import com.example.musicplayer.download.DownloadTask;
 import com.example.musicplayer.entiy.DownloadInfo;
+import com.example.musicplayer.entiy.DownloadSong;
+import com.example.musicplayer.entiy.Song;
 import com.example.musicplayer.event.DownloadEvent;
-import com.example.musicplayer.download.DownloadListener;
+import com.example.musicplayer.util.CommonUtil;
 import com.example.musicplayer.view.MainActivity;
 
 import org.greenrobot.eventbus.EventBus;
 
 import java.io.File;
+import java.util.HashMap;
+import java.util.LinkedList;
 
 import static com.example.musicplayer.app.Constant.TYPE_DOWNLOADING;
 
@@ -38,24 +44,34 @@ import static com.example.musicplayer.app.Constant.TYPE_DOWNLOADING;
  */
 
 public class DownloadService extends Service {
-
+    private static final String TAG = "DownloadService";
     private DownloadTask downloadTask;
     private String downloadUrl;
     private DownloadBinder downloadBinder = new DownloadBinder();
+    private HashMap<String, Song> downloadingMap = new HashMap<>();
+    private LinkedList<Song> downloadQueue = new LinkedList<>();//等待队列
     private DownloadListener listener = new DownloadListener() {
         @Override
         public void onProgress(DownloadInfo downloadInfo) {
-             EventBus.getDefault().postSticky(new DownloadEvent(TYPE_DOWNLOADING,downloadInfo));
-             getNotificationManager().notify(1, getNotification("下载中......", downloadInfo.getProgress()));
+            EventBus.getDefault().post(new DownloadEvent(TYPE_DOWNLOADING, downloadInfo)); //通知下载模块
+            getNotificationManager().notify(1, getNotification("下载中......", downloadInfo.getProgress()));
         }
 
         @Override
         public void onSuccess() {
             downloadTask = null;
+            saveToDb(); //下载成功，则保存数据到数据库
+            EventBus.getDefault().post(new DownloadEvent(Constant.TYPE_SUCCESS));//通知已下载列表
+            start();//下载队列中的其它歌曲
             //下载成功通知前台服务通知关闭，并创建一个下载成功的通知
             stopForeground(true);
             getNotificationManager().notify(1, getNotification("下载成功", -1));
-            Toast.makeText(DownloadService.this, "下载成功", Toast.LENGTH_SHORT).show();
+        }
+
+        @Override
+        public void onDownloaded() {
+            downloadTask = null;
+            CommonUtil.showToast(DownloadService.this, "已下载");
         }
 
         @Override
@@ -88,13 +104,13 @@ public class DownloadService extends Service {
     }
 
     public class DownloadBinder extends Binder {
-        public void startDownload(DownloadInfo downloadInfo) {
-            if (downloadTask == null) {
-                downloadUrl = downloadInfo.getUrl();
-                downloadTask = new DownloadTask(listener);
-                downloadTask.execute(downloadInfo);
-                startForeground(1, getNotification("下载中......", 0));
-                Toast.makeText(DownloadService.this, "下载中......", Toast.LENGTH_SHORT).show();
+        public void startDownload(Song song) {
+            downloadQueue.offer(song);//将歌曲放到等待队列中
+            if (downloadTask != null) {
+                CommonUtil.showToast(DownloadService.this, "已经加入下载队列");
+            } else {
+                CommonUtil.showToast(DownloadService.this, "开始下载");
+                start();
             }
         }
 
@@ -110,8 +126,9 @@ public class DownloadService extends Service {
             } else {
                 if (downloadUrl != null) {
                     //取消下载需要将文件删除并将通知关闭
-                    String fileName = downloadUrl.substring(downloadUrl.lastIndexOf("/"));
-                    String directory = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS).getPath();
+                    String fileName = downloadUrl.substring(downloadUrl.lastIndexOf("/") + 1, downloadUrl.indexOf("?"));
+                    File downloadFile = new File(Api.STORAGE_SONG_FILE);
+                    String directory = String.valueOf(downloadFile);
                     File file = new File(fileName + directory);
                     if (file.exists()) {
                         file.delete();
@@ -121,6 +138,20 @@ public class DownloadService extends Service {
                     Toast.makeText(DownloadService.this, "下载已取消", Toast.LENGTH_SHORT).show();
                 }
             }
+        }
+    }
+
+    private void start() {
+        if (downloadTask == null && !downloadQueue.isEmpty()) {
+            Song song = downloadQueue.peek();
+            DownloadInfo downloadInfo = new DownloadInfo();
+            downloadInfo.setSongId(song.getSongId());
+            downloadInfo.setUrl(song.getUrl());
+            downloadInfo.setSongName(song.getSongName());
+            downloadUrl = song.getUrl();
+            downloadTask = new DownloadTask(listener);
+            downloadTask.execute(downloadInfo);
+            startForeground(1, getNotification("下载中......", 0));
         }
     }
 
@@ -158,5 +189,18 @@ public class DownloadService extends Service {
             }
             return builder.build();
         }
+    }
+
+    private void saveToDb() {
+        Song song = downloadQueue.poll();
+        DownloadSong downloadSong = new DownloadSong();
+        downloadSong.setName(song.getSongName());
+        downloadSong.setSongId(song.getSongId());
+        downloadSong.setDuration(song.getDuration());
+        downloadSong.setPic(song.getImgUrl());
+        downloadSong.setSinger(song.getSinger());
+        downloadSong.setMediaId(song.getMediaId());
+        downloadSong.setUrl(Api.STORAGE_SONG_FILE + "C400" + song.getMediaId() + ".m4a");
+        downloadSong.save();
     }
 }

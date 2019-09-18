@@ -13,6 +13,7 @@ import android.view.ViewGroup;
 
 import com.example.musicplayer.R;
 import com.example.musicplayer.adapter.DownloadingAdapter;
+import com.example.musicplayer.app.Constant;
 import com.example.musicplayer.entiy.DownloadInfo;
 import com.example.musicplayer.event.DownloadEvent;
 
@@ -36,7 +37,7 @@ import butterknife.Unbinder;
  */
 
 public class DownloadingFragment extends Fragment {
-    private static final String TAG ="DownloadingFragment";
+    private static final String TAG = "DownloadingFragment";
 
     @BindView(R.id.songDowningRecycle)
     RecyclerView songDowningRecycle;
@@ -56,26 +57,30 @@ public class DownloadingFragment extends Fragment {
     }
 
 
-
     @Override
     public void onActivityCreated(@Nullable Bundle savedInstanceState) {
         initRecycler();
         super.onActivityCreated(savedInstanceState);
     }
 
-    private void initRecycler(){
+    private void initRecycler() {
         mDownloadInfoList = new ArrayList<>();
         mLinearLayoutManager = new LinearLayoutManager(getActivity());
         mAdapter = new DownloadingAdapter(mDownloadInfoList);
         songDowningRecycle.setLayoutManager(mLinearLayoutManager);
         songDowningRecycle.setAdapter(mAdapter);
+
+
     }
 
-    @Subscribe(threadMode = ThreadMode.MAIN, sticky = true)
+    @Subscribe(threadMode = ThreadMode.MAIN)
     public void onDownloadingMessage(DownloadEvent event) {
-        mDownloadInfoList.clear();
-        mDownloadInfoList.add(event.getDownloadInfo());
-        mAdapter.notifyDataSetChanged();
+
+        if (event.getDownloadStatus() == Constant.TYPE_DOWNLOADING) {
+            mDownloadInfoList.clear();
+            mDownloadInfoList.add(event.getDownloadInfo());
+            mAdapter.notifyDataSetChanged();
+        }
     }
 
     @Override

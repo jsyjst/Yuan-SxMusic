@@ -441,12 +441,7 @@ public class PlayActivity extends BaseMvpActivity<PlayPresenter> implements IPla
         });
         //歌曲下载
         mDownLoadIv.setOnClickListener(v -> {
-            CommonUtil.showToast(this, "开始下载歌曲");
-            DownloadInfo downloadInfo = new DownloadInfo();
-            downloadInfo.setUrl(mSong.getUrl());
-            downloadInfo.setSongName(mSong.getSongName());
-            mDownloadBinder.startDownload(downloadInfo);
-            //downLoad(mSong.getUrl(), mSong.getSongName());
+            mDownloadBinder.startDownload(mSong);
         });
 
     }
@@ -662,46 +657,6 @@ public class PlayActivity extends BaseMvpActivity<PlayPresenter> implements IPla
         FileUtil.saveLrcToNative(lrc,mSong.getSongName());
     }
 
-    private void downLoad(String url, String song) {
-        new Thread(() -> {
-            File file = new File(Api.STORAGE_SONG_FILE);
-            if (!file.exists()) {
-                file.mkdirs();
-            }
-            File songFile = new File(file, song + ".mp3");
-            BufferedOutputStream out = null;
-            try {
-                OkHttpClient client = new OkHttpClient();
-                Request request = new Request.Builder().url(url).build();
-                Response response = client.newCall(request).execute();
-                if (response.isSuccessful()) {
-                    out = new BufferedOutputStream(new FileOutputStream(songFile));
-                    byte[] bytes = response.body().bytes();
-                    out.write(bytes, 0, bytes.length);
-                    out.close();
-                }
-                showLoadSuccess();
-            } catch (IOException e) {
-                e.printStackTrace();
-            } catch (Exception e) {
-                e.printStackTrace();
-            } finally {
-                try {
-                    if (out != null) out.close();
-                } catch (Exception e) {
-                    e.printStackTrace();
-                }
-            }
-        }).start();
-    }
-
-
-    private void showLoadSuccess() {
-        runOnUiThread(() -> {
-            CommonUtil.showToast(this, "歌曲下载成功");
-        });
-
-    }
 
     //改变播放模式
     private void changePlayMode(){

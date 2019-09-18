@@ -19,14 +19,12 @@ import java.util.List;
  * <pre>
  *     author : 残渊
  *     time   : 2019/09/17
- *     desc   :
+ *     desc   : 正在下载歌曲适配器
  * </pre>
  */
 
 public class DownloadingAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
     private List<DownloadInfo> downloadInfoList;
-    private int footerViewType = 1;
-    private int itemViewType = 0;
 
     public DownloadingAdapter(List<DownloadInfo> downloadInfoList) {
         this.downloadInfoList = downloadInfoList;
@@ -49,56 +47,31 @@ public class DownloadingAdapter extends RecyclerView.Adapter<RecyclerView.ViewHo
         }
     }
 
-    /**
-     * 底部holder
-     */
-    static class FooterHolder extends RecyclerView.ViewHolder {
-
-        TextView numTv;
-
-        FooterHolder(View itemView) {
-            super(itemView);
-            numTv = itemView.findViewById(R.id.tv_song_num);
-        }
-    }
-
 
     @NonNull
     @Override
     public RecyclerView.ViewHolder onCreateViewHolder(@NonNull ViewGroup viewGroup, int i) {
-        if (i == itemViewType) {
             View view = LayoutInflater.from(viewGroup.getContext())
                     .inflate(R.layout.recycler_downing_item, viewGroup, false);
             ViewHolder viewHolder = new ViewHolder(view);
             return viewHolder;
-        } else {
-            View footerView = LayoutInflater.from(viewGroup.getContext())
-                    .inflate(R.layout.footer_local_songs_item, viewGroup, false);
-            FooterHolder footerHolder = new FooterHolder(footerView);
-            return footerHolder;
-        }
     }
 
     @SuppressLint("SetTextI18n")
     @Override
     public void onBindViewHolder(@NonNull RecyclerView.ViewHolder viewHolder, int i) {
         ViewHolder holder = (ViewHolder) viewHolder;
+        if(downloadInfoList.size() == 0) return;
         DownloadInfo downloadInfo = downloadInfoList.get(i);
         holder.itemView.setVisibility(downloadInfo.getProgress() == 100 ? View.GONE : View.VISIBLE);
         holder.songTv.setText(downloadInfo.getSongName());
         holder.currentSizeTv.setText(MediaUtil.formatSize(downloadInfo.getCurrentSize()) + "M");
         holder.totalSizeTv.setText(MediaUtil.formatSize(downloadInfo.getTotalSize()) + "M");
         holder.seekBar.setProgress(downloadInfo.getProgress());
-
     }
 
     @Override
     public int getItemCount() {
-        return downloadInfoList.size() + 1;
-    }
-
-    @Override
-    public int getItemViewType(int position) {
-        return position + 1 == getItemCount() ? footerViewType : itemViewType;
+        return downloadInfoList.size();
     }
 }

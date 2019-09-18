@@ -9,6 +9,7 @@ import org.litepal.crud.LitePalSupport;
 public class OnlineSong extends LitePalSupport {
     private int id;
     private String songId;
+    private String mediaId; //下载标识符
     private String qqId;
     private String name;
     private String singer;
@@ -88,5 +89,13 @@ public class OnlineSong extends LitePalSupport {
 
     public void setQqId(String qqId) {
         this.qqId = qqId;
+    }
+
+    public String getMediaId() {
+        return mediaId;
+    }
+
+    public void setMediaId(String mediaId) {
+        this.mediaId = mediaId;
     }
 }

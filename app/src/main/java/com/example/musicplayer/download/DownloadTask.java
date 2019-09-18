@@ -49,25 +49,24 @@ public class DownloadTask extends AsyncTask<DownloadInfo, DownloadInfo, Integer>
             long downloadedLength = 0; //记录已下载的文件长度
             String downloadUrl = downloadInfo.getUrl();
 
-            //传过来的下载地址
-            // http://ws.stream.qqmusic.qq.com/C400001DI2Jj3Jqve9.m4a?guid=358840384&vkey=2B9BF114492F203C3943D8AE38C83DD8FEEA5E628B18F7F4455CA9B5059040266D74EBD43E09627AA4419D379B6A9E1FC1E5D2104AC7BB50&uin=0&fromtag=66
+
             File downloadFile = new File(Api.STORAGE_SONG_FILE);
             if (!downloadFile.exists()) {
                 downloadFile.mkdirs();
             }
+            //传过来的下载地址
+            // http://ws.stream.qqmusic.qq.com/C400001DI2Jj3Jqve9.m4a?guid=358840384&vkey=2B9BF114492F203C3943D8AE38C83DD8FEEA5E628B18F7F4455CA9B5059040266D74EBD43E09627AA4419D379B6A9E1FC1E5D2104AC7BB50&uin=0&fromtag=66
 
             String fileName = downloadUrl.substring(downloadUrl.lastIndexOf("/") + 1, downloadUrl.indexOf("?"));
-            Log.d(TAG, "doInBackground: fileName=" + fileName);
-            String directory = String.valueOf(downloadFile);
-            file = new File(directory + fileName);
+            file = new File(downloadFile ,fileName);
             if (file.exists()) {
                 downloadedLength = file.length();
             }
             long contentLength = getContentLength(downloadUrl); //实际文件长度
             if (contentLength == 0) {
                 return TYPE_FAILED;
-            } else if (contentLength == downloadedLength) {
-                return TYPE_SUCCESS;
+            } else if (contentLength == downloadedLength) { //已下载
+                return TYPE_DOWNLOADED;
             }
 
 
@@ -128,7 +127,6 @@ public class DownloadTask extends AsyncTask<DownloadInfo, DownloadInfo, Integer>
     public void onProgressUpdate(DownloadInfo... downloadInfos) {
         DownloadInfo downloadInfo = downloadInfos[0];
         int progress = downloadInfo.getProgress();
-        Log.d(TAG, "onProgressUpdate: " + progress);
         if (progress > lastProgress) {
             mDownListener.onProgress(downloadInfo);
             lastProgress = progress;
@@ -150,6 +148,8 @@ public class DownloadTask extends AsyncTask<DownloadInfo, DownloadInfo, Integer>
             case TYPE_CANCELED:
                 mDownListener.onCanceled();
                 break;
+            case TYPE_DOWNLOADED:
+                mDownListener.onDownloaded();
             default:
                 break;
         }

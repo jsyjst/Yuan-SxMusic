@@ -32,6 +32,7 @@ import org.litepal.LitePal;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 
 /**
  * Created by 残渊 on 2018/11/30.
@@ -75,7 +76,7 @@ public class CollectionFragment extends Fragment {
         super.onActivityCreated(savedInstanceState);
         //启动服务
         Intent playIntent = new Intent(getActivity(), PlayerService.class);
-        getActivity().bindService(playIntent, connection, Context.BIND_AUTO_CREATE);
+        Objects.requireNonNull(getActivity()).bindService(playIntent, connection, Context.BIND_AUTO_CREATE);
         showSongList();
         onClick();
     }
@@ -83,7 +84,7 @@ public class CollectionFragment extends Fragment {
     public void onDestroy(){
         super.onDestroy();
         EventBus.getDefault().unregister(this);
-        getActivity().unbindService(connection);
+        Objects.requireNonNull(getActivity()).unbindService(connection);
     }
 
     @Subscribe(threadMode = ThreadMode.MAIN )
@@ -119,6 +120,7 @@ public class CollectionFragment extends Fragment {
                 song.setImgUrl(love.getPic());
                 song.setCurrent(position);
                 song.setDuration(love.getDuration());
+                song.setMediaId(love.getMediaId());
                 song.setListType(Constant.LIST_TYPE_LOVE);
                 FileUtil.saveSong(song);
 

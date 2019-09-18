@@ -1,10 +1,8 @@
 package com.example.musicplayer.adapter;
 
-import android.annotation.SuppressLint;
 import android.content.Context;
 import android.support.annotation.NonNull;
 import android.support.v7.widget.RecyclerView;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -13,20 +11,24 @@ import android.widget.TextView;
 import com.andexert.library.RippleView;
 import com.example.musicplayer.R;
 import com.example.musicplayer.callback.OnItemClickListener;
-import com.example.musicplayer.entiy.Love;
+import com.example.musicplayer.entiy.DownloadSong;
 import com.example.musicplayer.util.FileUtil;
 
 import java.util.List;
 
 /**
- * Created by 残渊 on 2018/11/30.
+ * <pre>
+ *     author : 残渊
+ *     time   : 2019/09/18
+ *     desc   : 已下载歌曲的适配器
+ * </pre>
  */
 
-public class LoveSongAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
+public class DownloadSongAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
     private static final String TAG = "LoveSongAdapter";
     private int footerViewType = 1;
     private int itemViewType = 0;
-    private List<Love> mLoveList;
+    private List<DownloadSong> mDownloadSongList;
     private Context mContext;
     private int mLastPosition = -1;
     private OnItemClickListener onItemClickListener;
@@ -35,11 +37,10 @@ public class LoveSongAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
         this.onItemClickListener = onItemClickListener;
     }
 
-    public LoveSongAdapter(Context context, List<Love> loveList) {
+    public DownloadSongAdapter(Context context, List<DownloadSong> loveList) {
         mContext = context;
-        mLoveList = loveList;
+        mDownloadSongList = loveList;
     }
-
 
 
     class ViewHolder extends RecyclerView.ViewHolder {
@@ -70,6 +71,7 @@ public class LoveSongAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
         }
     }
 
+    @NonNull
     @Override
     public RecyclerView.ViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
         if (viewType == itemViewType) {
@@ -85,18 +87,16 @@ public class LoveSongAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
         }
     }
 
-    @SuppressLint("SetTextI18n")
     @Override
-    public void onBindViewHolder(RecyclerView.ViewHolder viewHolder, final int position) {
+    public void onBindViewHolder(@NonNull RecyclerView.ViewHolder viewHolder, int position) {
         if (viewHolder instanceof ViewHolder) {
             ViewHolder holder = (ViewHolder) viewHolder;
-            final Love love = mLoveList.get(position);
-            Log.d(TAG, "onBindViewHolder: " + position);
+            final DownloadSong downloadSong = mDownloadSongList.get(position);
 
-            holder.songNameTv.setText(love.getName());
-            holder.singerTv.setText(love.getSinger());
+            holder.songNameTv.setText(downloadSong.getName());
+            holder.singerTv.setText(downloadSong.getSinger());
             //根据点击显示
-            if (love.getSongId().equals(FileUtil.getSong().getSongId())) {
+            if (downloadSong.getSongId().equals(FileUtil.getSong().getSongId())) {
                 holder.playLine.setVisibility(View.VISIBLE);
                 mLastPosition = position;
                 holder.songNameTv.setTextColor(mContext.getResources()
@@ -118,7 +118,7 @@ public class LoveSongAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
             });
         } else {
             FooterHolder footerHolder = (FooterHolder) viewHolder;
-            footerHolder.numTv.setText("共" + mLoveList.size() + "首音乐");
+            footerHolder.numTv.setText("共" + mDownloadSongList.size() + "首音乐");
         }
     }
 
@@ -133,7 +133,7 @@ public class LoveSongAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
 
     @Override
     public int getItemCount() {
-        return mLoveList.size() + 1;
+        return mDownloadSongList.size() + 1;
     }
 
     @Override

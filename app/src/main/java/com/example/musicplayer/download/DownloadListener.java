@@ -13,6 +13,7 @@ import com.example.musicplayer.entiy.DownloadInfo;
 public interface DownloadListener {
     void onProgress(DownloadInfo downloadInfo); //进度
     void onSuccess(); //成功
+    void onDownloaded();//已经下载过的歌曲
     void onFailed(); //失败
     void onPaused();  //暂停
     void onCanceled(); //取消

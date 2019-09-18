@@ -1,15 +1,16 @@
 <?xml version="1.0" encoding="utf-8"?>
 <litepal>
-    <dbname value="SongList"></dbname>
+    <dbname value="SongList" />
 
-    <version value="15"></version>
+    <version value="16" />
 
     <list>
-        <mapping class="com.example.musicplayer.entiy.OnlineSong"></mapping>
-        <mapping class="com.example.musicplayer.entiy.LocalSong"></mapping>
-        <mapping class="com.example.musicplayer.entiy.SearchHistory"></mapping>
-        <mapping class="com.example.musicplayer.entiy.Love"></mapping>
-        <mapping class="com.example.musicplayer.entiy.HistorySong"></mapping>
-        <mapping class="com.example.musicplayer.entiy.AlbumCollection"></mapping>
+        <mapping class="com.example.musicplayer.entiy.OnlineSong" />
+        <mapping class="com.example.musicplayer.entiy.LocalSong" />
+        <mapping class="com.example.musicplayer.entiy.SearchHistory" />
+        <mapping class="com.example.musicplayer.entiy.Love" />
+        <mapping class="com.example.musicplayer.entiy.HistorySong" />
+        <mapping class="com.example.musicplayer.entiy.AlbumCollection" />
+        <mapping class="com.example.musicplayer.entiy.DownloadSong" />
     </list>
 </litepal>

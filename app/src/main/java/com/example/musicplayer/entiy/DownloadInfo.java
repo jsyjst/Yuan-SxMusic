@@ -11,6 +11,7 @@ package com.example.musicplayer.entiy;
 public class DownloadInfo {
     private String songName;
     private String url;
+    private String songId;
     private int progress;
     private long currentSize;
     private long totalSize;
@@ -54,5 +55,13 @@ public class DownloadInfo {
 
     public void setUrl(String url) {
         this.url = url;
+    }
+
+    public String getSongId() {
+        return songId;
+    }
+
+    public void setSongId(String songId) {
+        this.songId = songId;
     }
 }

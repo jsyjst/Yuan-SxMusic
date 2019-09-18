@@ -19,6 +19,10 @@ public class DownloadEvent {
         this.downloadInfo = downloadInfo;
     }
 
+    public DownloadEvent(int status){
+        downloadStatus = status;
+    }
+
     public int getDownloadStatus() {
         return downloadStatus;
     }

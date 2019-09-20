@@ -20,6 +20,7 @@ import com.example.musicplayer.app.Constant;
 import com.example.musicplayer.base.fragment.BaseLoadingFragment;
 import com.example.musicplayer.contract.ISearchContentContract;
 import com.example.musicplayer.entiy.Album;
+import com.example.musicplayer.entiy.DownloadSong;
 import com.example.musicplayer.entiy.SearchSong;
 import com.example.musicplayer.entiy.Song;
 import com.example.musicplayer.event.OnlineSongChangeEvent;
@@ -34,6 +35,7 @@ import com.github.jdsjlzx.recyclerview.LRecyclerViewAdapter;
 import org.greenrobot.eventbus.EventBus;
 import org.greenrobot.eventbus.Subscribe;
 import org.greenrobot.eventbus.ThreadMode;
+import org.litepal.LitePal;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -169,6 +171,7 @@ public class SearchContentFragment extends BaseLoadingFragment<SearchContentPres
             song.setDuration(dataBean.getInterval());
             song.setOnline(true);
             song.setMediaId(dataBean.getStrMediaMid());
+            song.setDownload(LitePal.where("songId=?", dataBean.getSongmid()).find(DownloadSong.class).size() != 0);
             FileUtil.saveSong(song);
             //网络获取歌曲地址
             mPresenter.getSongUrl(dataBean.getSongmid());

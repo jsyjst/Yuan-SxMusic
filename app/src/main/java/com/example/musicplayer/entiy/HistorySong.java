@@ -17,6 +17,7 @@ public class HistorySong extends LitePalSupport {
     private String pic;
     private long duration;
     private boolean isOnline;
+    private boolean isDownload;
 
 
 
@@ -99,5 +100,13 @@ public class HistorySong extends LitePalSupport {
 
     public void setMediaId(String mediaId) {
         this.mediaId = mediaId;
+    }
+
+    public void setDownload(boolean download) {
+        isDownload = download;
+    }
+
+    public boolean isDownload() {
+        return isDownload;
     }
 }

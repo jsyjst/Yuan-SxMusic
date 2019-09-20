@@ -11,7 +11,6 @@ import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -19,9 +18,7 @@ import android.view.ViewGroup;
 import com.example.musicplayer.R;
 import com.example.musicplayer.adapter.DownloadSongAdapter;
 import com.example.musicplayer.app.Constant;
-import com.example.musicplayer.callback.OnItemClickListener;
 import com.example.musicplayer.entiy.DownloadSong;
-import com.example.musicplayer.entiy.Love;
 import com.example.musicplayer.entiy.Song;
 import com.example.musicplayer.event.DownloadEvent;
 import com.example.musicplayer.event.SongDownloadedEvent;
@@ -112,6 +109,7 @@ public class DownloadMusicFragment extends Fragment {
             song.setDuration(downloadSong.getDuration());
             song.setListType(Constant.LIST_TYPE_DOWNLOAD);
             song.setMediaId(downloadSong.getMediaId());
+            song.setDownload(true);
             FileUtil.saveSong(song);
 
             mPlayStatusBinder.play(Constant.LIST_TYPE_DOWNLOAD);
@@ -120,7 +118,7 @@ public class DownloadMusicFragment extends Fragment {
 
     @Subscribe(threadMode = ThreadMode.MAIN)
     public void onDownloadSuccessEvent(DownloadEvent event){
-        if(event.getDownloadStatus() == Constant.TYPE_SUCCESS){
+        if(event.getDownloadStatus() == Constant.TYPE_DOWNLOAD_SUCCESS){
             mDownloadSongList.clear();
             mDownloadSongList.addAll(orderList(LitePal.findAll(DownloadSong.class)));
             mAdapter.notifyDataSetChanged();

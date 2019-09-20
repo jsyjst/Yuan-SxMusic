@@ -17,6 +17,7 @@ public class OnlineSong extends LitePalSupport {
     private String pic;
     private String lrc;
     private long duration;
+    private boolean isDownload;
 
 
     public int getId() {
@@ -97,5 +98,13 @@ public class OnlineSong extends LitePalSupport {
 
     public void setMediaId(String mediaId) {
         this.mediaId = mediaId;
+    }
+
+    public void setDownload(boolean download) {
+        isDownload = download;
+    }
+
+    public boolean isDownload() {
+        return isDownload;
     }
 }

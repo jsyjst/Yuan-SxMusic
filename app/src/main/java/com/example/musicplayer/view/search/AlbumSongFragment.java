@@ -23,6 +23,7 @@ import com.example.musicplayer.app.Constant;
 import com.example.musicplayer.base.fragment.BaseMvpFragment;
 import com.example.musicplayer.contract.IAlbumSongContract;
 import com.example.musicplayer.entiy.AlbumSong;
+import com.example.musicplayer.entiy.DownloadSong;
 import com.example.musicplayer.entiy.Song;
 import com.example.musicplayer.event.SongAlbumEvent;
 import com.example.musicplayer.presenter.AlbumSongPresenter;
@@ -197,6 +198,8 @@ public class AlbumSongFragment extends BaseMvpFragment<AlbumSongPresenter> imple
             song.setImgUrl(Api.ALBUM_PIC+dataBean.getAlbummid()+ Api.JPG);
             song.setUrl(null);
             song.setMediaId(dataBean.getStrMediaMid());
+            //判断是否已经下载
+            song.setDownload(LitePal.where("songId=?", dataBean.getSongmid()).find(DownloadSong.class).size() != 0);
             FileUtil.saveSong(song);
 
             mPlayStatusBinder.play(Constant.LIST_TYPE_ONLINE);

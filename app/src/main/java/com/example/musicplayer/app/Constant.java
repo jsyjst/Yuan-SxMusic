@@ -13,11 +13,11 @@ public class Constant {
     public static final int TYPE_ALBUM_SONG = 3;
 
     //播放列表
-    public static final int LIST_TYPE_LOCAL = 0;   //本地列表
-    public static final int LIST_TYPE_ONLINE = 1;  //专辑列表
-    public static final int LIST_TYPE_LOVE = 2;    //我的收藏列表
-    public static final int LIST_TYPE_HISTORY = 3;  //最近播放列表
-    public static final int LIST_TYPE_DOWNLOAD = 4; //下载列表
+    public static final int LIST_TYPE_LOCAL = 1;   //本地列表
+    public static final int LIST_TYPE_ONLINE = 2;  //专辑列表
+    public static final int LIST_TYPE_LOVE = 3;    //我的收藏列表
+    public static final int LIST_TYPE_HISTORY = 4;  //最近播放列表
+    public static final int LIST_TYPE_DOWNLOAD = 5; //下载列表
 
     public static final int HISTORY_MAX_SIZE = 100;
 
@@ -68,9 +68,9 @@ public class Constant {
 
     //download
     public final static int TYPE_DOWNLOADING = 0;
-    public final static int TYPE_PAUSED = 1;
-    public final static int TYPE_CANCELED = 2;
-    public final static int TYPE_SUCCESS = 3;
-    public final static int TYPE_FAILED = 4;
+    public final static int TYPE_DOWNLOAD_PAUSED = 1;
+    public final static int TYPE_DOWNLOAD_CANCELED = 2;
+    public final static int TYPE_DOWNLOAD_SUCCESS = 3;
+    public final static int TYPE_DOWNLOAD_FAILED = 4;
     public final static int TYPE_DOWNLOADED = 5;
 }

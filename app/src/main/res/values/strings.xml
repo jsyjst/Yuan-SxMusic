@@ -51,6 +51,12 @@
     <string name="play_mode_single">单曲循环</string>
     <string name="bias">&#160;/&#160;</string>
 
+    //download
+    <string name="downloded">该歌曲已下载</string>
+    <string name="download_cancel">取消下载</string>
+    <string name="download_cancel_message">确定不再下载吗？</string>
+    <string name="download_sure">删除</string>
+
 
 
 </resources>

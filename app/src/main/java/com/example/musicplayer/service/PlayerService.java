@@ -23,6 +23,7 @@ import com.example.musicplayer.event.SongAlbumEvent;
 import com.example.musicplayer.event.SongCollectionEvent;
 import com.example.musicplayer.event.SongDownloadedEvent;
 import com.example.musicplayer.event.SongHistoryEvent;
+import com.example.musicplayer.event.SongListNumEvent;
 import com.example.musicplayer.event.SongLocalEvent;
 import com.example.musicplayer.event.SongStatusEvent;
 import com.example.musicplayer.model.https.RetrofitFactory;
@@ -103,7 +104,11 @@ public class PlayerService extends Service {
                 mCurrent=getNextCurrent(mCurrent, mPlayMode, mDownloadList.size());//根据播放模式来播放下一曲
                 saveDownloadInfo(mCurrent);
             }
-            mPlayStatusBinder.play(mListType);
+            if(mListType!=0) {
+                mPlayStatusBinder.play(mListType);
+            }else {
+                mPlayStatusBinder.stop();
+            }
         });
         /**
          * MediaPlayer切歌进入setOnCompletionListener的问题
@@ -237,7 +242,7 @@ public class PlayerService extends Service {
                 mCurrent=getNextCurrent(mCurrent, mPlayMode, mDownloadList.size());//根据播放模式来播放下一曲
                 saveDownloadInfo(mCurrent);
             }
-            mPlayStatusBinder.play(mListType);
+            if(mListType!=0) mPlayStatusBinder.play(mListType);
         }
 
         public void last() {
@@ -259,7 +264,7 @@ public class PlayerService extends Service {
                 mCurrent = getLastCurrent(mCurrent,mPlayMode,mDownloadList.size());
                 saveDownloadInfo(mCurrent);
             }
-            mPlayStatusBinder.play(mListType);
+            if(mListType!=0) mPlayStatusBinder.play(mListType);
         }
 
         /**
@@ -362,6 +367,7 @@ public class PlayerService extends Service {
         song.setOnline(love.isOnline());
         song.setDuration(love.getDuration());
         song.setMediaId(love.getMediaId());
+        song.setDownload(love.isDownload());
         FileUtil.saveSong(song);
     }
 
@@ -380,6 +386,7 @@ public class PlayerService extends Service {
         song.setOnline(false);
         song.setDuration(downloadSong.getDuration());
         song.setMediaId(downloadSong.getMediaId());
+        song.setDownload(true);
         FileUtil.saveSong(song);
     }
 
@@ -398,6 +405,7 @@ public class PlayerService extends Service {
         song.setOnline(historySong.isOnline());
         song.setDuration(historySong.getDuration());
         song.setMediaId(historySong.getMediaId());
+        song.setDownload(historySong.isDownload());
         FileUtil.saveSong(song);
     }
 
@@ -422,10 +430,13 @@ public class PlayerService extends Service {
                         history.setOnline(song.isOnline());
                         history.setDuration(song.getDuration());
                         history.setMediaId(song.getMediaId());
+                        history.setDownload(song.isDownload());
                         history.saveAsync().listen(new SaveCallback() {
                             @Override
                             public void onFinish(boolean success) {
                                 if (success) {
+                                    //告诉主界面最近播放的数目需要改变
+                                    EventBus.getDefault().post(new SongListNumEvent(Constant.LIST_TYPE_HISTORY));
                                     if (LitePal.findAll(HistorySong.class).size() > Constant.HISTORY_MAX_SIZE) {
                                         LitePal.delete(HistorySong.class, LitePal.findFirst(HistorySong.class).getId());
                                     }

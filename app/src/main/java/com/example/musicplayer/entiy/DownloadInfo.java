@@ -1,5 +1,7 @@
 package com.example.musicplayer.entiy;
 
+import org.litepal.crud.LitePalSupport;
+
 /**
  * <pre>
  *     author : 残渊
@@ -8,45 +10,30 @@ package com.example.musicplayer.entiy;
  * </pre>
  */
 
-public class DownloadInfo {
+public class DownloadInfo extends LitePalSupport {
     private String songName;
+    private String singer;
     private String url;
     private String songId;
     private int progress;
     private long currentSize;
     private long totalSize;
-
-    public int getProgress() {
-        return progress;
-    }
-
-    public long getCurrentSize() {
-        return currentSize;
-    }
-
-    public long getTotalSize() {
-        return totalSize;
-    }
+    private Song song;
 
     public String getSongName() {
         return songName;
-    }
-
-
-    public void setCurrentSize(long currentSize) {
-        this.currentSize = currentSize;
-    }
-
-    public void setProgress(int progress) {
-        this.progress = progress;
     }
 
     public void setSongName(String songName) {
         this.songName = songName;
     }
 
-    public void setTotalSize(long totalSize) {
-        this.totalSize = totalSize;
+    public String getSinger() {
+        return singer;
+    }
+
+    public void setSinger(String singer) {
+        this.singer = singer;
     }
 
     public String getUrl() {
@@ -63,5 +50,37 @@ public class DownloadInfo {
 
     public void setSongId(String songId) {
         this.songId = songId;
+    }
+
+    public int getProgress() {
+        return progress;
+    }
+
+    public void setProgress(int progress) {
+        this.progress = progress;
+    }
+
+    public long getCurrentSize() {
+        return currentSize;
+    }
+
+    public void setCurrentSize(long currentSize) {
+        this.currentSize = currentSize;
+    }
+
+    public long getTotalSize() {
+        return totalSize;
+    }
+
+    public void setTotalSize(long totalSize) {
+        this.totalSize = totalSize;
+    }
+
+    public Song getSong() {
+        return song;
+    }
+
+    public void setSong(Song song) {
+        this.song = song;
     }
 }

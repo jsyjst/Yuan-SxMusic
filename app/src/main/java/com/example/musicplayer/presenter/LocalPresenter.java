@@ -1,9 +1,11 @@
 package com.example.musicplayer.presenter;
 
 
+import com.example.musicplayer.app.Constant;
 import com.example.musicplayer.base.presenter.BasePresenter;
 import com.example.musicplayer.contract.ILocalContract;
 import com.example.musicplayer.entiy.LocalSong;
+import com.example.musicplayer.event.SongListNumEvent;
 import com.example.musicplayer.event.SongLocalSizeChangeEvent;
 
 import org.greenrobot.eventbus.EventBus;
@@ -30,7 +32,7 @@ public class LocalPresenter extends BasePresenter<ILocalContract.View> implement
     @Override
     public void saveSong(List<LocalSong> localSongs) {
         if(mModel.saveSong(localSongs)) {
-            EventBus.getDefault().post(new SongLocalSizeChangeEvent());
+            EventBus.getDefault().post(new SongListNumEvent(Constant.LIST_TYPE_LOCAL));
             mView.showToast("成功导入本地音乐");
             mView.showMusicList(localSongs);
         }

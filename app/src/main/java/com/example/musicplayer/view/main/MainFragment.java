@@ -21,6 +21,7 @@ import com.example.musicplayer.entiy.LocalSong;
 import com.example.musicplayer.entiy.Love;
 import com.example.musicplayer.event.AlbumCollectionEvent;
 import com.example.musicplayer.event.DownloadEvent;
+import com.example.musicplayer.event.SongListNumEvent;
 import com.example.musicplayer.event.SongLocalSizeChangeEvent;
 import com.example.musicplayer.view.main.collection.CollectionFragment;
 import com.example.musicplayer.view.main.download.DownloadFragment;
@@ -126,16 +127,17 @@ public class MainFragment extends Fragment {
     }
 
     @Subscribe(threadMode = ThreadMode.MAIN)
-    public void onLocalSizeEvent(SongLocalSizeChangeEvent event) {
-        mLocalMusicNum.setText(String.valueOf(LitePal.findAll(LocalSong.class).size()));
-    }
-
-    @Subscribe(threadMode = ThreadMode.MAIN,sticky = true)
-    public void onDownloadSuccessEvent(DownloadEvent event){
-        if(event.getDownloadStatus() == Constant.TYPE_SUCCESS){
+    public void onSongListEvent(SongListNumEvent event){
+        int type = event.getType();
+        if(type == Constant.LIST_TYPE_HISTORY){
+            mHistoryMusicNum.setText(String.valueOf(LitePal.findAll(HistorySong.class).size()));
+        }else if(type == Constant.LIST_TYPE_LOCAL){
+            mLocalMusicNum.setText(String.valueOf(LitePal.findAll(LocalSong.class).size()));
+        }else if(type == Constant.LIST_TYPE_DOWNLOAD){
             mDownloadMusicNum.setText(String.valueOf(LitePal.findAll(DownloadSong.class).size()));
         }
     }
+
 
 
     private void onClick() {

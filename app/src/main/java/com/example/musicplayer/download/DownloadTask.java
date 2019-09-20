@@ -1,8 +1,6 @@
 package com.example.musicplayer.download;
 
 import android.os.AsyncTask;
-import android.os.Environment;
-import android.util.Log;
 
 
 import com.example.musicplayer.app.Api;
@@ -64,7 +62,7 @@ public class DownloadTask extends AsyncTask<DownloadInfo, DownloadInfo, Integer>
             }
             long contentLength = getContentLength(downloadUrl); //实际文件长度
             if (contentLength == 0) {
-                return TYPE_FAILED;
+                return TYPE_DOWNLOAD_FAILED;
             } else if (contentLength == downloadedLength) { //已下载
                 return TYPE_DOWNLOADED;
             }
@@ -87,9 +85,9 @@ public class DownloadTask extends AsyncTask<DownloadInfo, DownloadInfo, Integer>
                 int len;
                 while ((len = is.read(b)) != -1) {
                     if (isCanceled) {
-                        return TYPE_CANCELED;
+                        return TYPE_DOWNLOAD_CANCELED;
                     } else if (isPaused) {
-                        return TYPE_PAUSED;
+                        return TYPE_DOWNLOAD_PAUSED;
                     } else {
                         total += len;
                         saveFile.write(b, 0, len);
@@ -101,7 +99,7 @@ public class DownloadTask extends AsyncTask<DownloadInfo, DownloadInfo, Integer>
                     }
                 }
                 response.body().close();
-                return TYPE_SUCCESS;
+                return TYPE_DOWNLOAD_SUCCESS;
             }
         } catch (IOException e) {
             e.printStackTrace();
@@ -120,7 +118,7 @@ public class DownloadTask extends AsyncTask<DownloadInfo, DownloadInfo, Integer>
                 e.printStackTrace();
             }
         }
-        return TYPE_FAILED;
+        return TYPE_DOWNLOAD_FAILED;
     }
 
     @Override
@@ -136,16 +134,16 @@ public class DownloadTask extends AsyncTask<DownloadInfo, DownloadInfo, Integer>
     @Override
     protected void onPostExecute(Integer status) {
         switch (status) {
-            case TYPE_SUCCESS:
+            case TYPE_DOWNLOAD_SUCCESS:
                 mDownListener.onSuccess();
                 break;
-            case TYPE_FAILED:
+            case TYPE_DOWNLOAD_FAILED:
                 mDownListener.onFailed();
                 break;
-            case TYPE_PAUSED:
+            case TYPE_DOWNLOAD_PAUSED:
                 mDownListener.onPaused();
                 break;
-            case TYPE_CANCELED:
+            case TYPE_DOWNLOAD_CANCELED:
                 mDownListener.onCanceled();
                 break;
             case TYPE_DOWNLOADED:
@@ -163,7 +161,7 @@ public class DownloadTask extends AsyncTask<DownloadInfo, DownloadInfo, Integer>
         isCanceled = true;
     }
 
-    private long getContentLength(String downloadUrl) throws IOException {
+    public long getContentLength(String downloadUrl) throws IOException {
         OkHttpClient client = new OkHttpClient();
         Request request = new Request.Builder()
                 .url(downloadUrl)

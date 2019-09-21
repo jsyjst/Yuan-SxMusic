@@ -191,7 +191,7 @@ public class AlbumSongFragment extends BaseMvpFragment<AlbumSongPresenter> imple
             song.setSongId(dataBean.getSongmid());
             song.setSinger(getSinger(dataBean));
             song.setSongName(dataBean.getSongname());
-            song.setCurrent(position);
+            song.setPosition(position);
             song.setDuration(dataBean.getInterval());
             song.setOnline(true);
             song.setListType(Constant.LIST_TYPE_ONLINE);

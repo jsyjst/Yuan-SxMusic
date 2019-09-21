@@ -73,4 +73,5 @@ public class Constant {
     public final static int TYPE_DOWNLOAD_SUCCESS = 3;
     public final static int TYPE_DOWNLOAD_FAILED = 4;
     public final static int TYPE_DOWNLOADED = 5;
+    public final static int TYPE_DOWNLOAD_ADD=6;
 }

@@ -97,7 +97,7 @@ public class LocalFragment extends BaseMvpFragment<LocalPresenter> implements IL
     public void onMessageEvent(SongLocalEvent event){
         songAdapter.notifyDataSetChanged();
         if (FileUtil.getSong() != null) {
-            layoutManager.scrollToPositionWithOffset(FileUtil.getSong().getCurrent() + 4, mRecycler.getHeight());
+            layoutManager.scrollToPositionWithOffset(FileUtil.getSong().getPosition() + 4, mRecycler.getHeight());
         }
     }
 
@@ -137,7 +137,7 @@ public class LocalFragment extends BaseMvpFragment<LocalPresenter> implements IL
             song.setSinger(mp3Info.getSinger());
             song.setUrl(mp3Info.getUrl());
             song.setDuration(mp3Info.getDuration());
-            song.setCurrent(position);
+            song.setPosition(position);
             song.setOnline(false);
             song.setSongId(mp3Info.getSongId());
             song.setListType(Constant.LIST_TYPE_LOCAL);
@@ -179,7 +179,7 @@ public class LocalFragment extends BaseMvpFragment<LocalPresenter> implements IL
             songAdapter = new SongAdapter(mActivity, mLocalSongsList);
             mRecycler.setAdapter(songAdapter);
             if (FileUtil.getSong() != null) {
-                layoutManager.scrollToPositionWithOffset(FileUtil.getSong().getCurrent() - 4, mRecycler.getHeight());
+                layoutManager.scrollToPositionWithOffset(FileUtil.getSong().getPosition() - 4, mRecycler.getHeight());
             }
             songAdapter.setOnItemClickListener(position -> {
                 //将点击的序列化到本地
@@ -189,7 +189,7 @@ public class LocalFragment extends BaseMvpFragment<LocalPresenter> implements IL
                 song.setSinger(mp3Info.getSinger());
                 song.setUrl(mp3Info.getUrl());
                 song.setDuration(mp3Info.getDuration());
-                song.setCurrent(position);
+                song.setPosition(position);
                 song.setOnline(false);
                 song.setSongId(mp3Info.getSongId());
                 song.setListType(Constant.LIST_TYPE_LOCAL);

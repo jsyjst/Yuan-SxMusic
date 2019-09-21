@@ -11,6 +11,8 @@ import java.io.Serializable;
 public class Song extends LitePalSupport implements Serializable {
     private static final long serialVersionUID=1L;
 
+    private long id;
+
     private String songId; //歌曲id
     private String qqId;//专属本地音乐，本地音乐在qq音乐中的songId
     private String mediaId;//播放id,下载需要用到
@@ -19,7 +21,7 @@ public class Song extends LitePalSupport implements Serializable {
     private String songName; //歌曲名字
     private String url;  //歌曲url
     private long currentTime; //歌曲播放时长位置
-    private int current;//在音乐列表的位置
+    private int position;//在音乐列表的位置
     private String imgUrl; //歌曲照片
     private boolean isOnline; //是否为网络歌曲
     private int listType; //歌曲列表类别,0表示当前没有列表，即可能在播放网络歌曲
@@ -90,12 +92,12 @@ public class Song extends LitePalSupport implements Serializable {
         this.currentTime = currentTime;
     }
 
-    public int getCurrent() {
-        return current;
+    public int getPosition() {
+        return position;
     }
 
-    public void setCurrent(int current) {
-        this.current = current;
+    public void setPosition(int position) {
+        this.position = position;
     }
 
     public String getImgUrl() {
@@ -130,9 +132,13 @@ public class Song extends LitePalSupport implements Serializable {
         isDownload = download;
     }
 
+    public long getId() {
+        return id;
+    }
+
     public String toString(){
         return "songName="+songName+",singer="+singer+",url="+url+",imgUrl="+imgUrl
-                +",duration="+duration+",currentTime="+currentTime+",current="+current
+                +",duration="+duration+",currentTime="+currentTime+",position="+ position
                 +",songId="+songId+",isOnline="+isOnline+",listType="+listType;
 
     }

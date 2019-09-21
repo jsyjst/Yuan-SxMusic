@@ -94,7 +94,7 @@ public class CollectionFragment extends Fragment {
         mAdapter.notifyDataSetChanged();
         if(songCollectionEvent.isLove()){//定位歌曲
             if (FileUtil.getSong() != null) {
-                mManager.scrollToPositionWithOffset(FileUtil.getSong().getCurrent() + 4, mRecycler.getHeight());
+                mManager.scrollToPositionWithOffset(FileUtil.getSong().getPosition() + 4, mRecycler.getHeight());
             }
         }
     }
@@ -118,7 +118,7 @@ public class CollectionFragment extends Fragment {
                 song.setOnline(love.isOnline());
                 song.setUrl(love.getUrl());
                 song.setImgUrl(love.getPic());
-                song.setCurrent(position);
+                song.setPosition(position);
                 song.setDuration(love.getDuration());
                 song.setMediaId(love.getMediaId());
                 song.setListType(Constant.LIST_TYPE_LOVE);

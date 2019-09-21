@@ -105,7 +105,7 @@ public class DownloadMusicFragment extends Fragment {
             song.setOnline(false);
             song.setUrl(downloadSong.getUrl());
             song.setImgUrl(downloadSong.getPic());
-            song.setCurrent(position);
+            song.setPosition(position);
             song.setDuration(downloadSong.getDuration());
             song.setListType(Constant.LIST_TYPE_DOWNLOAD);
             song.setMediaId(downloadSong.getMediaId());

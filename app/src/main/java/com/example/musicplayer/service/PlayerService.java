@@ -75,7 +75,7 @@ public class PlayerService extends Service {
             mHistoryList = orderHistoryList(LitePal.findAll(HistorySong.class));
             //保证最近播放列表一开始总是第一个
             Song song = FileUtil.getSong();
-            song.setCurrent(0);
+            song.setPosition(0);
             FileUtil.saveSong(song);
         }else if(mListType == Constant.LIST_TYPE_DOWNLOAD){
             mDownloadList = orderDownloadList(LitePal.findAll(DownloadSong.class));
@@ -86,7 +86,7 @@ public class PlayerService extends Service {
     public IBinder onBind(Intent arg0) {
         mediaPlayer.setOnCompletionListener(mp -> {
             EventBus.getDefault().post(new SongStatusEvent(Constant.SONG_PAUSE));//暂停广播
-            mCurrent = FileUtil.getSong().getCurrent();
+            mCurrent = FileUtil.getSong().getPosition();
             //将歌曲的信息保存起来
             if (mListType == Constant.LIST_TYPE_LOCAL) {
                 mCurrent=getNextCurrent(mCurrent, mPlayMode, mLocalSongList.size()); //根据播放模式来播放下一曲
@@ -130,7 +130,7 @@ public class PlayerService extends Service {
             mHistoryList = orderHistoryList(LitePal.findAll(HistorySong.class));
             //保证最近播放列表一开始总是第一个
             Song song = FileUtil.getSong();
-            song.setCurrent(0);
+            song.setPosition(0);
             FileUtil.saveSong(song);
         }
 
@@ -158,7 +158,7 @@ public class PlayerService extends Service {
                     mDownloadList = orderDownloadList(LitePal.findAll(DownloadSong.class));
                     EventBus.getDefault().post(new SongDownloadedEvent()); //发送下载歌曲改变的消息
                 }
-                mCurrent = FileUtil.getSong().getCurrent();
+                mCurrent = FileUtil.getSong().getPosition();
                 mediaPlayer.reset();//把各项参数恢复到初始状态
                 if (mListType == Constant.LIST_TYPE_LOCAL) {
                     mediaPlayer.setDataSource(mLocalSongList.get(mCurrent).getUrl());
@@ -225,7 +225,7 @@ public class PlayerService extends Service {
 
         public void next() {
             EventBus.getDefault().post(new SongStatusEvent(Constant.SONG_RESUME));
-            mCurrent = FileUtil.getSong().getCurrent();
+            mCurrent = FileUtil.getSong().getPosition();
             if (mListType == Constant.LIST_TYPE_LOCAL) {
                 mCurrent=getNextCurrent(mCurrent, mPlayMode, mLocalSongList.size()); //根据播放模式来播放下一曲
                 saveLocalSongInfo(mCurrent);
@@ -247,7 +247,7 @@ public class PlayerService extends Service {
 
         public void last() {
             EventBus.getDefault().post(new SongStatusEvent(Constant.SONG_RESUME));//暂停广播
-            mCurrent = FileUtil.getSong().getCurrent();
+            mCurrent = FileUtil.getSong().getPosition();
             if (mListType == Constant.LIST_TYPE_LOCAL) {
                 mCurrent = getLastCurrent(mCurrent,mPlayMode,mLocalSongList.size());
                 saveLocalSongInfo(mCurrent);
@@ -321,7 +321,7 @@ public class PlayerService extends Service {
         mLocalSongList = LitePal.findAll(LocalSong.class);
         Song song = new Song();
         LocalSong localSong = mLocalSongList.get(current);
-        song.setCurrent(current);
+        song.setPosition(current);
         song.setSongName(localSong.getName());
         song.setSinger(localSong.getSinger());
         song.setDuration(localSong.getDuration());
@@ -338,7 +338,7 @@ public class PlayerService extends Service {
     private void saveOnlineSongInfo(int current) {
         mSongList = LitePal.findAll(OnlineSong.class);
         Song song = new Song();
-        song.setCurrent(current);
+        song.setPosition(current);
         song.setSongId(mSongList.get(current).getSongId());
         song.setSongName(mSongList.get(current).getName());
         song.setSinger(mSongList.get(current).getSinger());
@@ -356,7 +356,7 @@ public class PlayerService extends Service {
         mLoveList = orderList(LitePal.findAll(Love.class));
         Love love = mLoveList.get(current);
         Song song = new Song();
-        song.setCurrent(current);
+        song.setPosition(current);
         song.setSongId(love.getSongId());
         song.setQqId(love.getQqId());
         song.setSongName(love.getName());
@@ -376,7 +376,7 @@ public class PlayerService extends Service {
     private void saveDownloadInfo(int current){
         DownloadSong downloadSong = mDownloadList.get(current);
         Song song = new Song();
-        song.setCurrent(current);
+        song.setPosition(current);
         song.setSongId(downloadSong.getSongId());
         song.setSongName(downloadSong.getName());
         song.setSinger(downloadSong.getSinger());
@@ -394,7 +394,7 @@ public class PlayerService extends Service {
     private void saveHistoryInfo(int current) {
         HistorySong historySong = mHistoryList.get(current);
         Song song = new Song();
-        song.setCurrent(current);
+        song.setPosition(current);
         song.setSongId(historySong.getSongId());
         song.setQqId(historySong.getQqId());
         song.setSongName(historySong.getName());

@@ -23,6 +23,7 @@ import com.example.musicplayer.R;
 import com.example.musicplayer.adapter.DownloadingAdapter;
 import com.example.musicplayer.app.Constant;
 import com.example.musicplayer.entiy.DownloadInfo;
+import com.example.musicplayer.entiy.Song;
 import com.example.musicplayer.event.DownloadEvent;
 import com.example.musicplayer.service.DownloadService;
 
@@ -98,7 +99,7 @@ public class DownloadingFragment extends Fragment {
         mDownloadInfoList = new LinkedList<>();
         mDownloadSongId = new ArrayList<>();
         mDownloadSongId.add("");
-        mDownloadInfoList.addAll(orderList(LitePal.findAll(DownloadInfo.class,true)));
+        mDownloadInfoList.addAll(LitePal.findAll(DownloadInfo.class,true));
         songDowningRecycle.setItemAnimator(null);  //解决进度刷新闪屏问题
         mLinearLayoutManager = new LinearLayoutManager(getActivity());
         mAdapter = new DownloadingAdapter(mDownloadInfoList,mDownloadSongId);
@@ -111,7 +112,8 @@ public class DownloadingFragment extends Fragment {
             if(downloadInfo.getSongId().equals(mDownloadSongId.get(0))){
                 mDownloadBinder.pauseDownload();
             }else {
-                mDownloadBinder.startDownload(mDownloadInfoList.get(position).getSong());
+                Song song = mDownloadInfoList.get(position).getSong();
+                mDownloadBinder.startDownload(song);
             }
         });
 
@@ -132,24 +134,25 @@ public class DownloadingFragment extends Fragment {
     @Subscribe(threadMode = ThreadMode.MAIN)
     public void onDownloadingMessage(DownloadEvent event) {
         int status = event.getDownloadStatus();
-        if (status == Constant.TYPE_DOWNLOADING) {
+        if (status == Constant.TYPE_DOWNLOADING) {//进度条更新
+            DownloadInfo downloadInfo = event.getDownloadInfo();
             mDownloadSongId.clear();
-            mDownloadSongId.add(event.getDownloadInfo().getSongId());
-            ((LinkedList)mDownloadInfoList).poll();
-            ((LinkedList)mDownloadInfoList).addFirst(event.getDownloadInfo());
-            mAdapter.notifyItemChanged(0);
-        }else if(status == Constant.TYPE_DOWNLOAD_SUCCESS){
-            mDownloadInfoList.clear();
-            mDownloadInfoList.addAll(orderList(LitePal.findAll(DownloadInfo.class,true)));
+            mDownloadSongId.add(downloadInfo.getSongId());
+            mDownloadInfoList.remove(downloadInfo.getPosition());
+            mDownloadInfoList.add(downloadInfo.getPosition(),downloadInfo);
+            mAdapter.notifyItemChanged(downloadInfo.getPosition());
+        }else if(status == Constant.TYPE_DOWNLOAD_SUCCESS){//歌曲下载成功
+            resetDownloadInfoList();
             mAdapter.notifyDataSetChanged();
-        }else if(status == Constant.TYPE_DOWNLOAD_PAUSED){
+        }else if(status == Constant.TYPE_DOWNLOAD_PAUSED){//当前歌曲下载暂停
             mDownloadSongId.clear();
             mDownloadSongId.add("");
             mAdapter.notifyDataSetChanged();
-        }else if(status == Constant.TYPE_DOWNLOAD_CANCELED){
-            mDownloadInfoList.clear();
-            mDownloadInfoList.addAll(orderList(LitePal.findAll(DownloadInfo.class,true)));
+        }else if(status == Constant.TYPE_DOWNLOAD_CANCELED){//下载取消
+            resetDownloadInfoList();
             mAdapter.notifyDataSetChanged();
+        }else if(status == Constant.TYPE_DOWNLOAD_ADD){//添加了正在下载歌曲
+            resetDownloadInfoList();
         }
     }
 
@@ -161,6 +164,17 @@ public class DownloadingFragment extends Fragment {
             downloadInfos.add(tempList.get(i));
         }
         return downloadInfos;
+    }
+
+
+    //重新从数据库中读取需要下载的歌曲
+    private void resetDownloadInfoList(){
+        mDownloadInfoList.clear();
+        List<DownloadInfo> temp = LitePal.findAll(DownloadInfo.class,true);
+        if(temp.size()!=0){
+            mDownloadInfoList.addAll(temp);
+        }
+
     }
 
     @Override

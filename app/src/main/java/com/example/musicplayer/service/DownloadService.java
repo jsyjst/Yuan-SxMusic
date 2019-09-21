@@ -24,7 +24,6 @@ import com.example.musicplayer.entiy.DownloadInfo;
 import com.example.musicplayer.entiy.DownloadSong;
 import com.example.musicplayer.entiy.Song;
 import com.example.musicplayer.event.DownloadEvent;
-import com.example.musicplayer.event.SongDownloadedEvent;
 import com.example.musicplayer.event.SongListNumEvent;
 import com.example.musicplayer.util.CommonUtil;
 import com.example.musicplayer.view.MainActivity;
@@ -33,8 +32,8 @@ import org.greenrobot.eventbus.EventBus;
 import org.litepal.LitePal;
 
 import java.io.File;
-import java.util.HashMap;
 import java.util.LinkedList;
+import java.util.List;
 
 import static com.example.musicplayer.app.Constant.TYPE_DOWNLOADING;
 
@@ -52,6 +51,8 @@ public class DownloadService extends Service {
     private String downloadUrl;
     private DownloadBinder downloadBinder = new DownloadBinder();
     private LinkedList<Song> downloadQueue = new LinkedList<>();//等待队列
+    private int position = 0;//下载歌曲在下载歌曲列表的位置
+    private int currentPosition;//当前下载的位置
     private DownloadListener listener = new DownloadListener() {
         @Override
         public void onProgress(DownloadInfo downloadInfo) {
@@ -62,8 +63,9 @@ public class DownloadService extends Service {
         @Override
         public void onSuccess() {
             downloadTask = null;
-            saveToDb(); //下载成功，则保存数据到数据库，顺便从下载数据库中移除
-            start();//下载队列中的其它歌曲
+            Song song = downloadQueue.poll();
+            operateDb(song); //操作数据库
+            start(song.getPosition());//下载队列中的其它歌曲
             //下载成功通知前台服务通知关闭，并创建一个下载成功的通知
             stopForeground(true);
             getNotificationManager().notify(1, getNotification("下载成功", -1));
@@ -88,8 +90,7 @@ public class DownloadService extends Service {
         @Override
         public void onPaused() {
             downloadTask = null;
-            downloadQueue.poll();//从下载列表中移除该歌曲
-            start();//下载下载列表中的歌曲
+            start(downloadQueue.poll().getPosition());;//从下载列表中移除该歌曲,并且下载下载列表中的歌曲
             EventBus.getDefault().post(new DownloadEvent(Constant.TYPE_DOWNLOAD_PAUSED)); //下载暂停
             Toast.makeText(DownloadService.this, "下载已暂停", Toast.LENGTH_SHORT).show();
         }
@@ -121,7 +122,7 @@ public class DownloadService extends Service {
                 CommonUtil.showToast(DownloadService.this, "已经加入下载队列");
             } else {
                 CommonUtil.showToast(DownloadService.this, "开始下载");
-                start();
+                start(downloadQueue.peek().getPosition());
             }
         }
 
@@ -131,22 +132,19 @@ public class DownloadService extends Service {
             }
         }
 
-        public void resumeDownload() {
-            start();
-        }
 
-        public void cancelDownload(String downloadUrl,String songId) {
+        public void cancelDownload(String downloadUrl, String songId) {
             //如果该歌曲正在下载，则需要将downloadTask置为null
-            if (downloadTask != null&&downloadQueue.peek().getSongId().equals(songId)) {
+            if (downloadTask != null && downloadQueue.peek().getSongId().equals(songId)) {
                 downloadTask.cancelDownload();
             }
             //将该歌曲从下载队列中移除
             for (int i = 0; i < downloadQueue.size(); i++) {
                 Song song = downloadQueue.get(i);
-                if(song.getSongId().equals(songId)) downloadQueue.remove(i);
+                if (song.getSongId().equals(songId)) downloadQueue.remove(i);
             }
-            //将该歌曲从正在下载的数据库中移除
-            LitePal.deleteAll(DownloadInfo.class, "songId=?", songId);//删除已下载歌曲的相关列
+            updateDb(songId);
+            deleteDb(songId);
             //通知正在下载列表
             EventBus.getDefault().post(new DownloadEvent(Constant.TYPE_DOWNLOAD_CANCELED));
             //取消下载需要将文件删除并将通知关闭
@@ -154,7 +152,7 @@ public class DownloadService extends Service {
                 String fileName = downloadUrl.substring(downloadUrl.lastIndexOf("/") + 1, downloadUrl.indexOf("?"));
                 File downloadFile = new File(Api.STORAGE_SONG_FILE);
                 String directory = String.valueOf(downloadFile);
-                File file = new File(fileName ,directory);
+                File file = new File(fileName, directory);
                 if (file.exists()) {
                     file.delete();
                 }
@@ -165,9 +163,9 @@ public class DownloadService extends Service {
 
         }
 
-}
+    }
 
-    private void start() {
+    private void start(int position) {
         if (downloadTask == null && !downloadQueue.isEmpty()) {
             Song song = downloadQueue.peek();
             DownloadInfo downloadInfo = new DownloadInfo();
@@ -176,6 +174,7 @@ public class DownloadService extends Service {
             downloadInfo.setSongName(song.getSongName());
             downloadInfo.setSinger(song.getSinger());
             downloadInfo.setSong(song);
+            downloadInfo.setPosition(position);
             downloadUrl = song.getUrl();
             downloadTask = new DownloadTask(listener);
             downloadTask.execute(downloadInfo);
@@ -219,10 +218,32 @@ public class DownloadService extends Service {
         }
     }
 
-    private void saveToDb() {
-        Song song = downloadQueue.poll();
-        LitePal.deleteAll(DownloadInfo.class, "songId=?", song.getSongId());//删除已下载歌曲的相关列
-        LitePal.deleteAll(Song.class, "songId=?", song.getSongId());//删除已下载歌曲的关联表中的相关列
+    private void operateDb(Song song) {
+        updateDb(song.getSongId());
+        deleteDb(song.getSongId());
+        saveDb(song);
+        EventBus.getDefault().post(new DownloadEvent(Constant.TYPE_DOWNLOAD_SUCCESS));//通知已下载列表
+        EventBus.getDefault().post(new SongListNumEvent(Constant.LIST_TYPE_DOWNLOAD)); //通知主界面的下载个数需要改变
+    }
+
+    //更新数据库中歌曲列表的位置，即下载完成歌曲后的位置都要减去1；
+    private void updateDb(String songId) {
+        long id = LitePal.select("id").where("songId = ?", songId).find(Song.class).get(0).getId();
+        List<Song> songIdList = LitePal.select("id", "position").where("id > ?", id + "").find(Song.class);
+        for (Song song : songIdList) {
+            song.setPosition(song.getPosition() - 1);
+            song.save();
+        }
+    }
+
+    //下载完成时要删除下载歌曲表中的数据以及关联表中的数据
+    private void deleteDb(String songId) {
+        LitePal.deleteAll(DownloadInfo.class, "songId=?", songId);//删除已下载歌曲的相关列
+        LitePal.deleteAll(Song.class, "songId=?", songId);//删除已下载歌曲的关联表中的相关列
+    }
+
+    //歌曲下载完成时保存歌曲信息到已下载歌曲表
+    private void saveDb(Song song) {
         DownloadSong downloadSong = new DownloadSong();
         downloadSong.setName(song.getSongName());
         downloadSong.setSongId(song.getSongId());
@@ -232,11 +253,13 @@ public class DownloadService extends Service {
         downloadSong.setMediaId(song.getMediaId());
         downloadSong.setUrl(Api.STORAGE_SONG_FILE + "C400" + song.getMediaId() + ".m4a");
         downloadSong.save();
-        EventBus.getDefault().post(new DownloadEvent(Constant.TYPE_DOWNLOAD_SUCCESS));//通知已下载列表
-        EventBus.getDefault().post(new SongListNumEvent(Constant.LIST_TYPE_DOWNLOAD)); //通知主界面的下载个数需要改变
     }
 
     private void postDownloadEvent(Song song) {
+        //如果需要下载的表中有该条歌曲，则跳过
+        if (LitePal.where("songId=?", song.getSongId()).find(DownloadInfo.class).size() != 0)
+            return;
+        position = LitePal.findAll(DownloadInfo.class).size();
         DownloadInfo downloadInfo = new DownloadInfo();
         downloadInfo.setSongName(song.getSongName());
         downloadInfo.setSongId(song.getSongId());
@@ -244,7 +267,10 @@ public class DownloadService extends Service {
         downloadInfo.setProgress(0);
         downloadInfo.setSinger(song.getSinger());
         downloadInfo.setSong(song);
+        downloadInfo.setPosition(position);
+        song.setPosition(position);
         song.save();
         downloadInfo.save();
+        EventBus.getDefault().post(new DownloadEvent(Constant.TYPE_DOWNLOAD_ADD));
     }
 }

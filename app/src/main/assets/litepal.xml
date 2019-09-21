@@ -2,7 +2,7 @@
 <litepal>
     <dbname value="SongList" />
 
-    <version value="23" />
+    <version value="26" />
 
     <list>
         <mapping class="com.example.musicplayer.entiy.OnlineSong" />

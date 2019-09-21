@@ -167,7 +167,6 @@ public class SearchContentFragment extends BaseLoadingFragment<SearchContentPres
             song.setSinger(getSinger(dataBean));
             song.setSongName(dataBean.getSongname());
             song.setImgUrl(Api.ALBUM_PIC+dataBean.getAlbummid()+Api.JPG);
-            song.setCurrent(position);
             song.setDuration(dataBean.getInterval());
             song.setOnline(true);
             song.setMediaId(dataBean.getStrMediaMid());

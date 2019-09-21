@@ -11,6 +11,7 @@ import org.litepal.crud.LitePalSupport;
  */
 
 public class DownloadInfo extends LitePalSupport {
+    private long id;
     private String songName;
     private String singer;
     private String url;
@@ -19,6 +20,7 @@ public class DownloadInfo extends LitePalSupport {
     private long currentSize;
     private long totalSize;
     private Song song;
+    private int position;//正在下载歌曲列表中的位置
 
     public String getSongName() {
         return songName;
@@ -82,5 +84,17 @@ public class DownloadInfo extends LitePalSupport {
 
     public void setSong(Song song) {
         this.song = song;
+    }
+
+    public int getPosition() {
+        return position;
+    }
+
+    public void setPosition(int position) {
+        this.position = position;
+    }
+
+    public long getId() {
+        return id;
     }
 }

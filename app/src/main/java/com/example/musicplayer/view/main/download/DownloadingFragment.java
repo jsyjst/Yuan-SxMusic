@@ -58,9 +58,6 @@ public class DownloadingFragment extends Fragment {
     private DownloadingAdapter mAdapter;
     private LinearLayoutManager mLinearLayoutManager;
     private List<DownloadInfo> mDownloadInfoList;  //下载队列
-    private List<String> mDownloadSongId; //用来判断当前下载的歌曲
-    private HashMap<String,Integer> mSongPositionMap;//歌曲Id获取歌曲位置
-    private boolean isTouch;
 
     private DownloadService.DownloadBinder mDownloadBinder;
     //绑定下载服务
@@ -97,23 +94,23 @@ public class DownloadingFragment extends Fragment {
 
     private void initRecycler() {
         mDownloadInfoList = new LinkedList<>();
-        mDownloadSongId = new ArrayList<>();
-        mDownloadSongId.add("");
         mDownloadInfoList.addAll(LitePal.findAll(DownloadInfo.class,true));
         songDowningRecycle.setItemAnimator(null);  //解决进度刷新闪屏问题
         mLinearLayoutManager = new LinearLayoutManager(getActivity());
-        mAdapter = new DownloadingAdapter(mDownloadInfoList,mDownloadSongId);
+        mAdapter = new DownloadingAdapter(mDownloadInfoList);
         songDowningRecycle.setLayoutManager(mLinearLayoutManager);
         songDowningRecycle.setAdapter(mAdapter);
 
         //暂停
         mAdapter.setOnItemClickListener(position -> {
             DownloadInfo downloadInfo = mDownloadInfoList.get(position);
-            if(downloadInfo.getSongId().equals(mDownloadSongId.get(0))){
-                mDownloadBinder.pauseDownload();
-            }else {
-                Song song = mDownloadInfoList.get(position).getSong();
+            Song song = mDownloadInfoList.get(position).getSong();
+            //判断是否为正在播放的歌曲
+            if(downloadInfo.getStatus() == Constant.DOWNLOAD_PAUSED){
                 mDownloadBinder.startDownload(song);
+            }else {
+                //传入要暂停的音乐id
+                mDownloadBinder.pauseDownload(downloadInfo.getSongId());
             }
         });
 
@@ -134,19 +131,13 @@ public class DownloadingFragment extends Fragment {
     @Subscribe(threadMode = ThreadMode.MAIN)
     public void onDownloadingMessage(DownloadEvent event) {
         int status = event.getDownloadStatus();
-        if (status == Constant.TYPE_DOWNLOADING) {//进度条更新
+        if (status == Constant.TYPE_DOWNLOADING || status == Constant.TYPE_DOWNLOAD_PAUSED) {//进度条更新
             DownloadInfo downloadInfo = event.getDownloadInfo();
-            mDownloadSongId.clear();
-            mDownloadSongId.add(downloadInfo.getSongId());
             mDownloadInfoList.remove(downloadInfo.getPosition());
             mDownloadInfoList.add(downloadInfo.getPosition(),downloadInfo);
             mAdapter.notifyItemChanged(downloadInfo.getPosition());
         }else if(status == Constant.TYPE_DOWNLOAD_SUCCESS){//歌曲下载成功
             resetDownloadInfoList();
-            mAdapter.notifyDataSetChanged();
-        }else if(status == Constant.TYPE_DOWNLOAD_PAUSED){//当前歌曲下载暂停
-            mDownloadSongId.clear();
-            mDownloadSongId.add("");
             mAdapter.notifyDataSetChanged();
         }else if(status == Constant.TYPE_DOWNLOAD_CANCELED){//下载取消
             resetDownloadInfoList();

@@ -21,6 +21,7 @@ public class DownloadInfo extends LitePalSupport {
     private long totalSize;
     private Song song;
     private int position;//正在下载歌曲列表中的位置
+    private int status;//下载歌曲的状态
 
     public String getSongName() {
         return songName;
@@ -96,5 +97,13 @@ public class DownloadInfo extends LitePalSupport {
 
     public long getId() {
         return id;
+    }
+
+    public int getStatus() {
+        return status;
+    }
+
+    public void setStatus(int status) {
+        this.status = status;
     }
 }

@@ -12,7 +12,6 @@ import android.os.Build;
 import android.os.IBinder;
 import android.support.annotation.Nullable;
 import android.support.v4.app.NotificationCompat;
-import android.util.Log;
 import android.widget.Toast;
 
 import com.example.musicplayer.R;
@@ -52,12 +51,12 @@ public class DownloadService extends Service {
     private DownloadBinder downloadBinder = new DownloadBinder();
     private LinkedList<Song> downloadQueue = new LinkedList<>();//等待队列
     private int position = 0;//下载歌曲在下载歌曲列表的位置
-    private int currentPosition;//当前下载的位置
     private DownloadListener listener = new DownloadListener() {
         @Override
         public void onProgress(DownloadInfo downloadInfo) {
+            downloadInfo.setStatus(Constant.DOWNLOAD_ING);
             EventBus.getDefault().post(new DownloadEvent(TYPE_DOWNLOADING, downloadInfo)); //通知下载模块
-            getNotificationManager().notify(1, getNotification("下载中......", downloadInfo.getProgress()));
+            getNotificationManager().notify(1, getNotification(downloadInfo.getSongName()));
         }
 
         @Override
@@ -65,10 +64,10 @@ public class DownloadService extends Service {
             downloadTask = null;
             Song song = downloadQueue.poll();
             operateDb(song); //操作数据库
-            start(song.getPosition());//下载队列中的其它歌曲
+            start();//下载队列中的其它歌曲
             //下载成功通知前台服务通知关闭，并创建一个下载成功的通知
             stopForeground(true);
-            getNotificationManager().notify(1, getNotification("下载成功", -1));
+            if(downloadQueue.isEmpty()) getNotificationManager().notify(1, getNotification("下载成功"));
         }
 
         @Override
@@ -83,15 +82,17 @@ public class DownloadService extends Service {
 
             //下载失败通知前台服务通知关闭，并创建一个下载失败的通知
             stopForeground(true);
-            getNotificationManager().notify(1, getNotification("下载失败", -1));
+            getNotificationManager().notify(1, getNotification("下载失败"));
             Toast.makeText(DownloadService.this, "下载失败", Toast.LENGTH_SHORT).show();
         }
 
         @Override
         public void onPaused() {
             downloadTask = null;
-            start(downloadQueue.poll().getPosition());;//从下载列表中移除该歌曲,并且下载下载列表中的歌曲
-            EventBus.getDefault().post(new DownloadEvent(Constant.TYPE_DOWNLOAD_PAUSED)); //下载暂停
+            Song song=downloadQueue.poll();//从下载列表中移除该歌曲
+            updateDbOfPause(song.getSongId());
+            start();//下载下载列表中的歌曲
+            EventBus.getDefault().post(new DownloadEvent(Constant.TYPE_DOWNLOAD_PAUSED, getDownloadInfoOfSong(song,Constant.DOWNLOAD_PAUSED))); //下载暂停
             Toast.makeText(DownloadService.this, "下载已暂停", Toast.LENGTH_SHORT).show();
         }
 
@@ -111,7 +112,6 @@ public class DownloadService extends Service {
 
     public class DownloadBinder extends Binder {
         public void startDownload(Song song) {
-            downloadQueue.offer(song);//将歌曲放到等待队列中
             try {
                 postDownloadEvent(song);//通知正在下载界面
             } catch (Exception e) {
@@ -122,13 +122,16 @@ public class DownloadService extends Service {
                 CommonUtil.showToast(DownloadService.this, "已经加入下载队列");
             } else {
                 CommonUtil.showToast(DownloadService.this, "开始下载");
-                start(downloadQueue.peek().getPosition());
+                start();
             }
         }
 
-        public void pauseDownload() {
-            if (downloadTask != null) {
+        public void pauseDownload(String songId) {
+            //暂停的歌曲是否为当前下载的歌曲
+            if (downloadTask != null &&downloadQueue.peek().getSongId().equals(songId)) {
                 downloadTask.pauseDownload();
+            }else {
+                listener.onPaused();
             }
         }
 
@@ -164,21 +167,17 @@ public class DownloadService extends Service {
         }
 
     }
-
-    private void start(int position) {
+    private void start() {
         if (downloadTask == null && !downloadQueue.isEmpty()) {
             Song song = downloadQueue.peek();
-            DownloadInfo downloadInfo = new DownloadInfo();
-            downloadInfo.setSongId(song.getSongId());
-            downloadInfo.setUrl(song.getUrl());
-            downloadInfo.setSongName(song.getSongName());
-            downloadInfo.setSinger(song.getSinger());
-            downloadInfo.setSong(song);
-            downloadInfo.setPosition(position);
+            List<Song> songList =
+                    LitePal.where("songId = ?",song.getSongId()).find(Song.class);
+            DownloadInfo downloadInfo = getDownloadInfoOfSong(songList.get(0),Constant.DOWNLOAD_READY);
+            EventBus.getDefault().post(new DownloadEvent(TYPE_DOWNLOADING,downloadInfo));
             downloadUrl = song.getUrl();
             downloadTask = new DownloadTask(listener);
             downloadTask.execute(downloadInfo);
-            startForeground(1, getNotification("下载中......", 0));
+            startForeground(1, getNotification(song.getSongName()));
         }
     }
 
@@ -187,7 +186,7 @@ public class DownloadService extends Service {
         return (NotificationManager) getSystemService(NOTIFICATION_SERVICE);
     }
 
-    private Notification getNotification(String title, int progress) {
+    private Notification getNotification(String title) {
         Intent intent = new Intent(this, MainActivity.class);
         PendingIntent pi = PendingIntent.getActivity(this, 0, intent, 0);
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
@@ -199,10 +198,6 @@ public class DownloadService extends Service {
             builder.setSmallIcon(R.mipmap.icon);
             builder.setContentIntent(pi);
             builder.setContentTitle(title);
-            if (progress > 0) {
-                builder.setContentText(progress + "%");
-                builder.setProgress(100, progress, false);
-            }
             return builder.build();
         } else {
             NotificationCompat.Builder builder = new NotificationCompat.Builder(this, "default");
@@ -210,10 +205,6 @@ public class DownloadService extends Service {
             builder.setLargeIcon(BitmapFactory.decodeResource(getResources(), R.mipmap.icon));
             builder.setContentIntent(pi);
             builder.setContentTitle(title);
-            if (progress > 0) {
-                builder.setContentText(progress + "%");
-                builder.setProgress(100, progress, false);
-            }
             return builder.build();
         }
     }
@@ -236,6 +227,15 @@ public class DownloadService extends Service {
         }
     }
 
+    //暂停时更新列表歌曲状态
+    private void updateDbOfPause(String songId){
+        List<DownloadInfo> statusList =
+                LitePal.where("songId = ?",songId).find(DownloadInfo.class,true);
+        DownloadInfo downloadInfo = statusList.get(0);
+        downloadInfo.setStatus(Constant.DOWNLOAD_PAUSED);
+        downloadInfo.save();
+    }
+
     //下载完成时要删除下载歌曲表中的数据以及关联表中的数据
     private void deleteDb(String songId) {
         LitePal.deleteAll(DownloadInfo.class, "songId=?", songId);//删除已下载歌曲的相关列
@@ -256,9 +256,18 @@ public class DownloadService extends Service {
     }
 
     private void postDownloadEvent(Song song) {
-        //如果需要下载的表中有该条歌曲，则跳过
-        if (LitePal.where("songId=?", song.getSongId()).find(DownloadInfo.class).size() != 0)
+        //如果需要下载的表中有该条歌曲，则添加到下载队列后跳过
+        List<DownloadInfo> downloadInfoList =
+                LitePal.where("songId = ?",song.getSongId()).find(DownloadInfo.class,true);
+        if (downloadInfoList.size() != 0){
+            DownloadInfo downloadInfo = downloadInfoList.get(0);
+            downloadInfo.setStatus(Constant.DOWNLOAD_WAIT);
+            downloadInfo.save();
+            EventBus.getDefault().post(new DownloadEvent(Constant.DOWNLOAD_PAUSED,downloadInfo));
+            downloadQueue.offer(downloadInfoList.get(0).getSong());
             return;
+        }
+
         position = LitePal.findAll(DownloadInfo.class).size();
         DownloadInfo downloadInfo = new DownloadInfo();
         downloadInfo.setSongName(song.getSongName());
@@ -268,9 +277,24 @@ public class DownloadService extends Service {
         downloadInfo.setSinger(song.getSinger());
         downloadInfo.setSong(song);
         downloadInfo.setPosition(position);
+        downloadInfo.setStatus(Constant.DOWNLOAD_WAIT); //等待
         song.setPosition(position);
+        downloadQueue.offer(song);//将歌曲放到等待队列中
         song.save();
         downloadInfo.save();
         EventBus.getDefault().post(new DownloadEvent(Constant.TYPE_DOWNLOAD_ADD));
     }
+
+    private DownloadInfo getDownloadInfoOfSong(Song song,int status){
+        DownloadInfo downloadInfo = new DownloadInfo();
+        downloadInfo.setSongId(song.getSongId());
+        downloadInfo.setUrl(song.getUrl());
+        downloadInfo.setSongName(song.getSongName());
+        downloadInfo.setSinger(song.getSinger());
+        downloadInfo.setSong(song);
+        downloadInfo.setPosition(song.getPosition());
+        downloadInfo.setStatus(status);
+        return downloadInfo;
+    }
+
 }

@@ -74,4 +74,10 @@ public class Constant {
     public final static int TYPE_DOWNLOAD_FAILED = 4;
     public final static int TYPE_DOWNLOADED = 5;
     public final static int TYPE_DOWNLOAD_ADD=6;
+
+    //正在下载歌曲列表的状态
+    public final static int DOWNLOAD_PAUSED = 0;
+    public final static int DOWNLOAD_WAIT=1;
+    public final static int DOWNLOAD_ING=2;
+    public final static int DOWNLOAD_READY=3;
 }

@@ -56,7 +56,7 @@ public class DownloadService extends Service {
         public void onProgress(DownloadInfo downloadInfo) {
             downloadInfo.setStatus(Constant.DOWNLOAD_ING);
             EventBus.getDefault().post(new DownloadEvent(TYPE_DOWNLOADING, downloadInfo)); //通知下载模块
-            getNotificationManager().notify(1, getNotification(downloadInfo.getSongName()));
+            getNotificationManager().notify(1, getNotification("正在下载: "+downloadInfo.getSongName(), downloadInfo.getProgress()));
         }
 
         @Override
@@ -67,7 +67,7 @@ public class DownloadService extends Service {
             start();//下载队列中的其它歌曲
             //下载成功通知前台服务通知关闭，并创建一个下载成功的通知
             stopForeground(true);
-            if(downloadQueue.isEmpty()) getNotificationManager().notify(1, getNotification("下载成功"));
+            if(downloadQueue.isEmpty()) getNotificationManager().notify(1, getNotification("下载成功",-1));
         }
 
         @Override
@@ -82,7 +82,7 @@ public class DownloadService extends Service {
 
             //下载失败通知前台服务通知关闭，并创建一个下载失败的通知
             stopForeground(true);
-            getNotificationManager().notify(1, getNotification("下载失败"));
+            getNotificationManager().notify(1, getNotification("下载失败",-1));
             Toast.makeText(DownloadService.this, "下载失败", Toast.LENGTH_SHORT).show();
         }
 
@@ -91,6 +91,7 @@ public class DownloadService extends Service {
             downloadTask = null;
             Song song=downloadQueue.poll();//从下载列表中移除该歌曲
             updateDbOfPause(song.getSongId());
+            getNotificationManager().notify(1, getNotification("下载已暂停："+song.getSongName(), -1));
             start();//下载下载列表中的歌曲
             EventBus.getDefault().post(new DownloadEvent(Constant.TYPE_DOWNLOAD_PAUSED, getDownloadInfoOfSong(song,Constant.DOWNLOAD_PAUSED))); //下载暂停
             Toast.makeText(DownloadService.this, "下载已暂停", Toast.LENGTH_SHORT).show();
@@ -177,7 +178,7 @@ public class DownloadService extends Service {
             downloadUrl = song.getUrl();
             downloadTask = new DownloadTask(listener);
             downloadTask.execute(downloadInfo);
-            startForeground(1, getNotification(song.getSongName()));
+            getNotificationManager().notify(1, getNotification("正在下载："+song.getSongName(), 0));
         }
     }
 
@@ -186,7 +187,7 @@ public class DownloadService extends Service {
         return (NotificationManager) getSystemService(NOTIFICATION_SERVICE);
     }
 
-    private Notification getNotification(String title) {
+    private Notification getNotification(String title,int progress) {
         Intent intent = new Intent(this, MainActivity.class);
         PendingIntent pi = PendingIntent.getActivity(this, 0, intent, 0);
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
@@ -198,6 +199,10 @@ public class DownloadService extends Service {
             builder.setSmallIcon(R.mipmap.icon);
             builder.setContentIntent(pi);
             builder.setContentTitle(title);
+            if(progress>0){
+                builder.setContentText(progress +"%");
+                builder.setProgress(100, progress, false);
+            }
             return builder.build();
         } else {
             NotificationCompat.Builder builder = new NotificationCompat.Builder(this, "default");
@@ -205,6 +210,10 @@ public class DownloadService extends Service {
             builder.setLargeIcon(BitmapFactory.decodeResource(getResources(), R.mipmap.icon));
             builder.setContentIntent(pi);
             builder.setContentTitle(title);
+            if(progress>0){
+                builder.setContentText(progress +"%");
+                builder.setProgress(100, progress, false);
+            }
             return builder.build();
         }
     }
@@ -285,6 +294,7 @@ public class DownloadService extends Service {
         EventBus.getDefault().post(new DownloadEvent(Constant.TYPE_DOWNLOAD_ADD));
     }
 
+    //根据Song的消息封装DownloadInfo对象
     private DownloadInfo getDownloadInfoOfSong(Song song,int status){
         DownloadInfo downloadInfo = new DownloadInfo();
         downloadInfo.setSongId(song.getSongId());

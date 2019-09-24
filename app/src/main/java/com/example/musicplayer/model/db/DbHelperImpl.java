@@ -46,7 +46,6 @@ public class DbHelperImpl implements DbHelper {
 
     @Override
     public List<LocalSong> getLocalMp3Info() {
-
         List<LocalSong> mp3InfoList = new ArrayList<>();
         Cursor cursor = App.getContext().getContentResolver().query(
                 MediaStore.Audio.Media.EXTERNAL_CONTENT_URI, null, null, null,

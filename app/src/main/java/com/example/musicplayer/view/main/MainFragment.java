@@ -13,16 +13,15 @@ import android.widget.TextView;
 
 import com.example.musicplayer.R;
 import com.example.musicplayer.adapter.ExpandableListViewAdapter;
+import com.example.musicplayer.app.Api;
 import com.example.musicplayer.app.Constant;
 import com.example.musicplayer.entiy.AlbumCollection;
-import com.example.musicplayer.entiy.DownloadSong;
 import com.example.musicplayer.entiy.HistorySong;
 import com.example.musicplayer.entiy.LocalSong;
 import com.example.musicplayer.entiy.Love;
 import com.example.musicplayer.event.AlbumCollectionEvent;
-import com.example.musicplayer.event.DownloadEvent;
 import com.example.musicplayer.event.SongListNumEvent;
-import com.example.musicplayer.event.SongLocalSizeChangeEvent;
+import com.example.musicplayer.util.DownloadUtil;
 import com.example.musicplayer.view.main.collection.CollectionFragment;
 import com.example.musicplayer.view.main.download.DownloadFragment;
 import com.example.musicplayer.view.main.history.HistoryFragment;
@@ -134,7 +133,7 @@ public class MainFragment extends Fragment {
         }else if(type == Constant.LIST_TYPE_LOCAL){
             mLocalMusicNum.setText(String.valueOf(LitePal.findAll(LocalSong.class).size()));
         }else if(type == Constant.LIST_TYPE_DOWNLOAD){
-            mDownloadMusicNum.setText(String.valueOf(LitePal.findAll(DownloadSong.class).size()));
+            mDownloadMusicNum.setText(String.valueOf(DownloadUtil.getSongFromFile(Api.STORAGE_SONG_FILE).size()));
         }
     }
 
@@ -204,7 +203,7 @@ public class MainFragment extends Fragment {
         mLocalMusicNum.setText(String.valueOf(LitePal.findAll(LocalSong.class).size()));
         mLoveMusicNum.setText(String.valueOf(LitePal.findAll(Love.class).size()));
         mHistoryMusicNum.setText(String.valueOf(LitePal.findAll(HistorySong.class).size()));
-        mDownloadMusicNum.setText(String.valueOf(LitePal.findAll(DownloadSong.class).size()));
+        mDownloadMusicNum.setText(String.valueOf(DownloadUtil.getSongFromFile(Api.STORAGE_SONG_FILE).size()));
     }
 
     //使数据库中的列表逆序排列

@@ -27,6 +27,7 @@ import com.example.musicplayer.event.SongListNumEvent;
 import com.example.musicplayer.event.SongLocalEvent;
 import com.example.musicplayer.event.SongStatusEvent;
 import com.example.musicplayer.model.https.RetrofitFactory;
+import com.example.musicplayer.util.DownloadUtil;
 import com.example.musicplayer.util.FileUtil;
 
 import org.greenrobot.eventbus.EventBus;
@@ -78,7 +79,7 @@ public class PlayerService extends Service {
             song.setPosition(0);
             FileUtil.saveSong(song);
         }else if(mListType == Constant.LIST_TYPE_DOWNLOAD){
-            mDownloadList = orderDownloadList(LitePal.findAll(DownloadSong.class));
+            mDownloadList = orderDownloadList(DownloadUtil.getSongFromFile(Api.STORAGE_SONG_FILE));
         }
     }
 
@@ -155,7 +156,7 @@ public class PlayerService extends Service {
                 } else if (mListType == Constant.LIST_TYPE_HISTORY) {
                     EventBus.getDefault().post(new SongHistoryEvent());  //发送随机歌曲改变事件
                 }else if(mListType == Constant.LIST_TYPE_DOWNLOAD){
-                    mDownloadList = orderDownloadList(LitePal.findAll(DownloadSong.class));
+                    mDownloadList =orderDownloadList(DownloadUtil.getSongFromFile(Api.STORAGE_SONG_FILE));
                     EventBus.getDefault().post(new SongDownloadedEvent()); //发送下载歌曲改变的消息
                 }
                 mCurrent = FileUtil.getSong().getPosition();

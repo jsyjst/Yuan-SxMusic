@@ -5,6 +5,7 @@ import android.os.AsyncTask;
 
 import com.example.musicplayer.app.Api;
 import com.example.musicplayer.entiy.DownloadInfo;
+import com.example.musicplayer.util.DownloadUtil;
 
 import java.io.File;
 import java.io.IOException;
@@ -54,13 +55,12 @@ public class DownloadTask extends AsyncTask<DownloadInfo, DownloadInfo, Integer>
             }
             //传过来的下载地址
             // http://ws.stream.qqmusic.qq.com/C400001DI2Jj3Jqve9.m4a?guid=358840384&vkey=2B9BF114492F203C3943D8AE38C83DD8FEEA5E628B18F7F4455CA9B5059040266D74EBD43E09627AA4419D379B6A9E1FC1E5D2104AC7BB50&uin=0&fromtag=66
-
-            String fileName = downloadUrl.substring(downloadUrl.lastIndexOf("/") + 1, downloadUrl.indexOf("?"));
+            long contentLength = getContentLength(downloadUrl); //实际文件长度
+            String fileName = DownloadUtil.getSaveSongFile(downloadInfo.getSinger(),downloadInfo.getSongName(),downloadInfo.getDuration(),downloadInfo.getSongId(),contentLength);
             file = new File(downloadFile ,fileName);
             if (file.exists()) {
                 downloadedLength = file.length();
             }
-            long contentLength = getContentLength(downloadUrl); //实际文件长度
             if (contentLength == 0) {
                 return TYPE_DOWNLOAD_FAILED;
             } else if (contentLength == downloadedLength) { //已下载
@@ -161,7 +161,7 @@ public class DownloadTask extends AsyncTask<DownloadInfo, DownloadInfo, Integer>
         isCanceled = true;
     }
 
-    public long getContentLength(String downloadUrl) throws IOException {
+    private long getContentLength(String downloadUrl) throws IOException {
         OkHttpClient client = new OkHttpClient();
         Request request = new Request.Builder()
                 .url(downloadUrl)

@@ -104,10 +104,9 @@ public class DownloadingFragment extends Fragment {
         //暂停
         mAdapter.setOnItemClickListener(position -> {
             DownloadInfo downloadInfo = mDownloadInfoList.get(position);
-            Song song = mDownloadInfoList.get(position).getSong();
             //判断是否为正在播放的歌曲
             if(downloadInfo.getStatus() == Constant.DOWNLOAD_PAUSED){
-                mDownloadBinder.startDownload(song);
+                mDownloadBinder.startDownload(downloadInfo);
             }else {
                 //传入要暂停的音乐id
                 mDownloadBinder.pauseDownload(downloadInfo.getSongId());
@@ -121,7 +120,7 @@ public class DownloadingFragment extends Fragment {
                     .setMessage(getString(R.string.download_cancel_message))
                     .setSureText(getString(R.string.download_sure))
                     .setSureClickListener(dialog -> {
-                        mDownloadBinder.cancelDownload(mDownloadInfoList.get(position).getUrl(),mDownloadInfoList.get(position).getSongId());
+                        mDownloadBinder.cancelDownload(mDownloadInfoList.get(position));
                     })
             .show();
         });
@@ -167,6 +166,8 @@ public class DownloadingFragment extends Fragment {
         }
 
     }
+
+
 
     @Override
     public void onDestroyView() {

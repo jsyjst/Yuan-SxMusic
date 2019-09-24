@@ -19,7 +19,8 @@ public class DownloadInfo extends LitePalSupport {
     private int progress;
     private long currentSize;
     private long totalSize;
-    private Song song;
+//    private Song song;
+    private long duration;
     private int position;//正在下载歌曲列表中的位置
     private int status;//下载歌曲的状态
 
@@ -79,13 +80,13 @@ public class DownloadInfo extends LitePalSupport {
         this.totalSize = totalSize;
     }
 
-    public Song getSong() {
-        return song;
-    }
-
-    public void setSong(Song song) {
-        this.song = song;
-    }
+//    public Song getSong() {
+//        return song;
+//    }
+//
+//    public void setSong(Song song) {
+//        this.song = song;
+//    }
 
     public int getPosition() {
         return position;
@@ -105,5 +106,13 @@ public class DownloadInfo extends LitePalSupport {
 
     public void setStatus(int status) {
         this.status = status;
+    }
+
+    public long getDuration() {
+        return duration;
+    }
+
+    public void setDuration(long duration) {
+        this.duration = duration;
     }
 }

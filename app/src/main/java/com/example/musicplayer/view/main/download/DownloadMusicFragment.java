@@ -11,6 +11,7 @@ import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -23,12 +24,12 @@ import com.example.musicplayer.entiy.Song;
 import com.example.musicplayer.event.DownloadEvent;
 import com.example.musicplayer.event.SongDownloadedEvent;
 import com.example.musicplayer.service.PlayerService;
+import com.example.musicplayer.util.DownloadUtil;
 import com.example.musicplayer.util.FileUtil;
 
 import org.greenrobot.eventbus.EventBus;
 import org.greenrobot.eventbus.Subscribe;
 import org.greenrobot.eventbus.ThreadMode;
-import org.litepal.LitePal;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -37,6 +38,8 @@ import java.util.Objects;
 import butterknife.BindView;
 import butterknife.ButterKnife;
 import butterknife.Unbinder;
+
+import static com.example.musicplayer.app.Api.STORAGE_SONG_FILE;
 
 /**
  * <pre>
@@ -90,7 +93,7 @@ public class DownloadMusicFragment extends Fragment {
     }
 
     private void showSongList(){
-        mDownloadSongList.addAll(orderList(LitePal.findAll(DownloadSong.class)));
+        mDownloadSongList = orderList(DownloadUtil.getSongFromFile(STORAGE_SONG_FILE));
         mAdapter = new DownloadSongAdapter(getActivity(), mDownloadSongList);
         mManager = new LinearLayoutManager(getActivity());
         songRecycle.setLayoutManager(mManager);
@@ -104,6 +107,7 @@ public class DownloadMusicFragment extends Fragment {
             song.setSinger(downloadSong.getSinger());
             song.setOnline(false);
             song.setUrl(downloadSong.getUrl());
+            Log.d(TAG, "showSongList: "+song.getUrl());
             song.setImgUrl(downloadSong.getPic());
             song.setPosition(position);
             song.setDuration(downloadSong.getDuration());
@@ -120,7 +124,7 @@ public class DownloadMusicFragment extends Fragment {
     public void onDownloadSuccessEvent(DownloadEvent event){
         if(event.getDownloadStatus() == Constant.TYPE_DOWNLOAD_SUCCESS){
             mDownloadSongList.clear();
-            mDownloadSongList.addAll(orderList(LitePal.findAll(DownloadSong.class)));
+            mDownloadSongList.addAll(orderList(DownloadUtil.getSongFromFile(STORAGE_SONG_FILE)));
             mAdapter.notifyDataSetChanged();
         }
     }

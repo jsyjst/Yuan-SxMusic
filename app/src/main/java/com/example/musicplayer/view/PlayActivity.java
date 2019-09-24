@@ -43,6 +43,7 @@ import com.example.musicplayer.app.Api;
 import com.example.musicplayer.app.Constant;
 import com.example.musicplayer.base.activity.BaseMvpActivity;
 import com.example.musicplayer.contract.IPlayContract;
+import com.example.musicplayer.entiy.DownloadInfo;
 import com.example.musicplayer.entiy.DownloadSong;
 import com.example.musicplayer.entiy.LocalSong;
 import com.example.musicplayer.entiy.Song;
@@ -450,7 +451,7 @@ public class PlayActivity extends BaseMvpActivity<PlayPresenter> implements IPla
             if (mSong.isDownload()) {
                 showToast(getString(R.string.downloded));
             } else {
-                mDownloadBinder.startDownload(mSong);
+                mDownloadBinder.startDownload(getDownloadInfoFromSong(mSong));
             }
         });
 
@@ -745,6 +746,17 @@ public class PlayActivity extends BaseMvpActivity<PlayPresenter> implements IPla
 
         //避免内存泄漏
         mMusicHandler.removeCallbacksAndMessages(null);
+    }
+
+    private DownloadInfo getDownloadInfoFromSong(Song song){
+        DownloadInfo downloadInfo = new DownloadInfo();
+        downloadInfo.setSinger(song.getSinger());
+        downloadInfo.setProgress(0);
+        downloadInfo.setSongId(song.getSongId());
+        downloadInfo.setUrl(song.getUrl());
+        downloadInfo.setSongName(song.getSongName());
+        downloadInfo.setDuration(song.getDuration());
+        return downloadInfo;
     }
 
 }

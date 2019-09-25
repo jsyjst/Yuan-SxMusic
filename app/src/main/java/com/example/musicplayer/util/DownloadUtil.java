@@ -2,6 +2,7 @@ package com.example.musicplayer.util;
 
 import android.util.Log;
 
+import com.example.musicplayer.app.Api;
 import com.example.musicplayer.entiy.DownloadSong;
 
 import java.io.File;
@@ -49,6 +50,27 @@ public class DownloadUtil {
             res.add(downloadSong);
         }
         return res;
+    }
+
+    public static final boolean isExistOfDownloadSong(String songId){
+        //将.m4a截取掉得到singer-songName-duration-songId-size
+        File file=new File(STORAGE_SONG_FILE);
+        if(!file.exists()){
+            file.mkdirs();
+            return false;
+        }
+        File[] subFile = file.listFiles();
+        for (File value : subFile) {
+            String songFileName = value.getName();
+            String songFile = songFileName.substring(0, songFileName.lastIndexOf("."));
+            String[] songValue = songFile.split("-");
+            //如果文件的大小不等于实际大小，则表示该歌曲还未下载完成，被人为暂停，故跳过该歌曲，不加入到已下载集合
+            if(songValue[3].equals(songId)) {
+                long size = Long.valueOf(songValue[4]);
+                return size == value.length();
+            }
+        }
+        return false;
     }
 
 

@@ -28,6 +28,7 @@ import com.example.musicplayer.event.OnlineSongErrorEvent;
 import com.example.musicplayer.presenter.SearchContentPresenter;
 import com.example.musicplayer.service.PlayerService;
 import com.example.musicplayer.util.CommonUtil;
+import com.example.musicplayer.util.DownloadUtil;
 import com.example.musicplayer.util.FileUtil;
 import com.github.jdsjlzx.recyclerview.LRecyclerView;
 import com.github.jdsjlzx.recyclerview.LRecyclerViewAdapter;
@@ -170,10 +171,9 @@ public class SearchContentFragment extends BaseLoadingFragment<SearchContentPres
             song.setDuration(dataBean.getInterval());
             song.setOnline(true);
             song.setMediaId(dataBean.getStrMediaMid());
-            song.setDownload(LitePal.where("songId=?", dataBean.getSongmid()).find(DownloadSong.class).size() != 0);
-            FileUtil.saveSong(song);
+            song.setDownload(DownloadUtil.isExistOfDownloadSong(dataBean.getSongmid()));
             //网络获取歌曲地址
-            mPresenter.getSongUrl(dataBean.getSongmid());
+            mPresenter.getSongUrl(song);
         });
     }
 
@@ -241,9 +241,7 @@ public class SearchContentFragment extends BaseLoadingFragment<SearchContentPres
     }
 
     @Override
-    public void getSongUrlSuccess(String url) {
-        Song song= FileUtil.getSong();
-        assert song != null;
+    public void getSongUrlSuccess(Song song,String url) {
         song.setUrl(url);
         FileUtil.saveSong(song);
         mPlayStatusBinder.playOnline();

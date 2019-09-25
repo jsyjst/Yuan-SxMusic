@@ -142,8 +142,17 @@ public class DownloadService extends Service {
             //暂停的歌曲是否为当前下载的歌曲
             if (downloadTask != null &&downloadQueue.peek().getSongId().equals(songId)) {
                 downloadTask.pauseDownload();
-            }else {
-                listener.onPaused();
+            }else {//暂停的歌曲是下载队列的歌曲
+                //将该歌曲从下载队列中移除
+                for (int i = 0; i < downloadQueue.size(); i++) {
+                    DownloadInfo downloadInfo = downloadQueue.get(i);
+                    if (downloadInfo.getSongId().equals(songId)) {
+                        downloadQueue.remove(i);
+                        updateDbOfPause(downloadInfo.getSongId());
+                        downloadInfo.setStatus(Constant.DOWNLOAD_PAUSED);
+                        EventBus.getDefault().post(new DownloadEvent(Constant.TYPE_DOWNLOAD_PAUSED, downloadInfo)); //下载暂停
+                    }
+                }
             }
         }
 
@@ -262,7 +271,7 @@ public class DownloadService extends Service {
             historyDownloadInfo.setStatus(Constant.DOWNLOAD_WAIT);
             historyDownloadInfo.save();
             EventBus.getDefault().post(new DownloadEvent(Constant.DOWNLOAD_PAUSED,historyDownloadInfo));
-            downloadQueue.offer(downloadInfoList.get(0));
+            downloadQueue.offer(historyDownloadInfo);
             return;
         }
 

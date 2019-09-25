@@ -4,6 +4,7 @@ import com.example.musicplayer.base.presenter.IPresenter;
 import com.example.musicplayer.base.view.BaseView;
 import com.example.musicplayer.entiy.Album;
 import com.example.musicplayer.entiy.SearchSong;
+import com.example.musicplayer.entiy.Song;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -23,13 +24,13 @@ public interface ISearchContentContract {
         void searchAlbumSuccess(List<Album.DataBean.AlbumBean.ListBean> albumList); //获取专辑成功
         void searchAlbumMoreSuccess(List<Album.DataBean.AlbumBean.ListBean> songListBeans); //搜索更多内容成功
         void searchAlbumError(); //获取专辑失败
-        void getSongUrlSuccess(String url);//成功获取歌曲url
+        void getSongUrlSuccess(Song song,String url);//成功获取歌曲url
     }
     interface Presenter extends IPresenter<View> {
         void search(String seek,int  offset); //搜索
         void searchMore(String seek,int offset); //搜索更多
         void searchAlbum(String seek,int offset); //搜索专辑
         void searchAlbumMore(String seek,int offset);//搜索更多专辑
-        void getSongUrl(String songId);//得到歌曲的播放url
+        void getSongUrl(Song song);//得到歌曲的播放url
     }
 }

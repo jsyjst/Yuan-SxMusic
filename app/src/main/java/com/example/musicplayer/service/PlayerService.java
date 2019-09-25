@@ -27,6 +27,7 @@ import com.example.musicplayer.event.SongListNumEvent;
 import com.example.musicplayer.event.SongLocalEvent;
 import com.example.musicplayer.event.SongStatusEvent;
 import com.example.musicplayer.model.https.RetrofitFactory;
+import com.example.musicplayer.util.CommonUtil;
 import com.example.musicplayer.util.DownloadUtil;
 import com.example.musicplayer.util.FileUtil;
 
@@ -493,6 +494,10 @@ public class PlayerService extends Service {
                         if (songUrl.getCode() == 0) {
                             String sip = songUrl.getReq_0().getData().getSip().get(0);
                             String purl = songUrl.getReq_0().getData().getMidurlinfo().get(0).getPurl();
+                            if(purl.equals("")) {
+                                CommonUtil.showToast(PlayerService.this,"该歌曲暂时没有版权，试试搜索其它歌曲吧");
+                                return;
+                            }
                             Song song = FileUtil.getSong();
                             assert song != null;
                             song.setUrl(sip + purl);
@@ -510,7 +515,7 @@ public class PlayerService extends Service {
 
                     @Override
                     public void onError(Throwable throwable) {
-
+                        Log.d(TAG, "onError: "+throwable.toString());
                     }
 
                     @Override

@@ -7,6 +7,7 @@ import com.example.musicplayer.base.presenter.BasePresenter;
 import com.example.musicplayer.contract.ISearchContentContract;
 import com.example.musicplayer.entiy.Album;
 import com.example.musicplayer.entiy.SearchSong;
+import com.example.musicplayer.entiy.Song;
 import com.example.musicplayer.entiy.SongUrl;
 import com.example.musicplayer.model.DataModel;
 import com.example.musicplayer.model.db.DbHelperImpl;
@@ -116,11 +117,11 @@ public class SearchContentPresenter extends BasePresenter<ISearchContentContract
     }
 
     @Override
-    public void getSongUrl(String songId) {
+    public void getSongUrl(Song song) {
         //因为得到播放地址的baseUrl和获取歌曲列表等的baseUrl不同，所以要重新赋值
         mModel = new DataModel(new NetworkHelperImpl(RetrofitFactory.createRequestOfSongUrl()),new DbHelperImpl(),new PreferencesHelperImpl());
         addRxSubscribe(
-                mModel.getSongUrl(Api.SONG_URL_DATA_LEFT+songId+Api.SONG_URL_DATA_RIGHT)
+                mModel.getSongUrl(Api.SONG_URL_DATA_LEFT+song.getSongId()+Api.SONG_URL_DATA_RIGHT)
                         .subscribeOn(Schedulers.io()).observeOn(AndroidSchedulers.mainThread())
                         .subscribeWith(new BaseObserver<SongUrl>(mView,false,false){
                             @Override
@@ -129,7 +130,12 @@ public class SearchContentPresenter extends BasePresenter<ISearchContentContract
                                 if(songUrl.getCode() == 0){
                                     String sip = songUrl.getReq_0().getData().getSip().get(0);
                                     String purl = songUrl.getReq_0().getData().getMidurlinfo().get(0).getPurl();
-                                    mView.getSongUrlSuccess(sip+purl);
+                                    if(purl.equals("")){
+                                        mView.showToast("该歌曲暂时没有版权，搜搜其它歌曲吧");
+                                    }else {
+                                        mView.getSongUrlSuccess(song,sip+purl);
+                                    }
+
                                 }else {
                                     mView.showToast(songUrl.getCode()+":获取不到歌曲播放地址");
                                 }

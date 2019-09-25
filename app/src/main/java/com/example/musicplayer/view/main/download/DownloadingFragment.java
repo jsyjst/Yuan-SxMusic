@@ -104,6 +104,7 @@ public class DownloadingFragment extends Fragment {
         //暂停
         mAdapter.setOnItemClickListener(position -> {
             DownloadInfo downloadInfo = mDownloadInfoList.get(position);
+            Log.d(TAG, "initRecycler: "+mDownloadInfoList.get(position).getStatus());
             //判断是否为正在播放的歌曲
             if(downloadInfo.getStatus() == Constant.DOWNLOAD_PAUSED){
                 mDownloadBinder.startDownload(downloadInfo);
@@ -144,16 +145,6 @@ public class DownloadingFragment extends Fragment {
         }else if(status == Constant.TYPE_DOWNLOAD_ADD){//添加了正在下载歌曲
             resetDownloadInfoList();
         }
-    }
-
-
-    private List<DownloadInfo> orderList(List<DownloadInfo> tempList){
-        List<DownloadInfo> downloadInfos=new ArrayList<>();
-        downloadInfos.clear();
-        for(int i=tempList.size()-1;i>=0;i--){
-            downloadInfos.add(tempList.get(i));
-        }
-        return downloadInfos;
     }
 
 

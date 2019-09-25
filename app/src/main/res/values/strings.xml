@@ -56,7 +56,7 @@
     <string name="download_cancel">取消下载</string>
     <string name="download_cancel_message">确定不再下载吗？</string>
     <string name="download_sure">删除</string>
-
+    <string name="search_singer">邓紫棋</string>
 
 
 </resources>

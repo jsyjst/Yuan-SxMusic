@@ -38,7 +38,7 @@
             android:focusable="true"
             android:focusableInTouchMode="true"
             android:paddingStart="15dp"
-            android:hint="周杰伦"
+            android:hint="@string/search_singer"
             android:textColor="@color/white"
             android:textSize="16sp" />
 

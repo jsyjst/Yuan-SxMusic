@@ -9,6 +9,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.ServiceConnection;
 import android.media.MediaPlayer;
+import android.os.Build;
 import android.os.IBinder;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentTransaction;
@@ -286,8 +287,13 @@ public class MainActivity extends BaseActivity {
                if (FileUtil.getSong().getImgUrl() != null) {
                    toPlayActivityIntent.putExtra(SearchContentFragment.IS_ONLINE, true);
                }
-               startActivity(toPlayActivityIntent,
-                       ActivityOptions.makeSceneTransitionAnimation(MainActivity.this).toBundle());
+               //如果版本大于21
+               if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+                   startActivity(toPlayActivityIntent,
+                           ActivityOptions.makeSceneTransitionAnimation(MainActivity.this).toBundle());
+               }else {
+                   startActivity(toPlayActivityIntent);
+               }
 
            }else {
                showToast(getString(R.string.welcome_start));

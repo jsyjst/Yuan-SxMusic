@@ -10,6 +10,7 @@ import android.util.Log;
 
 import com.example.musicplayer.app.Api;
 import com.example.musicplayer.app.Constant;
+import com.example.musicplayer.entiy.DownloadSong;
 import com.example.musicplayer.entiy.HistorySong;
 import com.example.musicplayer.entiy.LocalSong;
 import com.example.musicplayer.entiy.Love;
@@ -20,10 +21,14 @@ import com.example.musicplayer.event.OnlineSongChangeEvent;
 import com.example.musicplayer.event.OnlineSongErrorEvent;
 import com.example.musicplayer.event.SongAlbumEvent;
 import com.example.musicplayer.event.SongCollectionEvent;
+import com.example.musicplayer.event.SongDownloadedEvent;
 import com.example.musicplayer.event.SongHistoryEvent;
+import com.example.musicplayer.event.SongListNumEvent;
 import com.example.musicplayer.event.SongLocalEvent;
 import com.example.musicplayer.event.SongStatusEvent;
 import com.example.musicplayer.model.https.RetrofitFactory;
+import com.example.musicplayer.util.CommonUtil;
+import com.example.musicplayer.util.DownloadUtil;
 import com.example.musicplayer.util.FileUtil;
 
 import org.greenrobot.eventbus.EventBus;
@@ -52,6 +57,7 @@ public class PlayerService extends Service {
     private List<OnlineSong> mSongList;
     private List<Love> mLoveList;
     private List<HistorySong> mHistoryList;
+    private List<DownloadSong> mDownloadList;
     private int mCurrent;
     private int mListType;
     private int mPlayMode = Constant.PLAY_ORDER; //播放模式,默认为顺序播放
@@ -59,6 +65,7 @@ public class PlayerService extends Service {
 
     @Override
     public void onCreate() {
+        Log.d(TAG, "onCreate: true");
         mListType = FileUtil.getSong().getListType();
         if (mListType == Constant.LIST_TYPE_ONLINE) {
             mSongList = LitePal.findAll(OnlineSong.class);
@@ -70,8 +77,10 @@ public class PlayerService extends Service {
             mHistoryList = orderHistoryList(LitePal.findAll(HistorySong.class));
             //保证最近播放列表一开始总是第一个
             Song song = FileUtil.getSong();
-            song.setCurrent(0);
+            song.setPosition(0);
             FileUtil.saveSong(song);
+        }else if(mListType == Constant.LIST_TYPE_DOWNLOAD){
+            mDownloadList = orderDownloadList(DownloadUtil.getSongFromFile(Api.STORAGE_SONG_FILE));
         }
     }
 
@@ -79,24 +88,28 @@ public class PlayerService extends Service {
     public IBinder onBind(Intent arg0) {
         mediaPlayer.setOnCompletionListener(mp -> {
             EventBus.getDefault().post(new SongStatusEvent(Constant.SONG_PAUSE));//暂停广播
-            mCurrent = FileUtil.getSong().getCurrent();
+            mCurrent = FileUtil.getSong().getPosition();
             //将歌曲的信息保存起来
             if (mListType == Constant.LIST_TYPE_LOCAL) {
                 mCurrent=getNextCurrent(mCurrent, mPlayMode, mLocalSongList.size()); //根据播放模式来播放下一曲
                 saveLocalSongInfo(mCurrent);
-                mPlayStatusBinder.play(Constant.LIST_TYPE_LOCAL);
             } else if (mListType == Constant.LIST_TYPE_ONLINE) {
                 mCurrent=getNextCurrent(mCurrent, mPlayMode, mSongList.size());//根据播放模式来播放下一曲
                 saveOnlineSongInfo(mCurrent);
-                mPlayStatusBinder.play(Constant.LIST_TYPE_ONLINE);
             } else if (mListType == Constant.LIST_TYPE_LOVE) {
                 mCurrent=getNextCurrent(mCurrent, mPlayMode, mLoveList.size());//根据播放模式来播放下一曲
                 saveLoveInfo(mCurrent);
-                mPlayStatusBinder.play(Constant.LIST_TYPE_LOVE);
-            } else {
+            } else if(mListType == Constant.LIST_TYPE_HISTORY){
                 mCurrent=getNextCurrent(mCurrent, mPlayMode, mHistoryList.size());//根据播放模式来播放下一曲
                 saveHistoryInfo(mCurrent);
-                mPlayStatusBinder.play(Constant.LIST_TYPE_HISTORY);
+            }else if(mListType == Constant.LIST_TYPE_DOWNLOAD){
+                mCurrent=getNextCurrent(mCurrent, mPlayMode, mDownloadList.size());//根据播放模式来播放下一曲
+                saveDownloadInfo(mCurrent);
+            }
+            if(mListType!=0) {
+                mPlayStatusBinder.play(mListType);
+            }else {
+                mPlayStatusBinder.stop();
             }
         });
         /**
@@ -119,7 +132,7 @@ public class PlayerService extends Service {
             mHistoryList = orderHistoryList(LitePal.findAll(HistorySong.class));
             //保证最近播放列表一开始总是第一个
             Song song = FileUtil.getSong();
-            song.setCurrent(0);
+            song.setPosition(0);
             FileUtil.saveSong(song);
         }
 
@@ -143,8 +156,11 @@ public class PlayerService extends Service {
                     EventBus.getDefault().post(new SongCollectionEvent(true));//发送歌曲改变事件
                 } else if (mListType == Constant.LIST_TYPE_HISTORY) {
                     EventBus.getDefault().post(new SongHistoryEvent());  //发送随机歌曲改变事件
+                }else if(mListType == Constant.LIST_TYPE_DOWNLOAD){
+                    mDownloadList =orderDownloadList(DownloadUtil.getSongFromFile(Api.STORAGE_SONG_FILE));
+                    EventBus.getDefault().post(new SongDownloadedEvent()); //发送下载歌曲改变的消息
                 }
-                mCurrent = FileUtil.getSong().getCurrent();
+                mCurrent = FileUtil.getSong().getPosition();
                 mediaPlayer.reset();//把各项参数恢复到初始状态
                 if (mListType == Constant.LIST_TYPE_LOCAL) {
                     mediaPlayer.setDataSource(mLocalSongList.get(mCurrent).getUrl());
@@ -154,8 +170,12 @@ public class PlayerService extends Service {
                 } else if (mListType == Constant.LIST_TYPE_LOVE) {
                     mediaPlayer.setDataSource(mLoveList.get(mCurrent).getUrl());
                     startPlay();
-                } else {
+                } else if(mListType == Constant.LIST_TYPE_HISTORY){
                     mediaPlayer.setDataSource(mHistoryList.get(mCurrent).getUrl());
+                    startPlay();
+                }else if(mListType == Constant.LIST_TYPE_DOWNLOAD){
+                    Log.d(TAG, "play: "+mDownloadList.get(mCurrent).getUrl());
+                    mediaPlayer.setDataSource(mDownloadList.get(mCurrent).getUrl());
                     startPlay();
                 }
             } catch (Exception e) {
@@ -207,46 +227,46 @@ public class PlayerService extends Service {
 
         public void next() {
             EventBus.getDefault().post(new SongStatusEvent(Constant.SONG_RESUME));
-            mCurrent = FileUtil.getSong().getCurrent();
+            mCurrent = FileUtil.getSong().getPosition();
             if (mListType == Constant.LIST_TYPE_LOCAL) {
                 mCurrent=getNextCurrent(mCurrent, mPlayMode, mLocalSongList.size()); //根据播放模式来播放下一曲
                 saveLocalSongInfo(mCurrent);
-                mPlayStatusBinder.play(Constant.LIST_TYPE_LOCAL);
             } else if (mListType == Constant.LIST_TYPE_ONLINE) {
                 mCurrent=getNextCurrent(mCurrent, mPlayMode, mSongList.size());//根据播放模式来播放下一曲
                 saveOnlineSongInfo(mCurrent);
-                mPlayStatusBinder.play(Constant.LIST_TYPE_ONLINE);
             } else if (mListType == Constant.LIST_TYPE_LOVE) {
                 mCurrent=getNextCurrent(mCurrent, mPlayMode, mLoveList.size());//根据播放模式来播放下一曲
                 saveLoveInfo(mCurrent);
-                mPlayStatusBinder.play(Constant.LIST_TYPE_LOVE);
-            } else {
+            } else if(mListType == Constant.LIST_TYPE_HISTORY){
                 mCurrent=getNextCurrent(mCurrent, mPlayMode, mHistoryList.size());//根据播放模式来播放下一曲
                 saveHistoryInfo(mCurrent);
-                mPlayStatusBinder.play(Constant.LIST_TYPE_HISTORY);
+            }else if(mListType == Constant.LIST_TYPE_DOWNLOAD){
+                mCurrent=getNextCurrent(mCurrent, mPlayMode, mDownloadList.size());//根据播放模式来播放下一曲
+                saveDownloadInfo(mCurrent);
             }
+            if(mListType!=0) mPlayStatusBinder.play(mListType);
         }
 
         public void last() {
             EventBus.getDefault().post(new SongStatusEvent(Constant.SONG_RESUME));//暂停广播
-            mCurrent = FileUtil.getSong().getCurrent();
+            mCurrent = FileUtil.getSong().getPosition();
             if (mListType == Constant.LIST_TYPE_LOCAL) {
                 mCurrent = getLastCurrent(mCurrent,mPlayMode,mLocalSongList.size());
                 saveLocalSongInfo(mCurrent);
-                mPlayStatusBinder.play(mListType);
             } else if (mListType == Constant.LIST_TYPE_ONLINE) {
                 mCurrent = getLastCurrent(mCurrent,mPlayMode,mSongList.size());
                 saveOnlineSongInfo(mCurrent);
-                mPlayStatusBinder.play(mListType);
             } else if (mListType == Constant.LIST_TYPE_LOVE) {
                 mCurrent = getLastCurrent(mCurrent,mPlayMode,mLoveList.size());
                 saveLoveInfo(mCurrent);
-                mPlayStatusBinder.play(mListType);
-            } else {
+            } else if(mListType == Constant.LIST_TYPE_HISTORY){
                 mCurrent = getLastCurrent(mCurrent,mPlayMode,mHistoryList.size());
                 saveHistoryInfo(mCurrent);
-                mPlayStatusBinder.play(mListType);
+            } else if(mListType == Constant.LIST_TYPE_DOWNLOAD){
+                mCurrent = getLastCurrent(mCurrent,mPlayMode,mDownloadList.size());
+                saveDownloadInfo(mCurrent);
             }
+            if(mListType!=0) mPlayStatusBinder.play(mListType);
         }
 
         /**
@@ -303,7 +323,7 @@ public class PlayerService extends Service {
         mLocalSongList = LitePal.findAll(LocalSong.class);
         Song song = new Song();
         LocalSong localSong = mLocalSongList.get(current);
-        song.setCurrent(current);
+        song.setPosition(current);
         song.setSongName(localSong.getName());
         song.setSinger(localSong.getSinger());
         song.setDuration(localSong.getDuration());
@@ -320,7 +340,7 @@ public class PlayerService extends Service {
     private void saveOnlineSongInfo(int current) {
         mSongList = LitePal.findAll(OnlineSong.class);
         Song song = new Song();
-        song.setCurrent(current);
+        song.setPosition(current);
         song.setSongId(mSongList.get(current).getSongId());
         song.setSongName(mSongList.get(current).getName());
         song.setSinger(mSongList.get(current).getSinger());
@@ -329,6 +349,7 @@ public class PlayerService extends Service {
         song.setImgUrl(mSongList.get(current).getPic());
         song.setOnline(true);
         song.setListType(Constant.LIST_TYPE_ONLINE);
+        song.setMediaId(mSongList.get(current).getMediaId());
         FileUtil.saveSong(song);
     }
 
@@ -337,7 +358,7 @@ public class PlayerService extends Service {
         mLoveList = orderList(LitePal.findAll(Love.class));
         Love love = mLoveList.get(current);
         Song song = new Song();
-        song.setCurrent(current);
+        song.setPosition(current);
         song.setSongId(love.getSongId());
         song.setQqId(love.getQqId());
         song.setSongName(love.getName());
@@ -347,6 +368,27 @@ public class PlayerService extends Service {
         song.setListType(Constant.LIST_TYPE_LOVE);
         song.setOnline(love.isOnline());
         song.setDuration(love.getDuration());
+        song.setMediaId(love.getMediaId());
+        song.setDownload(love.isDownload());
+        FileUtil.saveSong(song);
+    }
+
+
+    //保存下载列表的信息
+    private void saveDownloadInfo(int current){
+        DownloadSong downloadSong = mDownloadList.get(current);
+        Song song = new Song();
+        song.setPosition(current);
+        song.setSongId(downloadSong.getSongId());
+        song.setSongName(downloadSong.getName());
+        song.setSinger(downloadSong.getSinger());
+        song.setUrl(downloadSong.getUrl());
+        song.setImgUrl(downloadSong.getPic());
+        song.setListType(Constant.LIST_TYPE_DOWNLOAD);
+        song.setOnline(false);
+        song.setDuration(downloadSong.getDuration());
+        song.setMediaId(downloadSong.getMediaId());
+        song.setDownload(true);
         FileUtil.saveSong(song);
     }
 
@@ -354,7 +396,7 @@ public class PlayerService extends Service {
     private void saveHistoryInfo(int current) {
         HistorySong historySong = mHistoryList.get(current);
         Song song = new Song();
-        song.setCurrent(current);
+        song.setPosition(current);
         song.setSongId(historySong.getSongId());
         song.setQqId(historySong.getQqId());
         song.setSongName(historySong.getName());
@@ -364,6 +406,8 @@ public class PlayerService extends Service {
         song.setListType(Constant.LIST_TYPE_HISTORY);
         song.setOnline(historySong.isOnline());
         song.setDuration(historySong.getDuration());
+        song.setMediaId(historySong.getMediaId());
+        song.setDownload(historySong.isDownload());
         FileUtil.saveSong(song);
     }
 
@@ -387,10 +431,14 @@ public class PlayerService extends Service {
                         history.setPic(song.getImgUrl());
                         history.setOnline(song.isOnline());
                         history.setDuration(song.getDuration());
+                        history.setMediaId(song.getMediaId());
+                        history.setDownload(song.isDownload());
                         history.saveAsync().listen(new SaveCallback() {
                             @Override
                             public void onFinish(boolean success) {
                                 if (success) {
+                                    //告诉主界面最近播放的数目需要改变
+                                    EventBus.getDefault().post(new SongListNumEvent(Constant.LIST_TYPE_HISTORY));
                                     if (LitePal.findAll(HistorySong.class).size() > Constant.HISTORY_MAX_SIZE) {
                                         LitePal.delete(HistorySong.class, LitePal.findFirst(HistorySong.class).getId());
                                     }
@@ -404,13 +452,22 @@ public class PlayerService extends Service {
     }
 
     //对数据库进行倒叙排序
-    private List<Love> orderList(List<Love> tempList) {
+    private List orderList(List<Love> tempList) {
         List<Love> loveList = new ArrayList<>();
         loveList.clear();
         for (int i = tempList.size() - 1; i >= 0; i--) {
             loveList.add(tempList.get(i));
         }
         return loveList;
+    }
+
+    private List<DownloadSong> orderDownloadList(List<DownloadSong> tempList) {
+        List<DownloadSong> downloadSongList = new ArrayList<>();
+        downloadSongList.clear();
+        for (int i = tempList.size() - 1; i >= 0; i--) {
+            downloadSongList.add(tempList.get(i));
+        }
+        return downloadSongList;
     }
 
     private List<HistorySong> orderHistoryList(List<HistorySong> tempList) {
@@ -437,6 +494,10 @@ public class PlayerService extends Service {
                         if (songUrl.getCode() == 0) {
                             String sip = songUrl.getReq_0().getData().getSip().get(0);
                             String purl = songUrl.getReq_0().getData().getMidurlinfo().get(0).getPurl();
+                            if(purl.equals("")) {
+                                CommonUtil.showToast(PlayerService.this,"该歌曲暂时没有版权，试试搜索其它歌曲吧");
+                                return;
+                            }
                             Song song = FileUtil.getSong();
                             assert song != null;
                             song.setUrl(sip + purl);
@@ -454,7 +515,7 @@ public class PlayerService extends Service {
 
                     @Override
                     public void onError(Throwable throwable) {
-
+                        Log.d(TAG, "onError: "+throwable.toString());
                     }
 
                     @Override

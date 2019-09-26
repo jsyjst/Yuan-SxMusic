@@ -17,7 +17,7 @@
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_weight="1"
-            android:text="我"
+            android:text="@string/me"
             android:gravity="center"
             android:textColor="@color/musicStyle"
             android:textSize="22sp"/>
@@ -26,22 +26,14 @@
             android:layout_height="wrap_content"
             android:layout_weight="1"
             android:gravity="center"
-            android:text="听"
+            android:text="@string/listen"
             android:textSize="20sp"
             android:textColor="@color/white_blue"/>
         <TextView
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_weight="1"
-            android:text="看"
-            android:gravity="center"
-            android:textSize="20sp"
-            android:textColor="@color/white_blue"/>
-        <TextView
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:layout_weight="1"
-            android:text="唱"
+            android:text="@string/look"
             android:gravity="center"
             android:textSize="20sp"
             android:textColor="@color/white_blue"/>

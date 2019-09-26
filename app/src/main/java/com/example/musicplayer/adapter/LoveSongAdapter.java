@@ -41,6 +41,7 @@ public class LoveSongAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
     }
 
 
+
     class ViewHolder extends RecyclerView.ViewHolder {
         TextView songNameTv;
         TextView singerTv;

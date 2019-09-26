@@ -1,5 +1,6 @@
 package com.example.musicplayer.util;
 
+import android.annotation.SuppressLint;
 import android.content.ContentUris;
 import android.content.Context;
 import android.content.res.Resources;
@@ -36,6 +37,12 @@ public class MediaUtil {
             singer=s[0];
         }
         return singer.trim();
+    }
+
+    @SuppressLint("DefaultLocale")
+    public static String formatSize(long size){
+        double d = (double) size/1024/1024;
+        return String.format("%.1f",d);
     }
 
 

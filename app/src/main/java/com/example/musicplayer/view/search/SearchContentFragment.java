@@ -20,6 +20,7 @@ import com.example.musicplayer.app.Constant;
 import com.example.musicplayer.base.fragment.BaseLoadingFragment;
 import com.example.musicplayer.contract.ISearchContentContract;
 import com.example.musicplayer.entiy.Album;
+import com.example.musicplayer.entiy.DownloadSong;
 import com.example.musicplayer.entiy.SearchSong;
 import com.example.musicplayer.entiy.Song;
 import com.example.musicplayer.event.OnlineSongChangeEvent;
@@ -27,6 +28,7 @@ import com.example.musicplayer.event.OnlineSongErrorEvent;
 import com.example.musicplayer.presenter.SearchContentPresenter;
 import com.example.musicplayer.service.PlayerService;
 import com.example.musicplayer.util.CommonUtil;
+import com.example.musicplayer.util.DownloadUtil;
 import com.example.musicplayer.util.FileUtil;
 import com.github.jdsjlzx.recyclerview.LRecyclerView;
 import com.github.jdsjlzx.recyclerview.LRecyclerViewAdapter;
@@ -34,6 +36,7 @@ import com.github.jdsjlzx.recyclerview.LRecyclerViewAdapter;
 import org.greenrobot.eventbus.EventBus;
 import org.greenrobot.eventbus.Subscribe;
 import org.greenrobot.eventbus.ThreadMode;
+import org.litepal.LitePal;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -165,12 +168,12 @@ public class SearchContentFragment extends BaseLoadingFragment<SearchContentPres
             song.setSinger(getSinger(dataBean));
             song.setSongName(dataBean.getSongname());
             song.setImgUrl(Api.ALBUM_PIC+dataBean.getAlbummid()+Api.JPG);
-            song.setCurrent(position);
             song.setDuration(dataBean.getInterval());
             song.setOnline(true);
-            FileUtil.saveSong(song);
+            song.setMediaId(dataBean.getStrMediaMid());
+            song.setDownload(DownloadUtil.isExistOfDownloadSong(dataBean.getSongmid()));
             //网络获取歌曲地址
-            mPresenter.getSongUrl(dataBean.getSongmid());
+            mPresenter.getSongUrl(song);
         });
     }
 
@@ -238,9 +241,7 @@ public class SearchContentFragment extends BaseLoadingFragment<SearchContentPres
     }
 
     @Override
-    public void getSongUrlSuccess(String url) {
-        Song song= FileUtil.getSong();
-        assert song != null;
+    public void getSongUrlSuccess(Song song,String url) {
         song.setUrl(url);
         FileUtil.saveSong(song);
         mPlayStatusBinder.playOnline();

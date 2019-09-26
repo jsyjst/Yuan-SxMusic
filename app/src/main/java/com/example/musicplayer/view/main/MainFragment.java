@@ -5,7 +5,6 @@ import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentTransaction;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -14,12 +13,19 @@ import android.widget.TextView;
 
 import com.example.musicplayer.R;
 import com.example.musicplayer.adapter.ExpandableListViewAdapter;
+import com.example.musicplayer.app.Api;
+import com.example.musicplayer.app.Constant;
 import com.example.musicplayer.entiy.AlbumCollection;
 import com.example.musicplayer.entiy.HistorySong;
 import com.example.musicplayer.entiy.LocalSong;
 import com.example.musicplayer.entiy.Love;
 import com.example.musicplayer.event.AlbumCollectionEvent;
-import com.example.musicplayer.event.SongLocalSizeChangeEvent;
+import com.example.musicplayer.event.SongListNumEvent;
+import com.example.musicplayer.util.DownloadUtil;
+import com.example.musicplayer.view.main.collection.CollectionFragment;
+import com.example.musicplayer.view.main.download.DownloadFragment;
+import com.example.musicplayer.view.main.history.HistoryFragment;
+import com.example.musicplayer.view.main.local.LocalFragment;
 import com.example.musicplayer.view.search.AlbumContentFragment;
 import com.example.musicplayer.widget.MyListView;
 
@@ -40,8 +46,8 @@ public class MainFragment extends Fragment {
 
     private MyListView myListView;
     private ExpandableListViewAdapter mAdapter;
-    private LinearLayout mLocalMusicLinear, mCollectionLinear, mHistoryMusicLinear;
-    private TextView mLocalMusicNum, mLoveMusicNum, mHistoryMusicNum;
+    private LinearLayout mLocalMusicLinear, mCollectionLinear, mHistoryMusicLinear,mDownloadLinear;
+    private TextView mLocalMusicNum, mLoveMusicNum, mHistoryMusicNum,mDownloadMusicNum;
 
     private TextView mSeekBtn;
     private List<List<AlbumCollection>> mAlbumCollectionList;
@@ -66,6 +72,8 @@ public class MainFragment extends Fragment {
         mLocalMusicNum = view.findViewById(R.id.tv_local_music_num);
         mLoveMusicNum = view.findViewById(R.id.tv_love_num);
         mHistoryMusicNum = view.findViewById(R.id.tv_history_num);
+        mDownloadMusicNum = view.findViewById(R.id.tv_download_num);
+        mDownloadLinear = view.findViewById(R.id.downloadLinear);
         return view;
     }
 
@@ -118,23 +126,39 @@ public class MainFragment extends Fragment {
     }
 
     @Subscribe(threadMode = ThreadMode.MAIN)
-    public void onLocalSizeEvent(SongLocalSizeChangeEvent event) {
-        mLocalMusicNum.setText(String.valueOf(LitePal.findAll(LocalSong.class).size()));
+    public void onSongListEvent(SongListNumEvent event){
+        int type = event.getType();
+        if(type == Constant.LIST_TYPE_HISTORY){
+            mHistoryMusicNum.setText(String.valueOf(LitePal.findAll(HistorySong.class).size()));
+        }else if(type == Constant.LIST_TYPE_LOCAL){
+            mLocalMusicNum.setText(String.valueOf(LitePal.findAll(LocalSong.class).size()));
+        }else if(type == Constant.LIST_TYPE_DOWNLOAD){
+            mDownloadMusicNum.setText(String.valueOf(DownloadUtil.getSongFromFile(Api.STORAGE_SONG_FILE).size()));
+        }
     }
 
+
+
     private void onClick() {
+        //本地音乐
         mLocalMusicLinear.setOnClickListener(v -> replaceFragment(new LocalFragment()));
-
+        //搜索
         mSeekBtn.setOnClickListener(v -> replaceFragment(new AlbumContentFragment.SearchFragment()));
-
+        //我的收藏
         mCollectionLinear.setOnClickListener(v -> replaceFragment(new CollectionFragment()));
-
+        //下载
+        mDownloadLinear.setOnClickListener(view -> replaceFragment(new DownloadFragment()));
+        //最近播放
         mHistoryMusicLinear.setOnClickListener(v -> replaceFragment(new HistoryFragment()));
+
+        //歌单点击展开
         myListView.setOnGroupExpandListener(groupPosition -> {
             if (groupPosition == 1) {
                 twoExpand = true;
             }
         });
+
+        //歌单点击收缩
         myListView.setOnGroupCollapseListener(groupPosition -> {
             if (groupPosition == 1) {
                 twoExpand = false;
@@ -179,6 +203,7 @@ public class MainFragment extends Fragment {
         mLocalMusicNum.setText(String.valueOf(LitePal.findAll(LocalSong.class).size()));
         mLoveMusicNum.setText(String.valueOf(LitePal.findAll(Love.class).size()));
         mHistoryMusicNum.setText(String.valueOf(LitePal.findAll(HistorySong.class).size()));
+        mDownloadMusicNum.setText(String.valueOf(DownloadUtil.getSongFromFile(Api.STORAGE_SONG_FILE).size()));
     }
 
     //使数据库中的列表逆序排列

@@ -43,11 +43,15 @@ import com.example.musicplayer.app.Api;
 import com.example.musicplayer.app.Constant;
 import com.example.musicplayer.base.activity.BaseMvpActivity;
 import com.example.musicplayer.contract.IPlayContract;
+import com.example.musicplayer.entiy.DownloadInfo;
+import com.example.musicplayer.entiy.DownloadSong;
 import com.example.musicplayer.entiy.LocalSong;
 import com.example.musicplayer.entiy.Song;
+import com.example.musicplayer.event.DownloadEvent;
 import com.example.musicplayer.event.SongCollectionEvent;
 import com.example.musicplayer.event.SongStatusEvent;
 import com.example.musicplayer.presenter.PlayPresenter;
+import com.example.musicplayer.service.DownloadService;
 import com.example.musicplayer.service.PlayerService;
 import com.example.musicplayer.util.CommonUtil;
 import com.example.musicplayer.util.DisplayUtil;
@@ -62,18 +66,11 @@ import com.example.musicplayer.widget.LrcView;
 import org.greenrobot.eventbus.EventBus;
 import org.greenrobot.eventbus.Subscribe;
 import org.greenrobot.eventbus.ThreadMode;
+import org.litepal.LitePal;
 
-import java.io.BufferedOutputStream;
-import java.io.File;
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.lang.ref.WeakReference;
 import java.util.List;
 
 import butterknife.BindView;
-import okhttp3.OkHttpClient;
-import okhttp3.Request;
-import okhttp3.Response;
 
 /**
  * 播放界面
@@ -142,7 +139,10 @@ public class PlayActivity extends BaseMvpActivity<PlayPresenter> implements IPla
     private List<LocalSong> mLocalSong;//用来判断是否有本地照片
     //服务
     private PlayerService.PlayStatusBinder mPlayStatusBinder;
-    private ServiceConnection connection = new ServiceConnection() {
+    private DownloadService.DownloadBinder mDownloadBinder;
+
+    //播放
+    private ServiceConnection mPlayConnection = new ServiceConnection() {
         @Override
         public void onServiceConnected(ComponentName name, IBinder service) {
             mPlayStatusBinder = (PlayerService.PlayStatusBinder) service;
@@ -179,6 +179,19 @@ public class PlayActivity extends BaseMvpActivity<PlayPresenter> implements IPla
 
         }
     };
+    //绑定下载服务
+    private ServiceConnection mDownloadConnection = new ServiceConnection() {
+        @Override
+        public void onServiceConnected(ComponentName componentName, IBinder iBinder) {
+            mDownloadBinder = (DownloadService.DownloadBinder) iBinder;
+        }
+
+        @Override
+        public void onServiceDisconnected(ComponentName componentName) {
+
+        }
+    };
+
     @SuppressLint("HandlerLeak")
     private Handler mMusicHandler = new Handler() {
         @Override
@@ -206,9 +219,11 @@ public class PlayActivity extends BaseMvpActivity<PlayPresenter> implements IPla
         //判断播放状态
         mPlayStatus = getIntent().getIntExtra(Constant.PLAYER_STATUS, 2);
 
-        //绑定服务
+        //绑定服务,播放和下载的服务
         Intent playIntent = new Intent(PlayActivity.this, PlayerService.class);
-        bindService(playIntent, connection, Context.BIND_AUTO_CREATE);
+        Intent downIntent = new Intent(PlayActivity.this, DownloadService.class);
+        bindService(playIntent, mPlayConnection, Context.BIND_AUTO_CREATE);
+        bindService(downIntent, mDownloadConnection, Context.BIND_AUTO_CREATE);
 
         //界面填充
         mSong = FileUtil.getSong();
@@ -219,17 +234,29 @@ public class PlayActivity extends BaseMvpActivity<PlayPresenter> implements IPla
         mSeekBar.setMax((int) mSong.getDuration());
         mSeekBar.setProgress((int) mSong.getCurrentTime());
         mDownLoadIv.setVisibility(mSong.isOnline() ? View.VISIBLE : View.GONE); //下载按钮是否隐藏
+        mDownLoadIv.setImageDrawable(mSong.isDownload() ? getDrawable(R.drawable.downloaded) : getDrawable(R.drawable.download_song));
 
         mPlayMode = mPresenter.getPlayMode();//得到播放模式
-        if(mPlayMode == Constant.PLAY_ORDER){
+        if (mPlayMode == Constant.PLAY_ORDER) {
             mPlayModeBtn.setBackground(getDrawable(R.drawable.play_mode_order));
-        }else if(mPlayMode == Constant.PLAY_RANDOM){
+        } else if (mPlayMode == Constant.PLAY_RANDOM) {
             mPlayModeBtn.setBackground(getDrawable(R.drawable.play_mode_random));
-        }else {
+        } else {
             mPlayModeBtn.setBackground(getDrawable(R.drawable.play_mode_single));
         }
 
 
+    }
+
+
+    @Subscribe(threadMode = ThreadMode.MAIN)
+    public void onDownloadSuccessEvent(DownloadEvent event){
+        if(event.getDownloadStatus() == Constant.TYPE_DOWNLOAD_SUCCESS){
+            mDownLoadIv.setImageDrawable(
+                    LitePal.where("songId=?", mSong.getSongId()).find(DownloadSong.class).size() != 0
+                            ? getDrawable(R.drawable.downloaded)
+                            : getDrawable(R.drawable.download_song));
+        }
     }
 
     @Override
@@ -321,7 +348,7 @@ public class PlayActivity extends BaseMvpActivity<PlayPresenter> implements IPla
             public void onStopTrackingTouch(SeekBar seekBar) {
                 if (mPlayStatusBinder.isPlaying()) {
                     mMediaPlayer = mPlayStatusBinder.getMediaPlayer();
-                    mMediaPlayer.seekTo(seekBar.getProgress()*1000);
+                    mMediaPlayer.seekTo(seekBar.getProgress() * 1000);
                     startUpdateSeekBarProgress();
                 } else {
                     time = seekBar.getProgress();
@@ -347,8 +374,8 @@ public class PlayActivity extends BaseMvpActivity<PlayPresenter> implements IPla
                 mPlayStatusBinder.resume();
                 flag = false;
                 if (isSeek) {
-                    Log.d(TAG, "onClick: "+time);
-                    mMediaPlayer.seekTo(time*1000);
+                    Log.d(TAG, "onClick: " + time);
+                    mMediaPlayer.seekTo(time * 1000);
                     isSeek = false;
                 }
                 mDisc.play();
@@ -360,7 +387,7 @@ public class PlayActivity extends BaseMvpActivity<PlayPresenter> implements IPla
                 } else {
                     mPlayStatusBinder.play(mListType);
                 }
-                mMediaPlayer.seekTo((int) mSong.getCurrentTime()*1000);
+                mMediaPlayer.seekTo((int) mSong.getCurrentTime() * 1000);
                 mDisc.play();
                 mPlayBtn.setSelected(true);
                 startUpdateSeekBarProgress();
@@ -399,18 +426,18 @@ public class PlayActivity extends BaseMvpActivity<PlayPresenter> implements IPla
                         String lrc = FileUtil.getLrcFromNative(mSong.getSongName());
                         if (null == lrc) {
                             String qqId = mSong.getQqId();
-                            if(Constant.SONG_ID_UNFIND.equals(qqId)){//匹配不到歌词
+                            if (Constant.SONG_ID_UNFIND.equals(qqId)) {//匹配不到歌词
                                 getLrcError(null);
-                            }else if(null == qqId){//歌曲的id还未匹配
-                                mPresenter.getSongId(mSong.getSongName(),mSong.getDuration());
-                            }else {//歌词还未匹配
-                                mPresenter.getLrc(qqId,Constant.SONG_LOCAL);
+                            } else if (null == qqId) {//歌曲的id还未匹配
+                                mPresenter.getSongId(mSong.getSongName(), mSong.getDuration());
+                            } else {//歌词还未匹配
+                                mPresenter.getLrc(qqId, Constant.SONG_LOCAL);
                             }
-                        }else {
+                        } else {
                             showLrc(lrc);
                         }
                     } else {
-                        mPresenter.getLrc(mSong.getSongId(),Constant.SONG_ONLINE);
+                        mPresenter.getLrc(mSong.getSongId(), Constant.SONG_ONLINE);
                     }
                 }
         );
@@ -421,8 +448,11 @@ public class PlayActivity extends BaseMvpActivity<PlayPresenter> implements IPla
         });
         //歌曲下载
         mDownLoadIv.setOnClickListener(v -> {
-            CommonUtil.showToast(this, "开始下载歌曲");
-            downLoad(mSong.getUrl(), mSong.getSongName());
+            if (mSong.isDownload()) {
+                showToast(getString(R.string.downloded));
+            } else {
+                mDownloadBinder.startDownload(getDownloadInfoFromSong(mSong));
+            }
         });
 
     }
@@ -628,60 +658,20 @@ public class PlayActivity extends BaseMvpActivity<PlayPresenter> implements IPla
 
     @Override
     public void getSongIdSuccess(String songId) {
-        Log.d(TAG, "getSongIdSuccess: "+songId);
+        Log.d(TAG, "getSongIdSuccess: " + songId);
         setLocalSongId(songId);//保存音乐信息
-        mPresenter.getLrc(songId,Constant.SONG_LOCAL);//获取歌词
+        mPresenter.getLrc(songId, Constant.SONG_LOCAL);//获取歌词
     }
 
     @Override
     public void saveLrc(String lrc) {
-        FileUtil.saveLrcToNative(lrc,mSong.getSongName());
+        FileUtil.saveLrcToNative(lrc, mSong.getSongName());
     }
 
-    private void downLoad(String url, String song) {
-        new Thread(() -> {
-            File file = new File(Api.STORAGE_SONG_FILE);
-            if (!file.exists()) {
-                file.mkdirs();
-            }
-            File songFile = new File(file, song + ".mp3");
-            BufferedOutputStream out = null;
-            try {
-                OkHttpClient client = new OkHttpClient();
-                Request request = new Request.Builder().url(url).build();
-                Response response = client.newCall(request).execute();
-                if (response.isSuccessful()) {
-                    out = new BufferedOutputStream(new FileOutputStream(songFile));
-                    byte[] bytes = response.body().bytes();
-                    out.write(bytes, 0, bytes.length);
-                    out.close();
-                }
-                showLoadSuccess();
-            } catch (IOException e) {
-                e.printStackTrace();
-            } catch (Exception e) {
-                e.printStackTrace();
-            } finally {
-                try {
-                    if (out != null) out.close();
-                } catch (Exception e) {
-                    e.printStackTrace();
-                }
-            }
-        }).start();
-    }
-
-
-    private void showLoadSuccess() {
-        runOnUiThread(() -> {
-            CommonUtil.showToast(this, "歌曲下载成功");
-        });
-
-    }
 
     //改变播放模式
-    private void changePlayMode(){
-        View playModeView = LayoutInflater.from(this).inflate(R.layout.play_mode,null);
+    private void changePlayMode() {
+        View playModeView = LayoutInflater.from(this).inflate(R.layout.play_mode, null);
         ConstraintLayout orderLayout = playModeView.findViewById(R.id.orderLayout);
         ConstraintLayout randomLayout = playModeView.findViewById(R.id.randomLayout);
         ConstraintLayout singleLayout = playModeView.findViewById(R.id.singleLayout);
@@ -690,7 +680,7 @@ public class PlayActivity extends BaseMvpActivity<PlayPresenter> implements IPla
         TextView singleTv = playModeView.findViewById(R.id.singleTv);
 
         //显示弹窗
-        PopupWindow popupWindow = new PopupWindow(playModeView, ScreenUtil.dip2px(this,130),ScreenUtil.dip2px(this,150));
+        PopupWindow popupWindow = new PopupWindow(playModeView, ScreenUtil.dip2px(this, 130), ScreenUtil.dip2px(this, 150));
         //设置背景色
         popupWindow.setBackgroundDrawable(getDrawable(R.color.transparent));
         //设置焦点
@@ -699,20 +689,20 @@ public class PlayActivity extends BaseMvpActivity<PlayPresenter> implements IPla
         popupWindow.setOutsideTouchable(true);
         popupWindow.update();
         //设置弹出的位置
-        popupWindow.showAsDropDown(mPlayModeBtn,0,-50);
+        popupWindow.showAsDropDown(mPlayModeBtn, 0, -50);
 
 
         //显示播放模式
         int mode = mPresenter.getPlayMode();
-        if(mode == Constant.PLAY_ORDER){
+        if (mode == Constant.PLAY_ORDER) {
             orderTv.setSelected(true);
             randomTv.setSelected(false);
             singleTv.setSelected(false);
-        }else if(mode == Constant.PLAY_RANDOM){
+        } else if (mode == Constant.PLAY_RANDOM) {
             randomTv.setSelected(true);
             orderTv.setSelected(false);
             singleTv.setSelected(false);
-        }else {
+        } else {
             singleTv.setSelected(true);
             randomTv.setSelected(false);
             orderTv.setSelected(false);
@@ -749,12 +739,24 @@ public class PlayActivity extends BaseMvpActivity<PlayPresenter> implements IPla
     @Override
     public void onDestroy() {
         super.onDestroy();
-        unbindService(connection);
+        unbindService(mPlayConnection);
+        unbindService(mDownloadConnection);
         EventBus.getDefault().unregister(this);
         stopUpdateSeekBarProgress();
 
         //避免内存泄漏
         mMusicHandler.removeCallbacksAndMessages(null);
+    }
+
+    private DownloadInfo getDownloadInfoFromSong(Song song){
+        DownloadInfo downloadInfo = new DownloadInfo();
+        downloadInfo.setSinger(song.getSinger());
+        downloadInfo.setProgress(0);
+        downloadInfo.setSongId(song.getSongId());
+        downloadInfo.setUrl(song.getUrl());
+        downloadInfo.setSongName(song.getSongName());
+        downloadInfo.setDuration(song.getDuration());
+        return downloadInfo;
     }
 
 }

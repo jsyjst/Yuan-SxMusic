@@ -1,0 +1,63 @@
+<?xml version="1.0" encoding="utf-8"?>
+<android.support.constraint.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools">
+
+    <TextView
+        android:id="@+id/songTv"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:textSize="16sp"
+        android:textColor="@color/white"
+        tools:text="说好不哭"
+        android:layout_marginStart="@dimen/dp_20"
+        android:layout_marginTop="@dimen/dp_10"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintLeft_toLeftOf="parent"/>
+
+    <TextView
+        android:id="@+id/sizeTv"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:textColor="@color/short_white"
+        android:layout_marginTop="@dimen/dp_5"
+        tools:text="2.7M "
+        app:layout_constraintLeft_toLeftOf="@+id/songTv"
+        app:layout_constraintTop_toBottomOf="@+id/songTv"/>
+
+
+
+
+    <SeekBar
+        android:id="@+id/seekBar"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:thumb="@null"
+        android:progressDrawable="@drawable/seekbar_bg"
+        android:maxHeight="5dp"
+        android:max="100"
+        app:layout_constraintLeft_toRightOf="@+id/sizeTv"
+        app:layout_constraintTop_toTopOf="@+id/sizeTv"
+        app:layout_constraintRight_toLeftOf="@id/cancelIv"
+        app:layout_constraintBottom_toBottomOf="@id/sizeTv"
+        />
+
+    <ImageView
+        android:id="@+id/cancelIv"
+        android:layout_width="@dimen/dp_30"
+        android:layout_height="@dimen/dp_30"
+        android:src="@drawable/delete"
+        android:layout_marginEnd="@dimen/dp_10"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintRight_toRightOf="parent"
+        />
+    <View
+        android:layout_width="match_parent"
+        android:layout_height="0.1dip"
+        android:background="@color/gray"
+        android:layout_marginTop="@dimen/dp_10"
+        app:layout_constraintTop_toBottomOf="@id/sizeTv"/>
+</android.support.constraint.ConstraintLayout>

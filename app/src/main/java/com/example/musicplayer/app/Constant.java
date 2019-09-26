@@ -10,11 +10,14 @@ public class Constant {
     public static final int OFFSET = 30;
     public static final int TYPE_SONG = 1;
     public static final int TYPE_ALBUM = 2;
-    public static final int TYPE_ALBUM_SONG = 3;
-    public static final int LIST_TYPE_LOCAL = 0;
-    public static final int LIST_TYPE_ONLINE = 1;
-    public static final int LIST_TYPE_LOVE = 2;
-    public static final int LIST_TYPE_HISTORY = 3;
+
+    //播放列表
+    public static final int LIST_TYPE_LOCAL = 1;   //本地列表
+    public static final int LIST_TYPE_ONLINE = 2;  //专辑列表
+    public static final int LIST_TYPE_LOVE = 3;    //我的收藏列表
+    public static final int LIST_TYPE_HISTORY = 4;  //最近播放列表
+    public static final int LIST_TYPE_DOWNLOAD = 5; //下载列表
+
     public static final int HISTORY_MAX_SIZE = 100;
 
 
@@ -60,5 +63,20 @@ public class Constant {
 
     //Preferences
     public static final String SHARED_PREFERENCES_NAME = "prefs";
-    public static final String PREFS_PLAY_MODE="play_mode";//播放状态
+    public static final String PREFS_PLAY_MODE = "play_mode";//播放状态
+
+    //download
+    public final static int TYPE_DOWNLOADING = 0;
+    public final static int TYPE_DOWNLOAD_PAUSED = 1;
+    public final static int TYPE_DOWNLOAD_CANCELED = 2;
+    public final static int TYPE_DOWNLOAD_SUCCESS = 3;
+    public final static int TYPE_DOWNLOAD_FAILED = 4;
+    public final static int TYPE_DOWNLOADED = 5;
+    public final static int TYPE_DOWNLOAD_ADD=6;
+
+    //正在下载歌曲列表的状态
+    public final static int DOWNLOAD_PAUSED = 0;
+    public final static int DOWNLOAD_WAIT=1;
+    public final static int DOWNLOAD_ING=2;
+    public final static int DOWNLOAD_READY=3;
 }

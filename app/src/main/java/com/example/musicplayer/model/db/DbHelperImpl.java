@@ -13,6 +13,7 @@ import com.example.musicplayer.entiy.Song;
 
 import org.litepal.LitePal;
 
+import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -46,8 +47,8 @@ public class DbHelperImpl implements DbHelper {
 
     @Override
     public List<LocalSong> getLocalMp3Info() {
-
         List<LocalSong> mp3InfoList = new ArrayList<>();
+        getFromDownloadFile(mp3InfoList); //从下载列表中读取歌曲文件
         Cursor cursor = App.getContext().getContentResolver().query(
                 MediaStore.Audio.Media.EXTERNAL_CONTENT_URI, null, null, null,
                 MediaStore.Audio.Media.DEFAULT_SORT_ORDER);
@@ -119,11 +120,39 @@ public class DbHelperImpl implements DbHelper {
         love.setSongId(song.getSongId());
         love.setOnline(song.isOnline());
         love.setQqId(song.getQqId());
+        love.setMediaId(song.getMediaId());
+        love.setDownload(song.isDownload());
         return love.save();
     }
 
     @Override
     public boolean deleteFromLove(String songId) {
         return LitePal.deleteAll(Love.class,"songId=?",songId) !=0;
+    }
+
+    //从下载列表中读取文件
+    private void getFromDownloadFile(List<LocalSong> songList){
+        File file = new File(Api.STORAGE_SONG_FILE);
+        if(!file.exists()) {
+            file.mkdirs();
+            return;
+        }
+
+        File[] subFile = file.listFiles();
+        for (File value : subFile) {
+            String songFileName = value.getName();
+            String songFile = songFileName.substring(0, songFileName.lastIndexOf("."));
+            String[] songValue = songFile.split("-");
+            long size = Long.valueOf(songValue[4]);
+            //如果文件的大小不等于实际大小，则表示该歌曲还未下载完成，被人为暂停，故跳过该歌曲，不加入到已下载集合
+            if(size != value.length()) continue;
+            LocalSong song =new LocalSong();
+            song.setSinger(songValue[0]);
+            song.setName(songValue[1]);
+            song.setDuration(Long.valueOf(songValue[2]));
+            song.setSongId(songValue[3]);
+            song.setUrl(Api.STORAGE_SONG_FILE + songFileName);
+            songList.add(song);
+        }
     }
 }

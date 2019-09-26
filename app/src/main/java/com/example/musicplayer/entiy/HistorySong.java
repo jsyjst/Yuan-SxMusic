@@ -9,6 +9,7 @@ import org.litepal.crud.LitePalSupport;
 public class HistorySong extends LitePalSupport {
     private int id;
     private String songId;
+    private String mediaId; //下载标识符
     private String qqId;
     private String name;
     private String singer;
@@ -16,6 +17,7 @@ public class HistorySong extends LitePalSupport {
     private String pic;
     private long duration;
     private boolean isOnline;
+    private boolean isDownload;
 
 
 
@@ -90,5 +92,21 @@ public class HistorySong extends LitePalSupport {
 
     public void setQqId(String qqId) {
         this.qqId = qqId;
+    }
+
+    public String getMediaId() {
+        return mediaId;
+    }
+
+    public void setMediaId(String mediaId) {
+        this.mediaId = mediaId;
+    }
+
+    public void setDownload(boolean download) {
+        isDownload = download;
+    }
+
+    public boolean isDownload() {
+        return isDownload;
     }
 }

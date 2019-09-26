@@ -43,6 +43,12 @@
         <item name="android:thumb">@drawable/ic_seekbar_thumb</item>
     </style>
 
+    <style name="download_seek_bar_sytle" parent="Widget.AppCompat.SeekBar">
+        <item name="android:layout_width">wrap_content</item>
+        <item name="android:layout_height">wrap_content</item>
+        <item name="android:thumb">@null</item>
+    </style>
+
     <style name="text_style">
         <item name="android:layout_width">wrap_content</item>
         <item name="android:layout_height">wrap_content</item>

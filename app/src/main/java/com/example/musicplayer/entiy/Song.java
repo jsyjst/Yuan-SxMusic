@@ -1,80 +1,111 @@
 package com.example.musicplayer.entiy;
 
+import org.litepal.crud.LitePalSupport;
+
 import java.io.Serializable;
 
 /**
  * Created by 残渊 on 2018/10/19.
  */
 
-public class Song implements Serializable {
+public class Song extends LitePalSupport implements Serializable {
     private static final long serialVersionUID=1L;
+
+    private long id;
 
     private String songId; //歌曲id
     private String qqId;//专属本地音乐，本地音乐在qq音乐中的songId
+    private String mediaId;//播放id,下载需要用到
    private String singer; //歌手
     private long duration; //总时长
     private String songName; //歌曲名字
     private String url;  //歌曲url
     private long currentTime; //歌曲播放时长位置
-    private int current;//在音乐列表的位置
+    private int position;//在音乐列表的位置
     private String imgUrl; //歌曲照片
     private boolean isOnline; //是否为网络歌曲
-    private int listType; //歌曲列表类别
+    private int listType; //歌曲列表类别,0表示当前没有列表，即可能在播放网络歌曲
+    private boolean isDownload;//是否为下载的歌曲
 
-    public String getImgUrl() {
-        return imgUrl;
+
+    public String getSongId() {
+        return songId;
     }
 
-    public int getCurrent() {
-        return current;
+    public void setSongId(String songId) {
+        this.songId = songId;
     }
 
-    public long getDuration() {
-        return duration;
+    public String getQqId() {
+        return qqId;
     }
 
-    public long getCurrentTime() {
-        return currentTime;
+    public void setQqId(String qqId) {
+        this.qqId = qqId;
     }
 
-    public String getUrl() {
-        return url;
+    public String getMediaId() {
+        return mediaId;
+    }
+
+    public void setMediaId(String mediaId) {
+        this.mediaId = mediaId;
     }
 
     public String getSinger() {
         return singer;
     }
 
-    public String getSongName() {
-        return songName;
+    public void setSinger(String singer) {
+        this.singer = singer;
     }
 
-    public void setImgUrl(String imgUrl) {
-        this.imgUrl = imgUrl;
-    }
-
-    public void setCurrent(int current) {
-        this.current = current;
-    }
-
-    public void setCurrentTime(long currentTime) {
-        this.currentTime = currentTime;
+    public long getDuration() {
+        return duration;
     }
 
     public void setDuration(long duration) {
         this.duration = duration;
     }
 
-    public void setUrl(String url) {
-        this.url = url;
-    }
-
-    public void setSinger(String singer) {
-        this.singer = singer;
+    public String getSongName() {
+        return songName;
     }
 
     public void setSongName(String songName) {
         this.songName = songName;
+    }
+
+    public String getUrl() {
+        return url;
+    }
+
+    public void setUrl(String url) {
+        this.url = url;
+    }
+
+    public long getCurrentTime() {
+        return currentTime;
+    }
+
+    public void setCurrentTime(long currentTime) {
+        this.currentTime = currentTime;
+    }
+
+    public int getPosition() {
+        return position;
+    }
+
+    public void setPosition(int position) {
+        this.position = position;
+    }
+
+    public String getImgUrl() {
+        return imgUrl;
+    }
+
+    public void setImgUrl(String imgUrl) {
+        this.imgUrl = imgUrl;
     }
 
     public boolean isOnline() {
@@ -93,25 +124,21 @@ public class Song implements Serializable {
         this.listType = listType;
     }
 
-    public String getSongId() {
-        return songId;
+    public boolean isDownload() {
+        return isDownload;
     }
 
-    public void setSongId(String songId) {
-        this.songId = songId;
+    public void setDownload(boolean download) {
+        isDownload = download;
     }
 
-    public String getQqId() {
-        return qqId;
-    }
-
-    public void setQqId(String qqId) {
-        this.qqId = qqId;
+    public long getId() {
+        return id;
     }
 
     public String toString(){
         return "songName="+songName+",singer="+singer+",url="+url+",imgUrl="+imgUrl
-                +",duration="+duration+",currentTime="+currentTime+",current="+current
+                +",duration="+duration+",currentTime="+currentTime+",position="+ position
                 +",songId="+songId+",isOnline="+isOnline+",listType="+listType;
 
     }

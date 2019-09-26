@@ -3,13 +3,12 @@ apply from: 'config.gradle'
 buildscript {
     
     repositories {
-        mavenCentral()
         google()
-        jcenter()
+        jcenter{ url "http://jcenter.bintray.com/"}
 
     }
     dependencies {
-        classpath 'com.android.tools.build:gradle:3.2.1'
+        classpath 'com.android.tools.build:gradle:3.5.0'
         
 
         // NOTE: Do not place your application dependencies here; they belong
@@ -19,6 +18,8 @@ buildscript {
 
 allprojects {
     repositories {
+        mavenCentral()
+        maven { url 'https://maven.google.com' }
         google()
         jcenter()
         maven { url "https://jitpack.io" }

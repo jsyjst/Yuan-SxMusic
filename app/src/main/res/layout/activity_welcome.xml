@@ -58,7 +58,7 @@
             android:layout_below="@+id/iv_icon"
             android:textColor="@color/white"
             android:textSize="16sp"
-            android:text="袁健策版权所有@2018"/>
+            android:text="@string/welcome_text"/>
 
     </LinearLayout>
 </RelativeLayout>

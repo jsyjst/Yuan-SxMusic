@@ -1,4 +1,4 @@
-# 心渊音乐
+# 随心音乐
 
 [![](https://img.shields.io/badge/作者-jsyjst-blue.svg)](https://blog.csdn.net/qq_41979349)
 
@@ -53,7 +53,8 @@
 </div>
 
 
-## 下载
+## 下载（5.0以上）
+#### [apk下载](https://github.com/jsyjst/YuanMusicPlay/releases/download/YuanMusicPlay-v1.0/suixin-music.apk)
 
 
 ## 项目Api
@@ -108,9 +109,9 @@
 
 请求地址：https://u.y.qq.com
 
-请求示例：[https://u.y.qq.com/cgi-bin/musicu.fcg?format=json&data=%7B%22req_0%22%3A%7B%22module%22%3A%22vkey.GetVkeyServer%22%2C%22method%22%3A%22CgiGetVkey%22%2C%22param%22%3A%7B%22guid%22%3A%22358840384%22%2C%22<font color=#00ffff>*songmid*</font>%22%3A%5B%22<font color=#00ffff>*001X0PDf0W4lBq*</font>%22%5D%2C%22songtype%22%3A%5B0%5D%2C%22uin%22%3A%221443481947%22%2C%22loginflag%22%3A1%2C%22platform%22%3A%2220%22%7D%7D%2C%22comm%22%3A%7B%22uin%22%3A%2218585073516%22%2C%22format%22%3A%22json%22%2C%22ct%22%3A24%2C%22cv%22%3A0%7D%7D](https://u.y.qq.com/cgi-bin/musicu.fcg?format=json&data=%7B%22req_0%22%3A%7B%22module%22%3A%22vkey.GetVkeyServer%22%2C%22method%22%3A%22CgiGetVkey%22%2C%22param%22%3A%7B%22guid%22%3A%22358840384%22%2C%22songmid%22%3A%5B%22001X0PDf0W4lBq%22%5D%2C%22songtype%22%3A%5B0%5D%2C%22uin%22%3A%221443481947%22%2C%22loginflag%22%3A1%2C%22platform%22%3A%2220%22%7D%7D%2C%22comm%22%3A%7B%22uin%22%3A%2218585073516%22%2C%22format%22%3A%22json%22%2C%22ct%22%3A24%2C%22cv%22%3A0%7D%7D)
+请求示例：[https://u.y.qq.com/cgi-bin/musicu.fcg?format=json&data=%7B%22req_0%22%3A%7B%22module%22%3A%22vkey.GetVkeyServer%22%2C%22method%22%3A%22CgiGetVkey%22%2C%22param%22%3A%7B%22guid%22%3A%22358840384%22%2C%22`songmid`%22%3A%5B%22`001X0PDf0W4lBq`%22%5D%2C%22songtype%22%3A%5B0%5D%2C%22uin%22%3A%221443481947%22%2C%22loginflag%22%3A1%2C%22platform%22%3A%2220%22%7D%7D%2C%22comm%22%3A%7B%22uin%22%3A%2218585073516%22%2C%22format%22%3A%22json%22%2C%22ct%22%3A24%2C%22cv%22%3A0%7D%7D](https://u.y.qq.com/cgi-bin/musicu.fcg?format=json&data=%7B%22req_0%22%3A%7B%22module%22%3A%22vkey.GetVkeyServer%22%2C%22method%22%3A%22CgiGetVkey%22%2C%22param%22%3A%7B%22guid%22%3A%22358840384%22%2C%22songmid%22%3A%5B%22001X0PDf0W4lBq%22%5D%2C%22songtype%22%3A%5B0%5D%2C%22uin%22%3A%221443481947%22%2C%22loginflag%22%3A1%2C%22platform%22%3A%2220%22%7D%7D%2C%22comm%22%3A%7B%22uin%22%3A%2218585073516%22%2C%22format%22%3A%22json%22%2C%22ct%22%3A24%2C%22cv%22%3A0%7D%7D)
 
-说明：这个是根据歌曲songmid来获得音乐播放地址的，请求示例很长，在经过多次尝试后，很遗憾的并不能缩减，要想获取播放地址，只需要更改上面蓝色字体的songmid后的001X0PDf0W4lBq即可，至于更改方法很多，比如直接用Java的字符串拼接。请求成功后请注意两个字段purl和sip（为数组）,歌曲的播放地址就是sip数组里的其中一个加上pur，即sip[0]+purl（vip音乐或者版权音乐的purl为空）。
+说明：这个是根据歌曲songmid来获得音乐播放地址的，请求示例很长，在经过多次尝试后，很遗憾的并不能缩减，要想获取播放地址，只需要更改上面高亮字体的songmid后的001X0PDf0W4lBq即可，至于更改方法很多，比如直接用Java的字符串拼接。请求成功后请注意两个字段purl和sip（为数组）,歌曲的播放地址就是sip数组里的其中一个加上pur，即sip[0]+purl（vip音乐或者版权音乐的purl为空）。
 
 #### 1. 请求时的参数说明
 

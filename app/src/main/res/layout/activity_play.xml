@@ -69,6 +69,7 @@
         android:layout_below="@+id/relative_song"
         android:layout_above="@+id/downloadIv"
         app:textSize="@dimen/sp_18"
+        app:lineSpacing="@dimen/dp_35"
         app:highLineTextColor="@color/musicStyle"
         android:visibility="gone"/>
 

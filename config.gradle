@@ -39,7 +39,7 @@ ext {
             Avi                    : '2.1.3',
             Ripple                 : '1.3.1',
             SpeedDialog            : 'support-1.0.0',
-            LrcView                : 'LrcView-1.1',
+            LrcView                : 'LrcView-1.2',
 
             //数据库
             LitePal                : "3.0.0",

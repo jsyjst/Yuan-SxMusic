@@ -38,6 +38,7 @@ import com.bumptech.glide.request.RequestOptions;
 import com.bumptech.glide.request.target.SimpleTarget;
 import com.bumptech.glide.request.target.Target;
 import com.bumptech.glide.request.transition.Transition;
+import com.example.library.view.LrcView;
 import com.example.musicplayer.R;
 import com.example.musicplayer.app.Api;
 import com.example.musicplayer.app.Constant;
@@ -61,7 +62,6 @@ import com.example.musicplayer.util.MediaUtil;
 import com.example.musicplayer.util.ScreenUtil;
 import com.example.musicplayer.widget.BackgroundAnimationRelativeLayout;
 import com.example.musicplayer.widget.DiscView;
-import com.example.musicplayer.widget.LrcView;
 
 import org.greenrobot.eventbus.EventBus;
 import org.greenrobot.eventbus.Subscribe;
@@ -636,10 +636,8 @@ public class PlayActivity extends BaseMvpActivity<PlayPresenter> implements IPla
     public void showLrc(final String lrc) {
         mDisc.setVisibility(View.GONE);
         mLrcView.setVisibility(View.VISIBLE);
-        mLrcView.setLrc(lrc);
-        mLrcView.setHighLineColor(getResources().getColor(R.color.musicStyle));
-        mLrcView.setPlayer(mPlayStatusBinder.getMediaPlayer());
-        mLrcView.init();
+        Log.d(TAG, "showLrc: "+mPlayStatusBinder.getMediaPlayer().getCurrentPosition());
+        mLrcView.setLrc(lrc).setPlayer(mPlayStatusBinder.getMediaPlayer()).draw();
 
     }
 

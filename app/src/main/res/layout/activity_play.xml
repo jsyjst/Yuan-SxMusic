@@ -60,7 +60,7 @@
         android:layout_below="@+id/relative_song"
         android:background="#33ffffff" />
 
-    <com.example.musicplayer.widget.LrcView
+    <com.example.library.view.LrcView
         android:id="@+id/lrcView"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
@@ -68,8 +68,8 @@
         android:layout_marginBottom="@dimen/dp_40"
         android:layout_below="@+id/relative_song"
         android:layout_above="@+id/downloadIv"
-        app:lrcTextSize="18sp"
-        app:hignLineColor="@color/musicStyle"
+        app:textSize="@dimen/sp_18"
+        app:highLineTextColor="@color/musicStyle"
         android:visibility="gone"/>
 
     <include

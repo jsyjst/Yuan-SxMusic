@@ -6,14 +6,6 @@
         <attr name="civ_border_overlay" format="boolean" />
         <attr name="civ_fill_color" format="color" />
     </declare-styleable>
-    <declare-styleable name="LrcView">
-        <attr name="lrcMode" format="enum">
-            <enum name="KARAOKE" value="1"/>
-        </attr>
-        <attr name="hignLineColor" format="color|reference"/>
-        <attr name="lrcColor" format="color|reference"/>
-        <attr name="lrcTextSize" format="dimension"/>
-    </declare-styleable>
 </resources>
 
 

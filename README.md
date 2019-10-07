@@ -54,7 +54,7 @@
 
 
 ## 下载（5.0以上）
-#### [apk下载](https://github.com/jsyjst/YuanMusicPlay/releases/download/YuanMusicPlay-v1.0/suixin-music.apk)
+#### [apk下载](https://github.com/jsyjst/YuanMusicPlay/releases/download/YuanMusicPlay-v1.0/suixin-music-v1.apk)
 
 
 ## 项目Api

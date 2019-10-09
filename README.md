@@ -94,6 +94,8 @@
 
 ### 获取歌手图片
 
+#### 1.根据歌手获取图片
+
 请求地址：http://music.163.com
 
 请求示例：[http://music.163.com/api/search/get/web?s=邓紫棋&type=100](http://music.163.com/api/search/get/web?s=邓紫棋&type=100)
@@ -104,6 +106,19 @@
 | ---- | ---- | -------- | --------------- |
 | s    | 歌手 | 是       | 无              |
 | type | 类别 | 是       | 无，但必须为100 |
+
+#### 2. 根据albumMID获取专辑图片
+
+请求地址：[http://y.gtimg.cn](http://y.gtimg.cn)
+
+请求示例：[http://y.gtimg.cn/music/photo_new/T002R180x180M000003c616O2Zlswm.jpg](http://y.gtimg.cn/music/photo_new/T002R180x180M000003c616O2Zlswm.jpg)
+
+说明:请求示例其实有两部分组成，即固定地址+albumMid。
+
+| 组成     | 值                                                 | 说明                     |
+| -------- | -------------------------------------------------- | ------------------------ |
+| 固定地址 | http://y.gtimg.cn/music/photo_new/T002R180x180M000 | 固定值，不需要改变       |
+| albumMid | 在搜索专辑后，或者搜索歌曲会有albumMid这个字段     | 需要先搜索后得到albumMid |
 
 ### 获取播放地址
 

@@ -164,6 +164,9 @@
 
 **！！！敲重点**:记得在请求头上加上Referer:https://y.qq.com/portal/player.html,不然请求会返回-1310
 
+另外对歌词控件实现有兴趣的可以看看这篇文章
+[Android自定义View-简约风歌词控件](https://juejin.im/post/5d9d43986fb9a04e01662963)
+
 
 
 ## 后续

@@ -54,7 +54,7 @@
 
 
 ## 下载（5.0以上）
-#### [apk下载](https://github.com/jsyjst/YuanMusicPlay/releases/download/YuanMusicPlay-v1.0/suixin-music.apk)
+#### [apk下载](https://github.com/jsyjst/YuanMusicPlay/releases/download/YuanMusicPlay-v1.0/suixin-music-v1.apk)
 
 
 ## 项目Api
@@ -94,6 +94,8 @@
 
 ### 获取歌手图片
 
+#### 1.根据歌手获取图片
+
 请求地址：http://music.163.com
 
 请求示例：[http://music.163.com/api/search/get/web?s=邓紫棋&type=100](http://music.163.com/api/search/get/web?s=邓紫棋&type=100)
@@ -104,6 +106,22 @@
 | ---- | ---- | -------- | --------------- |
 | s    | 歌手 | 是       | 无              |
 | type | 类别 | 是       | 无，但必须为100 |
+
+
+**！！！注意**：有可能在网上能够请求到数据，但在实际代码中请求时却不能返回的情况（自己在开发中碰到），这时候别着急，只需要在网络请求时加上请求头"**User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/76.0.3809.132 Safari/537.36**"就能解决问题！
+
+#### 2. 根据albumMID获取专辑图片
+
+请求地址：[http://y.gtimg.cn](http://y.gtimg.cn)
+
+请求示例：[http://y.gtimg.cn/music/photo_new/T002R180x180M000003c616O2Zlswm.jpg](http://y.gtimg.cn/music/photo_new/T002R180x180M000003c616O2Zlswm.jpg)
+
+说明:请求示例其实有两部分组成，即固定地址+albumMid。
+
+| 组成     | 值                                                 | 说明                     |
+| -------- | -------------------------------------------------- | ------------------------ |
+| 固定地址 | http://y.gtimg.cn/music/photo_new/T002R180x180M000 | 固定值，不需要改变       |
+| albumMid | 在搜索专辑后，或者搜索歌曲会有albumMid这个字段     | 需要先搜索后得到albumMid |
 
 ### 获取播放地址
 
@@ -145,6 +163,9 @@
 | nobase64 | 敲重点！！！，一定要等于1，默认是0，如果没加上的话，返回的歌词将会是乱码，加上后就可以得到歌曲的动态歌词，即带有时间的歌词 |
 
 **！！！敲重点**:记得在请求头上加上Referer:https://y.qq.com/portal/player.html,不然请求会返回-1310
+
+另外对歌词控件实现有兴趣的可以看看这篇文章
+[Android自定义View-简约风歌词控件](https://juejin.im/post/5d9d43986fb9a04e01662963)
 
 
 

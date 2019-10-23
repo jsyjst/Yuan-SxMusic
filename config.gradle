@@ -30,7 +30,7 @@ ext {
             RetrofitVersion        : '2.4.0',
 
             //ui
-            Gilde                  : "4.8.0",
+            Gilde                  : "4.9.0",
             Circleimageview        : '2.2.0',
             LRecyclerView          : '1.5.4.3',
             Materialviewpager      : '1.2.3',

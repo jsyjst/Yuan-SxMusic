@@ -17,6 +17,7 @@ import android.media.MediaPlayer;
 import android.os.Handler;
 import android.os.IBinder;
 import android.os.Message;
+import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.constraint.ConstraintLayout;
 import android.transition.Slide;
@@ -284,18 +285,12 @@ public class PlayActivity extends BaseMvpActivity<PlayPresenter> implements IPla
 
 
     private void try2UpdateMusicPicBackground(final Bitmap bitmap) {
-        new Thread(new Runnable() {
-            @Override
-            public void run() {
-                final Drawable drawable = getForegroundDrawable(bitmap);
-                runOnUiThread(new Runnable() {
-                    @Override
-                    public void run() {
-                        mRootLayout.setForeground(drawable);
-                        mRootLayout.beginAnimation();
-                    }
-                });
-            }
+        new Thread(() -> {
+            final Drawable drawable = getForegroundDrawable(bitmap);
+            runOnUiThread(() -> {
+                mRootLayout.setForeground(drawable);
+                mRootLayout.beginAnimation();
+            });
         }).start();
     }
 
@@ -325,9 +320,8 @@ public class PlayActivity extends BaseMvpActivity<PlayPresenter> implements IPla
 
     @Override
     protected void onClick() {
-        mBackIv.setOnClickListener(v -> {
-            finish();
-        });
+        //返回按钮
+        mBackIv.setOnClickListener(v -> finish());
         //获取本地音乐的图片和歌词
         mGetImgAndLrcBtn.setOnClickListener(v -> getSingerAndLrc());
 
@@ -483,30 +477,29 @@ public class PlayActivity extends BaseMvpActivity<PlayPresenter> implements IPla
 
     @Override
     public void setSingerImg(String ImgUrl) {
-        SimpleTarget target = new SimpleTarget<Drawable>(Target.SIZE_ORIGINAL, Target.SIZE_ORIGINAL) {
-            @Override
-            public void onResourceReady(@Nullable Drawable resource, Transition<? super Drawable> transition) {
-                mImgBmp = ((BitmapDrawable) resource).getBitmap();
-                //如果是本地音乐
-                if (!isOnline) {
-                    //保存图片到本地
-                    FileUtil.saveImgToNative(PlayActivity.this, mImgBmp, getSingerName());
-                    //将封面地址放到数据库中
-                    LocalSong localSong = new LocalSong();
-                    localSong.setPic(Api.STORAGE_IMG_FILE + FileUtil.getSong().getSinger() + ".jpg");
-                    localSong.updateAll("songId=?", FileUtil.getSong().getSongId());
-                }
-
-                try2UpdateMusicPicBackground(mImgBmp);
-                setDiscImg(mImgBmp);
-                mGetImgAndLrcBtn.setVisibility(View.GONE);
-            }
-        };
         Glide.with(this)
                 .load(ImgUrl)
                 .apply(RequestOptions.placeholderOf(R.drawable.welcome))
                 .apply(RequestOptions.errorOf(R.drawable.welcome))
-                .into(target);
+                .into(new SimpleTarget<Drawable>() {
+                    @Override
+                    public void onResourceReady(@NonNull Drawable resource, @Nullable Transition<? super Drawable> transition) {
+                        mImgBmp = ((BitmapDrawable) resource).getBitmap();
+                        //如果是本地音乐
+                        if (!isOnline) {
+                            //保存图片到本地
+                            FileUtil.saveImgToNative(PlayActivity.this, mImgBmp, getSingerName());
+                            //将封面地址放到数据库中
+                            LocalSong localSong = new LocalSong();
+                            localSong.setPic(Api.STORAGE_IMG_FILE + FileUtil.getSong().getSinger() + ".jpg");
+                            localSong.updateAll("songId=?", FileUtil.getSong().getSongId());
+                        }
+
+                        try2UpdateMusicPicBackground(mImgBmp);
+                        setDiscImg(mImgBmp);
+                        mGetImgAndLrcBtn.setVisibility(View.GONE);
+                    }
+                });
 
     }
 
@@ -594,16 +587,7 @@ public class PlayActivity extends BaseMvpActivity<PlayPresenter> implements IPla
 
     private void setLocalImg(String singer) {
         String imgUrl = Api.STORAGE_IMG_FILE + MediaUtil.formatSinger(singer) + ".jpg";
-        SimpleTarget target = new SimpleTarget<Drawable>(Target.SIZE_ORIGINAL, Target.SIZE_ORIGINAL) {
-            @Override
-            public void onResourceReady(@Nullable Drawable resource, Transition<? super Drawable> transition) {
-                mGetImgAndLrcBtn.setVisibility(View.GONE);
-                mImgBmp = ((BitmapDrawable) resource).getBitmap();
-                try2UpdateMusicPicBackground(mImgBmp);
-                setDiscImg(mImgBmp);
-            }
-        };
-        Glide.with(this)
+        Target<Drawable> target=Glide.with(this)
                 .load(imgUrl)
                 .listener(new RequestListener<Drawable>() {
                     @Override
@@ -622,8 +606,15 @@ public class PlayActivity extends BaseMvpActivity<PlayPresenter> implements IPla
                 })
                 .apply(RequestOptions.placeholderOf(R.drawable.background))
                 .apply(RequestOptions.errorOf(R.drawable.background))
-                .into(target);
-
+                .into(new SimpleTarget<Drawable>() {
+                    @Override
+                    public void onResourceReady(@NonNull Drawable resource, @Nullable Transition<? super Drawable> transition) {
+                        mGetImgAndLrcBtn.setVisibility(View.GONE);
+                        mImgBmp = ((BitmapDrawable) resource).getBitmap();
+                        try2UpdateMusicPicBackground(mImgBmp);
+                        setDiscImg(mImgBmp);
+                    }
+                });
     }
 
 

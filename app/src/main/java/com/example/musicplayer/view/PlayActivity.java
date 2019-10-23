@@ -587,7 +587,7 @@ public class PlayActivity extends BaseMvpActivity<PlayPresenter> implements IPla
 
     private void setLocalImg(String singer) {
         String imgUrl = Api.STORAGE_IMG_FILE + MediaUtil.formatSinger(singer) + ".jpg";
-        Target<Drawable> target=Glide.with(this)
+        Glide.with(this)
                 .load(imgUrl)
                 .listener(new RequestListener<Drawable>() {
                     @Override

@@ -1,6 +1,8 @@
 package com.example.musicplayer.presenter;
 
 
+import android.util.Log;
+
 import com.example.musicplayer.app.Api;
 import com.example.musicplayer.base.observer.BaseObserver;
 import com.example.musicplayer.base.presenter.BasePresenter;
@@ -26,6 +28,7 @@ import io.reactivex.schedulers.Schedulers;
 
 public class SearchContentPresenter extends BasePresenter<ISearchContentContract.View>
         implements ISearchContentContract.Presenter {
+    private static final String TAG = "SearchContentPresenter";
 
     @Override
     public void search(String seek, int offset) {
@@ -127,6 +130,7 @@ public class SearchContentPresenter extends BasePresenter<ISearchContentContract
                             @Override
                             public void onNext(SongUrl songUrl){
                                 super.onNext(songUrl);
+                                Log.d(TAG, "onNext: "+songUrl.toString());
                                 if(songUrl.getCode() == 0){
                                     String sip = songUrl.getReq_0().getData().getSip().get(0);
                                     String purl = songUrl.getReq_0().getData().getMidurlinfo().get(0).getPurl();

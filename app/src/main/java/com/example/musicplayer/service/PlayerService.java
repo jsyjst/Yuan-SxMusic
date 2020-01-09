@@ -1,13 +1,21 @@
 package com.example.musicplayer.service;
 
 import android.annotation.SuppressLint;
+import android.app.Notification;
+import android.app.NotificationChannel;
+import android.app.NotificationManager;
+import android.app.PendingIntent;
 import android.app.Service;
 import android.content.Intent;
+import android.graphics.BitmapFactory;
 import android.media.MediaPlayer;
 import android.os.Binder;
+import android.os.Build;
 import android.os.IBinder;
+import android.support.v4.app.NotificationCompat;
 import android.util.Log;
 
+import com.example.musicplayer.R;
 import com.example.musicplayer.app.Api;
 import com.example.musicplayer.app.Constant;
 import com.example.musicplayer.entiy.DownloadSong;
@@ -30,6 +38,7 @@ import com.example.musicplayer.model.https.RetrofitFactory;
 import com.example.musicplayer.util.CommonUtil;
 import com.example.musicplayer.util.DownloadUtil;
 import com.example.musicplayer.util.FileUtil;
+import com.example.musicplayer.view.MainActivity;
 
 import org.greenrobot.eventbus.EventBus;
 import org.litepal.LitePal;
@@ -49,6 +58,7 @@ import io.reactivex.schedulers.Schedulers;
 public class PlayerService extends Service {
 
     private static final String TAG = "PlayerService";
+    private final int NOTIFICATION_ID = 98;
     private PlayStatusBinder mPlayStatusBinder = new PlayStatusBinder();
     private MediaPlayer mediaPlayer = new MediaPlayer();       //媒体播放器对象
     private boolean isPause;                    //暂停状态
@@ -82,6 +92,9 @@ public class PlayerService extends Service {
         }else if(mListType == Constant.LIST_TYPE_DOWNLOAD){
             mDownloadList = orderDownloadList(DownloadUtil.getSongFromFile(Api.STORAGE_SONG_FILE));
         }
+
+        //开启前台服务
+        startForeground(NOTIFICATION_ID,getNotification("随心跳动，开启你的音乐旅程！"));
     }
 
     @Override
@@ -194,6 +207,10 @@ public class PlayerService extends Service {
                 mediaPlayer.start();
                 EventBus.getDefault().post(new OnlineSongChangeEvent()); //发送网络歌曲改变事件
                 EventBus.getDefault().post(new SongStatusEvent(Constant.SONG_CHANGE));
+                //改变通知栏歌曲
+                Song song = FileUtil.getSong();
+                getNotificationManager().notify(NOTIFICATION_ID,
+                        getNotification(song.getSongName()+" - "+song.getSinger()));
             } catch (Exception e) {
                 EventBus.getDefault().post(new OnlineSongErrorEvent());
                 e.printStackTrace();
@@ -297,6 +314,9 @@ public class PlayerService extends Service {
 
             return mediaPlayer;
         }
+        public PlayerService getPlayerService(){
+            return PlayerService.this;
+        }
 
         public long getCurrentTime() {
             return mediaPlayer.getCurrentPosition() / 1000;
@@ -306,10 +326,12 @@ public class PlayerService extends Service {
 
     @Override
     public void onDestroy() {
+        Log.d(TAG, "onDestroy: 服务被销毁了");
         if (mediaPlayer != null) {
             mediaPlayer.stop();
             mediaPlayer.release();
         }
+        stopForeground(true);
     }
 
     @Override
@@ -504,6 +526,7 @@ public class PlayerService extends Service {
                             FileUtil.saveSong(song);
                             try {
                                 mediaPlayer.setDataSource(sip + purl);
+                                Log.d(TAG, "onNext:jsyjst ="+sip+purl);
                                 startPlay();
                             } catch (IOException e) {
                                 e.printStackTrace();
@@ -534,6 +557,10 @@ public class PlayerService extends Service {
         saveToHistoryTable();
         EventBus.getDefault().post(new SongStatusEvent(Constant.SONG_CHANGE));//发送所有歌曲改变事件
         EventBus.getDefault().post(new OnlineSongChangeEvent()); //发送网络歌曲改变事件
+        //改变通知栏歌曲
+        Song song = FileUtil.getSong();
+        getNotificationManager().notify(NOTIFICATION_ID,
+                getNotification(song.getSongName()+" - "+song.getSinger()));
     }
 
 
@@ -561,6 +588,40 @@ public class PlayerService extends Service {
         }
         return res;
     }
+
+    //开启前台服务
+    private NotificationManager getNotificationManager() {
+        return (NotificationManager) getSystemService(NOTIFICATION_SERVICE);
+    }
+
+
+
+
+    //设置通知栏标题
+    private Notification getNotification(String title) {
+        Intent intent = new Intent(this, MainActivity.class);
+        PendingIntent pi = PendingIntent.getActivity(this, 0, intent, 0);
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            String id = "play";
+            String name = "播放歌曲";
+            NotificationChannel mChannel = new NotificationChannel(id, name, NotificationManager.IMPORTANCE_LOW);
+            getNotificationManager().createNotificationChannel(mChannel);
+            Notification.Builder builder = new Notification.Builder(this, id);
+            builder.setSmallIcon(R.mipmap.icon);
+            builder.setContentIntent(pi);
+            builder.setContentTitle(title);
+            return builder.build();
+        } else {
+            NotificationCompat.Builder builder = new NotificationCompat.Builder(this, "play");
+            builder.setSmallIcon(R.mipmap.icon);
+            builder.setLargeIcon(BitmapFactory.decodeResource(getResources(), R.mipmap.icon));
+            builder.setContentIntent(pi);
+            builder.setContentTitle(title);
+            return builder.build();
+        }
+
+    }
+
 }
 
 

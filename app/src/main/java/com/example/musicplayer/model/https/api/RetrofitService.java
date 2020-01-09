@@ -53,6 +53,7 @@ public interface RetrofitService {
      * songmid%22%3A%5B%22{003wFozn3V3Ra0} +
      * %22%5D%2C%22songtype%22%3A%5B0%5D%2C%22uin%22%3A%221443481947%22%2C%22loginflag%22%3A1%2C%22platform%22%3A%2220%22%7D%7D%2C%22comm%22%3A%7B%22uin%22%3A%221443481947%22%2C%22format%22%3A%22json%22%2C%22ct%22%3A24%2C%22cv%22%3A0%7D%7D
      */
+    @Headers(Api.HEADER_USER_AGENT)
     @GET(Api.SONG_URL)
     Observable<SongUrl> getSongUrl(@Query("data") String data);
 

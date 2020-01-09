@@ -513,6 +513,23 @@ public class SongUrl {
                     this.wifiurl = wifiurl;
                 }
             }
+
         }
+
+        @Override
+        public String toString() {
+            return "Req0Bean{" +
+                    "data=" + data +
+                    ", code=" + code +
+                    '}';
+        }
+    }
+
+    @Override
+    public String toString() {
+        return "SongUrl{" +
+                "req_0=" + req_0 +
+                ", code=" + code +
+                '}';
     }
 }

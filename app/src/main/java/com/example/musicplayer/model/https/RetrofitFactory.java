@@ -1,5 +1,7 @@
 package com.example.musicplayer.model.https;
 
+import android.util.Log;
+
 import com.example.musicplayer.app.Api;
 import com.example.musicplayer.model.https.api.RetrofitService;
 import com.google.gson.GsonBuilder;
@@ -7,6 +9,7 @@ import com.google.gson.GsonBuilder;
 import java.util.concurrent.TimeUnit;
 
 import okhttp3.OkHttpClient;
+import okhttp3.logging.HttpLoggingInterceptor;
 import retrofit2.Retrofit;
 import retrofit2.adapter.rxjava2.RxJava2CallAdapterFactory;
 import retrofit2.converter.gson.GsonConverterFactory;
@@ -80,10 +83,16 @@ public class RetrofitFactory {
     //配置OkHttp
     private synchronized static OkHttpClient getOkHttpClient() {
         if (sOkHttpClient == null) {
+            HttpLoggingInterceptor loggingInterceptor = new HttpLoggingInterceptor(message -> {
+                //打印retrofit日志
+                Log.i("RetrofitLog","retrofitBack = "+message);
+            });
+            loggingInterceptor.setLevel(HttpLoggingInterceptor.Level.BODY);
             sOkHttpClient = new OkHttpClient.Builder()
                     .connectTimeout(100, TimeUnit.SECONDS)
                     .readTimeout(100,TimeUnit.SECONDS)
                     .writeTimeout(100,TimeUnit.SECONDS)
+                    //.addInterceptor(loggingInterceptor)  日志
                     .build();
         }
         return sOkHttpClient;

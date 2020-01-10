@@ -503,6 +503,7 @@ public class PlayerService extends Service {
 
     //网络请求获取播放地址
     private void getSongUrl(String songId) {
+        Log.d(TAG, "getSongUrl: "+Api.SONG_URL_DATA_LEFT + songId + Api.SONG_URL_DATA_RIGHT);
         RetrofitFactory.createRequestOfSongUrl().getSongUrl(Api.SONG_URL_DATA_LEFT + songId + Api.SONG_URL_DATA_RIGHT)
                 .subscribeOn(Schedulers.io()).observeOn(AndroidSchedulers.mainThread())
                 .subscribeWith(new Observer<SongUrl>() {

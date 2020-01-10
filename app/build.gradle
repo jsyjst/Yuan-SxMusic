@@ -40,6 +40,7 @@ dependencies {
     implementation rootProject.ext.dependencies["retrofit"]
     implementation rootProject.ext.dependencies["retrofitGsonConvert"]
     implementation rootProject.ext.dependencies["retrofitRxjava2Adapter"]
+    implementation'com.squareup.okhttp3:logging-interceptor:3.4.1'
 
     //rxjava2
     implementation rootProject.ext.dependencies["rxava2"]

@@ -17,10 +17,16 @@ import com.example.musicplayer.model.https.NetworkHelperImpl;
 import com.example.musicplayer.model.https.RetrofitFactory;
 import com.example.musicplayer.model.prefs.PreferencesHelperImpl;
 
+import java.io.IOException;
 import java.util.ArrayList;
 
 import io.reactivex.android.schedulers.AndroidSchedulers;
 import io.reactivex.schedulers.Schedulers;
+import okhttp3.Call;
+import okhttp3.Callback;
+import okhttp3.OkHttpClient;
+import okhttp3.Request;
+import okhttp3.Response;
 
 /**
  * Created by 残渊 on 2018/11/21.
@@ -121,16 +127,14 @@ public class SearchContentPresenter extends BasePresenter<ISearchContentContract
 
     @Override
     public void getSongUrl(Song song) {
-        //因为得到播放地址的baseUrl和获取歌曲列表等的baseUrl不同，所以要重新赋值
-        mModel = new DataModel(new NetworkHelperImpl(RetrofitFactory.createRequestOfSongUrl()),new DbHelperImpl(),new PreferencesHelperImpl());
+        Log.d(TAG, "getSongUrl: "+Api.SONG_URL_DATA_LEFT+song.getSongId()+Api.SONG_URL_DATA_RIGHT);
         addRxSubscribe(
-                mModel.getSongUrl(Api.SONG_URL_DATA_LEFT+song.getSongId()+Api.SONG_URL_DATA_RIGHT)
+                RetrofitFactory.createRequestOfSongUrl().getSongUrl(Api.SONG_URL_DATA_LEFT+song.getSongId()+Api.SONG_URL_DATA_RIGHT)
                         .subscribeOn(Schedulers.io()).observeOn(AndroidSchedulers.mainThread())
                         .subscribeWith(new BaseObserver<SongUrl>(mView,false,false){
                             @Override
                             public void onNext(SongUrl songUrl){
                                 super.onNext(songUrl);
-                                Log.d(TAG, "onNext: "+songUrl.toString());
                                 if(songUrl.getCode() == 0){
                                     String sip = songUrl.getReq_0().getData().getSip().get(0);
                                     String purl = songUrl.getReq_0().getData().getMidurlinfo().get(0).getPurl();

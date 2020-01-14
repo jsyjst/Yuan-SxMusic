@@ -14,9 +14,6 @@ import android.widget.RelativeLayout;
 import com.example.musicplayer.R;
 
 
-/**
- * Created by AchillesL on 2016/11/18.
- */
 
 /**
  * 自定义一个控件，继承RelativeLayout

@@ -647,7 +647,6 @@ public class PlayActivity extends BaseMvpActivity<PlayPresenter> implements IPla
 
     @Override
     public void getSongIdSuccess(String songId) {
-        Log.d(TAG, "getSongIdSuccess: " + songId);
         setLocalSongId(songId);//保存音乐信息
         mPresenter.getLrc(songId, Constant.SONG_LOCAL);//获取歌词
     }

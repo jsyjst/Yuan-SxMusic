@@ -8,6 +8,12 @@
         <item name="colorAccent">@color/musicStyle</item>
     </style>
 
+    <!-- 启动页白屏问题-->
+    <style name="AppTheme.Launcher">
+        <item name="android:windowFullscreen">true</item>
+        <item name="android:windowBackground">@drawable/bg_launcher</item>
+    </style>
+
     <style name="local" parent="Theme.AppCompat.Light.NoActionBar">
         <item name="colorPrimary">#020828</item>
         <item name="colorPrimaryDark">#0f1934</item>

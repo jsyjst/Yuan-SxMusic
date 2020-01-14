@@ -99,6 +99,7 @@ public class PlayerService extends Service {
 
     @Override
     public IBinder onBind(Intent arg0) {
+        Log.d(TAG, "onBind: jsyjst");
         mediaPlayer.setOnCompletionListener(mp -> {
             EventBus.getDefault().post(new SongStatusEvent(Constant.SONG_PAUSE));//暂停广播
             mCurrent = FileUtil.getSong().getPosition();
@@ -336,6 +337,7 @@ public class PlayerService extends Service {
 
     @Override
     public boolean onUnbind(Intent intent) {
+        Log.d(TAG, "onUnbind: jsyjst");
         return true;
     }
 

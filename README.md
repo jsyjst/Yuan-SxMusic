@@ -2,7 +2,7 @@
 
 [![](https://img.shields.io/badge/作者-jsyjst-blue.svg)](https://blog.csdn.net/qq_41979349)
 
-### 随心音乐，是一款基于MVP+Retrofit+EventBus+Glide的应用，有兴趣的盆友欢迎Star,Fork!
+### 随心音乐，是一款基于MVP+EventBus+Glide的应用，有兴趣的盆友欢迎Star,Fork!
 
 ## 前言
 
